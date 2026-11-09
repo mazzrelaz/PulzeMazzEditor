@@ -1,0 +1,1314 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulze Mazz Editor</title>
+<link rel="icon" href="img/logo.png">
+<style>
+  @font-face { font-family:'Inter'; src:url('fonts/inter-latin.woff2') format('woff2'); font-weight:100 900; font-display:swap; }
+  @font-face { font-family:'Space Grotesk'; src:url('fonts/space-grotesk-latin.woff2') format('woff2'); font-weight:300 700; font-display:swap; }
+
+  /* I colori dell'editor del GP-200 che l'utente ha scelto: grigio-blu ardesia, selezioni blu. */
+  :root {
+    --bg:#1e232b; --panel:#2a313c; --panel2:#323a47; --line:#3a4351; --line-soft:#303844;
+    --text:#dde3ec; --dim:#9aa4b3; --faint:#687384;
+    --incavo:#1b2028; --rialzo:#36404d; --traccia:#3f4957;
+    --accent:#2f7fe8; --accent-chiaro:#4c95f0; --su-accent:#ffffff;
+    --green:#4cd38a; --rosso:#ff7a7a; --ambra:#f5b041;
+    --font:'Inter',-apple-system,'Segoe UI',Roboto,sans-serif;
+    --strumento:'Space Grotesk','Inter',-apple-system,sans-serif;
+  }
+  :root { color-scheme:dark; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; min-height:100%; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font); font-size:14px;
+         -webkit-font-smoothing:antialiased; }
+  [hidden] { display:none !important; }
+
+  button { font-family:var(--strumento); font-size:0.82rem; font-weight:600; letter-spacing:0.02em;
+           color:var(--text); background:var(--rialzo); border:1px solid var(--line); border-radius:8px;
+           padding:7px 12px; cursor:pointer; }
+  button:hover:not(:disabled) { border-color:var(--faint); }
+  button:disabled { opacity:0.4; cursor:default; }
+  button.primario { background:var(--accent); border-color:var(--accent); color:var(--su-accent); }
+  button.primario:hover:not(:disabled) { background:var(--accent-chiaro); border-color:var(--accent-chiaro); }
+  button.primario.attivo { background:var(--rialzo); border-color:var(--line); color:var(--text); }
+  :focus-visible { outline:2px solid var(--accent-chiaro); outline-offset:2px; }
+
+  /* ---------------------------------------------------------------- la barra in alto */
+  .barra { position:sticky; top:0; z-index:3; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+           padding:8px 16px; background:linear-gradient(#2f3743, #262d37); border-bottom:1px solid var(--line); }
+  .logo { height:40px; width:auto; display:block; margin-right:6px; }
+  .gruppo { display:flex; align-items:center; gap:8px; background:var(--incavo); border:1px solid var(--line);
+            border-radius:10px; padding:4px 8px; }
+  .gruppo label, .gruppo .etichetta { font-family:var(--strumento); font-size:0.7rem; color:var(--dim);
+                                       letter-spacing:0.06em; text-transform:uppercase; }
+  .gruppo button { padding:4px 10px; }
+  #tone-nome { font-family:var(--strumento); font-size:1.05rem; font-weight:700; margin:0; min-width:8em;
+               max-width:16em; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #tone-volume { width:72px; accent-color:var(--accent); }
+  #tone-volume-v { font-family:var(--strumento); font-weight:600; min-width:1.8em; text-align:right;
+                   font-variant-numeric:tabular-nums; }
+  .numero { width:3.6em; font-family:var(--strumento); font-size:0.95rem; font-weight:600; color:var(--text);
+            background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:2px 5px; }
+  .numero:disabled { color:var(--faint); }
+  #drum-ritmo { font-family:var(--strumento); font-size:0.95rem; font-weight:600; color:var(--text); width:9.5em;
+                background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:2px 4px; }
+  #drum-ritmo:disabled { color:var(--faint); }
+  #drum-prima, #drum-dopo { padding:4px 7px; }
+  #drum-play { min-width:2.4em; }
+  #drum-play.suona { background:var(--accent); border-color:var(--accent); color:#fff; }
+  #drum-sync.acceso { border-color:var(--accent); color:var(--accent); }
+  #drum-volume { width:64px; accent-color:var(--accent); }
+  #drum-volume-v { font-family:var(--strumento); font-weight:600; min-width:1.8em; text-align:right;
+                   font-variant-numeric:tabular-nums; }
+  #modificato { font-family:var(--strumento); font-size:0.72rem; font-weight:600; letter-spacing:0.03em;
+                color:var(--ambra); border:1px solid var(--ambra); border-radius:999px; padding:3px 10px; }
+  .spazio { flex:1; }
+  button.icona { font-size:1rem; padding:5px 10px; line-height:1; }
+  #menu { padding:6px 9px; }
+  #menu svg { width:20px; height:20px; display:block; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; }
+  #menu-tendina { position:fixed; inset:auto; margin:0; min-width:250px; padding:6px; color:var(--text);
+                  background:var(--panel); border:1px solid var(--line); border-radius:12px;
+                  box-shadow:0 14px 34px rgba(0,0,0,0.45); }
+  #menu-tendina button { display:flex; align-items:center; gap:11px; width:100%; text-align:left; background:none;
+                         border:0; border-radius:8px; padding:9px 12px; font-size:0.92rem; }
+  #menu-tendina button:hover:not(:disabled) { background:var(--rialzo); }
+  #menu-tendina svg { width:18px; height:18px; flex:none; fill:none; stroke:var(--dim); stroke-width:1.6;
+                      stroke-linecap:round; stroke-linejoin:round; }
+  #menu-tendina hr { border:0; border-top:1px solid var(--line); margin:6px 4px; }
+  #menu-tendina .presto { margin-left:auto; font-family:var(--strumento); font-size:0.66rem; letter-spacing:0.06em;
+                          text-transform:uppercase; color:var(--faint); border:1px solid var(--line); border-radius:999px;
+                          padding:1px 7px; }
+  #menu-tendina button.voce-caffe { color:#f2c14e; font-weight:700; }
+  #menu-tendina button.voce-caffe svg { stroke:#f2c14e; }
+  .lampada { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--faint); margin-right:7px;
+             vertical-align:1px; }
+  #collega.attivo .lampada { background:var(--green); box-shadow:0 0 7px rgba(76,211,138,0.7); }
+
+  /* sotto la barra: a sinistra cosa succede, a destra le azioni sul tone che suona */
+  .sotto-barra { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:6px 16px;
+                 background:var(--incavo); border-bottom:1px solid var(--line-soft); }
+  #stato { margin:0; min-width:0; font-size:0.8rem; color:var(--dim); white-space:nowrap; overflow:hidden;
+           text-overflow:ellipsis; }
+  .sotto-barra .gruppo { background:var(--panel); }
+  #stato[data-tipo="errore"] { color:var(--rosso); }
+  #stato[data-tipo="ok"] { color:var(--green); }
+  #stato[data-tipo="esempio"] { color:var(--ambra); }
+
+  /* ---------------------------------------------------------------- il centro: palco ed elenco dei tone */
+  .centro { display:grid; grid-template-columns:minmax(0, 1fr) 270px; gap:14px; padding:14px 16px 0; align-items:stretch; }
+  .centro:has(#elenco[hidden]) { grid-template-columns:minmax(0, 1fr); }
+  #palco { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; min-height:400px;
+           min-width:0; }
+  #palco-corpo { display:grid; grid-template-columns:minmax(200px, 32%) minmax(0, 1fr) 220px; gap:16px; height:100%; }
+  .vuoto { color:var(--dim); line-height:1.6; max-width:640px; margin:40px auto; text-align:center; }
+  .vuoto b { color:var(--text); }
+
+  #foto { display:flex; align-items:center; justify-content:center; border-radius:10px; padding:16px; min-height:0;
+          background:radial-gradient(circle at 50% 45%, #3b4452, #252b34 72%); }
+  #foto img { max-width:100%; max-height:370px; object-fit:contain; filter:drop-shadow(0 14px 22px rgba(0,0,0,0.55));
+              transition:filter 0.2s; }
+  #palco.spento #foto img { filter:grayscale(0.85) brightness(0.55) drop-shadow(0 14px 22px rgba(0,0,0,0.55)); }
+  .foto-vuota { font-family:var(--strumento); font-size:2rem; font-weight:700; color:var(--faint); }
+
+  .dettaglio { display:flex; flex-direction:column; min-width:0; }
+  .det-cima { display:flex; align-items:center; gap:10px; }
+  .etichetta-slot { font-family:var(--strumento); font-weight:700; font-size:0.74rem; letter-spacing:0.08em;
+                    padding:4px 10px; border-radius:6px; border:1px solid var(--line); background:var(--rialzo); color:var(--faint); }
+  .etichetta-slot.on { background:var(--accent); border-color:var(--accent); color:var(--su-accent); }
+  .etichetta-slot:disabled { opacity:1; }
+  #det-pos { color:var(--faint); font-size:0.78rem; }
+  #det-nome { font-family:var(--strumento); font-size:2rem; font-weight:700; margin:6px 0 0; line-height:1.15;
+              overflow-wrap:anywhere; }
+  #det-sotto { color:var(--dim); margin:4px 0 0; overflow-wrap:anywhere; }
+  #det-sotto .rinomina { margin-left:8px; padding:2px 9px; font-size:0.72rem; }
+  #det-info { color:var(--faint); font-size:0.82rem; margin:4px 0 0; font-style:italic; }
+  #palco.spento #det-nome { color:var(--dim); }
+
+  /* le manopole: rotonde, si trascinano su e giù */
+  #manopole { list-style:none; margin:16px 0 0; padding:0; display:flex; flex-wrap:wrap; gap:18px 8px; align-content:flex-start; }
+  .comando { width:92px; display:flex; flex-direction:column; align-items:center; gap:4px; user-select:none; }
+  .comando .nome { font-size:0.78rem; color:var(--dim); text-align:center; max-width:100%; white-space:nowrap;
+                   overflow:hidden; text-overflow:ellipsis; }
+  .comando .val { font-family:var(--strumento); font-weight:600; font-size:0.82rem; background:var(--incavo);
+                  border:1px solid var(--line); border-radius:5px; padding:1px 6px; min-width:4.2em; text-align:center;
+                  font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .girevole { cursor:ns-resize; touch-action:none; display:block; border-radius:50%; }
+  .girevole .pista { stroke:var(--traccia); }
+  .girevole .riempi { stroke:var(--accent); }
+  .girevole .corpo { fill:#20252d; stroke:#4a5462; }
+  .girevole .lancetta { stroke:var(--text); }
+  #palco.spento .girevole .riempi { stroke:var(--faint); }
+  .comando.largo { width:auto; min-width:92px; padding-top:12px; }
+  .segmenti { display:flex; background:var(--incavo); border:1px solid var(--line); border-radius:7px; padding:2px; }
+  .segmenti button { border:0; background:transparent; padding:5px 9px; font-size:0.76rem; color:var(--dim); border-radius:5px; }
+  .segmenti button.on { background:var(--accent); color:var(--su-accent); }
+  #palco.spento .segmenti button.on { background:var(--traccia); color:var(--text); }
+  .scelta { font-family:var(--strumento); font-size:0.8rem; font-weight:600; color:var(--text); background:var(--incavo);
+            border:1px solid var(--line); border-radius:6px; padding:4px 6px; max-width:140px; }
+  .pill { font-size:0.75rem; padding:4px 12px; border-radius:999px; color:var(--faint); background:var(--incavo);
+          border:1px solid var(--line); }
+  .pill.on { color:var(--su-accent); background:var(--accent); border-color:var(--accent); }
+  .pill.sync { padding:1px 9px; font-size:0.68rem; }
+  .attesa { color:var(--faint); font-size:0.82rem; }
+  .avviso { color:var(--rosso); font-size:0.75rem; margin:8px 0 0; }
+  .det-piede { margin:auto 0 0; padding-top:16px; color:var(--faint); font-size:0.75rem; }
+
+  /* l'elenco dei modelli dello slot, con la ricerca */
+  .modelli { display:flex; flex-direction:column; background:var(--incavo); border:1px solid var(--line);
+             border-radius:10px; min-height:0; max-height:430px; overflow:hidden; }
+  #cerca-modello { margin:8px; padding:6px 9px; font:inherit; color:var(--text); background:var(--panel);
+                   border:1px solid var(--line); border-radius:6px; }
+  #lista-modelli { list-style:none; margin:0; padding:0 6px 8px; overflow-y:auto; flex:1; }
+  #lista-modelli button { display:block; width:100%; text-align:left; background:transparent; border:0; border-radius:6px;
+                          padding:5px 9px; font-family:var(--font); font-weight:400; font-size:0.85rem; letter-spacing:0; }
+  #lista-modelli button:hover:not(:disabled) { background:var(--rialzo); }
+  #lista-modelli button.sì { background:var(--accent); color:var(--su-accent); font-weight:600; }
+  #lista-modelli button .vuoto-utente { color:var(--faint); }
+  #lista-modelli .famiglia { font-family:var(--strumento); font-size:0.66rem; letter-spacing:0.08em; text-transform:uppercase;
+                             color:var(--faint); padding:10px 9px 3px; }
+
+  /* l'elenco dei tone a destra */
+  #elenco { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:12px;
+            display:flex; flex-direction:column; gap:8px; min-height:0; max-height:calc(100vh - 330px); min-width:0; }
+  #elenco h2 { font-family:var(--strumento); font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase;
+               color:var(--dim); margin:0; }
+  .elenco-cima { display:flex; gap:6px; }
+  #elenco-lista { flex:1; min-width:0; font-family:var(--strumento); font-size:0.85rem; font-weight:600; color:var(--text);
+                  background:var(--incavo); border:1px solid var(--line); border-radius:6px; padding:5px 7px; }
+  .elenco-cima button { padding:4px 8px; font-size:0.74rem; }
+  #elenco-cerca { font:inherit; font-size:0.85rem; color:var(--text); background:var(--incavo); border:1px solid var(--line);
+                  border-radius:6px; padding:5px 8px; }
+  #elenco-tone .nessuno { color:var(--faint); font-size:0.82rem; padding:6px 8px; }
+  #elenco-tone li { display:flex; align-items:center; border-radius:6px; }
+  #elenco-tone li > button:first-child { flex:1; min-width:0; }
+  #elenco-tone button.piu { flex:none; width:auto; padding:3px 7px; margin-left:2px; color:var(--dim); font-size:0.9rem;
+                            letter-spacing:0; visibility:hidden; }
+  #elenco-tone li:hover button.piu, #elenco-tone button.piu:focus-visible { visibility:visible; }
+  #elenco-tone button.piu:hover { color:var(--text); background:var(--rialzo); }
+  .storia { gap:2px; padding:3px 4px; }
+  .storia button { padding:4px 8px; }
+  .storia svg { width:16px; height:16px; display:block; fill:none; stroke:currentColor; stroke-width:1.8;
+                stroke-linecap:round; stroke-linejoin:round; }
+  #confronta { font-family:var(--strumento); font-weight:700; font-size:0.78rem; letter-spacing:0.04em; }
+  #confronta.attivo { background:var(--ambra); border-color:var(--ambra); color:#1b2028; }
+  #modificato.confronto { color:var(--ambra); border-color:var(--ambra); background:rgba(245,176,65,0.12); }
+  #menu-tone { position:fixed; inset:auto; margin:0; min-width:220px; padding:6px; color:var(--text); background:var(--panel);
+               border:1px solid var(--line); border-radius:10px; box-shadow:0 14px 34px rgba(0,0,0,0.45); }
+  #menu-tone p { margin:2px 8px 6px; font-family:var(--strumento); font-size:0.78rem; color:var(--dim); white-space:nowrap;
+                 overflow:hidden; text-overflow:ellipsis; max-width:260px; }
+  #menu-tone button { display:block; width:100%; text-align:left; background:none; border:0; border-radius:7px;
+                      padding:7px 10px; font-size:0.88rem; }
+  #menu-tone button:hover:not(:disabled) { background:var(--rialzo); }
+  #menu-tone button.pericolo { color:var(--rosso); }
+  #menu-tone hr { border:0; border-top:1px solid var(--line); margin:5px 4px; }
+  #elenco-tone { list-style:none; margin:0; padding:0; overflow-y:auto; min-height:120px; flex:1; }
+  #elenco-tone button { display:flex; gap:10px; width:100%; text-align:left; background:transparent; border:0;
+                        border-radius:6px; padding:5px 8px; font-family:var(--font); font-weight:400; font-size:0.86rem;
+                        letter-spacing:0; color:var(--text); }
+  #elenco-tone button:hover { background:var(--rialzo); }
+  #elenco-tone button .n { color:var(--faint); font-family:var(--strumento); min-width:2.2em; text-align:right; }
+  #elenco-tone button.suona { background:var(--accent); color:var(--su-accent); font-weight:600; }
+  #elenco-tone button.suona .n { color:var(--su-accent); }
+
+  /* ---------------------------------------------------------------- la catena in basso */
+  .catena { margin:14px 16px 0; background:var(--panel); border:1px solid var(--line); border-radius:14px;
+            padding:12px 16px 14px; }
+  .catena-cima { display:flex; align-items:baseline; gap:12px; margin-bottom:8px; flex-wrap:wrap; }
+  .catena-cima h2 { font-family:var(--strumento); font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase;
+                    color:var(--dim); margin:0; }
+  .catena-cima .nota { color:var(--faint); font-size:0.75rem; }
+  .fila { display:grid; grid-template-columns:30px minmax(0, 1fr) 30px; align-items:start; gap:8px; position:relative; }
+  .fila::before { content:''; position:absolute; left:15px; right:15px; top:98px; height:2px; background:var(--traccia); }
+  .capo { position:relative; margin-top:84px; font-family:var(--strumento); font-size:0.62rem; color:var(--faint);
+          text-align:center; letter-spacing:0.05em; }
+  .capo b { display:block; width:14px; height:14px; margin:0 auto 4px; border-radius:50%; background:var(--panel);
+            border:2px solid var(--traccia); }
+  #catena { display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); gap:8px; position:relative; }
+  .anello { display:flex; flex-direction:column; align-items:center; gap:6px; min-width:0; }
+  .anello .chip { width:74px; padding:3px 0; font-size:0.7rem; letter-spacing:0.07em; border-radius:5px; color:var(--faint); }
+  .anello .chip.on { background:var(--accent); border-color:var(--accent); color:var(--su-accent); }
+  .anello .chip:disabled { opacity:1; }
+  .miniatura { position:relative; width:100%; max-width:124px; height:112px; display:flex; align-items:center;
+               justify-content:center; border-radius:10px; border:2px solid transparent; background:var(--panel);
+               cursor:pointer; padding:6px; }
+  .miniatura:hover { border-color:var(--line); }
+  .miniatura img { max-width:100%; max-height:96px; object-fit:contain; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.55));
+                   pointer-events:none; }
+  .miniatura .senza { font-family:var(--strumento); font-weight:700; color:var(--faint); }
+  .miniatura .pos { position:absolute; top:3px; left:6px; font-family:var(--strumento); font-size:0.66rem; color:var(--faint); }
+  .anello.spento .miniatura img { filter:grayscale(0.9) brightness(0.45); }
+  .anello.scelto .miniatura { border-color:var(--accent); background:rgba(47,127,232,0.2); }
+  .anello .mod { width:100%; max-width:136px; font-family:var(--strumento); font-size:0.78rem; font-weight:600; color:var(--text);
+                 background:var(--incavo); border:1px solid var(--line); border-radius:6px; padding:5px 6px;
+                 text-overflow:ellipsis; white-space:nowrap; overflow:hidden; text-align:center; }
+  select.mod { cursor:pointer; text-align:left; }
+  .mod option, .mod optgroup { background:var(--panel); color:var(--text); }
+  /* la tendina dei modelli: categorie (Clean, Drive…) col nome evidenziato e una linea fra l'una e l'altra.
+     Con appearance:base-select (Edge e Chrome recenti) il menu si disegna tutto qui. */
+  select.mod, select.mod::picker(select) { appearance:base-select; }
+  select.mod { display:flex; align-items:center; justify-content:center; gap:4px; }
+  select.mod::picker-icon { color:var(--dim); font-size:0.7rem; }
+  select.mod::picker(select) { background:var(--panel); border:1px solid #4d5868; border-radius:10px; padding:6px;
+                               min-width:240px; max-height:min(70vh, 560px); box-shadow:0 14px 34px rgba(0,0,0,0.6); }
+  .mod optgroup { color:var(--accent-chiaro); font-family:var(--strumento); font-size:0.72rem; font-weight:700;
+                  letter-spacing:0.09em; text-transform:uppercase; background:var(--panel); padding:4px 0 2px; }
+  .mod hr { border:0; border-top:1px solid #4d5868; margin:6px 2px; }
+  .mod option { color:var(--text); font-family:var(--font); font-size:0.86rem; font-weight:400; letter-spacing:0;
+                text-transform:none; padding:5px 10px 5px 14px; border-radius:6px; }
+  select.mod option:hover { background:var(--rialzo); }
+  select.mod option:checked { background:var(--accent); color:var(--su-accent); font-weight:600; }
+  select.mod option::checkmark { display:none; }
+  #lista-modelli .famiglia { color:var(--accent-chiaro); font-weight:700; border-top:1px solid #4d5868; margin-top:6px; padding-top:8px; }
+  #lista-modelli .famiglia:first-child { border-top:0; margin-top:0; }
+  .anello.spento .mod { color:var(--faint); }
+  /* il trascinamento: il blocco preso segue il mouse, gli altri scivolano per fargli posto */
+  .miniatura { touch-action:none; user-select:none; }
+  #catena.trascinando .anello { transition:transform 0.18s ease; }
+  #catena.trascinando, #catena.trascinando .miniatura { cursor:grabbing; }
+  .anello.trascinato { position:relative; z-index:5; transition:none !important; }
+  .anello.trascinato .miniatura { border-color:var(--accent-chiaro); box-shadow:0 12px 26px rgba(0,0,0,0.55); }
+  .anello.trascinato.posa { transition:transform 0.16s ease !important; }
+
+  footer { color:var(--faint); font-size:0.72rem; line-height:1.5; padding:10px 16px 14px; }
+  footer a { color:var(--dim); }
+
+  /* ---------------------------------------------------------------- schermata fissa: niente scorrimento.
+     Barra, sotto-barra e catena hanno la loro altezza; il centro prende quello che resta. */
+  html, body { height:100%; }
+  body { display:flex; flex-direction:column; overflow:hidden; }
+  .barra { position:static; flex:none; flex-wrap:nowrap; }
+  .barra > * { flex:none; }
+  .sotto-barra { flex:none; display:grid; grid-template-columns:minmax(max-content, 1fr) minmax(0, 440px) minmax(max-content, 1fr);
+                 align-items:center; gap:14px; padding:6px 16px 5px; }
+  .sb-lato { display:flex; align-items:center; gap:8px; }
+  .sb-lato.destra { justify-content:flex-end; }
+  .sb-centro { display:flex; flex-direction:column; align-items:center; gap:1px; min-width:0; }
+  .tone-riga { display:flex; align-items:center; gap:10px; max-width:100%; min-width:0; }
+  .sotto-barra #tone-nome { font-size:1.65rem; line-height:1.15; letter-spacing:0.01em; min-width:6em; max-width:none;
+                            flex:0 1 auto; min-width:0; }
+  .freccia { flex:none; width:34px; height:34px; padding:0; border-radius:50%; font-size:0.8rem; line-height:1;
+             display:grid; place-items:center; }
+  .stato-riga { display:flex; align-items:center; justify-content:center; gap:8px; max-width:100%; min-width:0; min-height:1.25em; }
+  #modificato { flex:none; padding:1px 9px; font-size:0.66rem; }
+  .divisore { width:1px; align-self:stretch; background:var(--line); margin:0 4px; }
+  .barra { gap:6px; padding:7px 12px; }
+  .logo { height:34px; margin-right:4px; }
+  #tone-volume { width:64px; }
+  #drum-ritmo { width:8em; }
+  .barra .gruppo { gap:6px; padding:4px 7px; }
+  .barra { overflow:hidden; }
+  /* volume, bpm e jam stanno a destra, accanto a Collega */
+  #rileggi { margin-left:auto; }
+  #drum { margin-right:10px; }
+  /* schermi più stretti: via le scritte dei gruppi, poi le frecce dei ritmi; Collega resta a destra */
+  @media (max-width:1365px) {
+    .barra .gruppo label, .barra .gruppo .etichetta, #drum-volume-v { display:none; }
+  }
+  @media (max-width:1180px) {
+    #drum-prima, #drum-dopo, #drum-volume { display:none; }
+    .logo { height:28px; }
+  }
+  #drum-volume { width:56px; }
+  .centro { flex:1; min-height:0; padding:12px 16px 0; }
+  #palco { min-height:0; height:100%; overflow:hidden; }
+  #palco-corpo { grid-template-columns:minmax(180px, 27%) minmax(0, 1fr) 220px; height:100%; min-height:0; }
+  #palco-corpo > * { min-height:0; }
+  #foto img { max-height:100%; }
+  .dettaglio { overflow:hidden; }
+  .modelli { max-height:none; height:100%; }
+  #elenco { max-height:none; height:100%; }
+  #elenco-tone { min-height:0; }
+  .vuoto { height:100%; margin:0; max-width:none; display:flex; align-items:center; justify-content:center; }
+  .vuoto img { width:min(380px, 50%); opacity:0.12; }
+  #manopole.fitte { gap:6px 4px; margin-top:8px; }
+  #manopole.fitte .comando { gap:2px; }
+  #manopole.fitte .comando { width:76px; }
+  #manopole.fitte .girevole { width:44px; height:44px; }
+  .catena { flex:none; margin:12px 16px 14px; padding:10px 16px 12px; }
+  .fila::before { top:86px; }
+  .capo { margin-top:72px; }
+
+  /* ---------------------------------------------------------------- le finestre */
+  dialog { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:12px;
+           padding:20px; max-width:min(440px, calc(100vw - 32px)); }
+  dialog::backdrop { background:rgba(10,13,18,0.65); }
+  dialog h2 { font-family:var(--strumento); font-size:1.2rem; margin:0 0 10px; }
+  dialog p { color:var(--dim); line-height:1.5; margin:0 0 12px; }
+  dialog p b { color:var(--text); }
+  .campo { display:flex; align-items:center; gap:10px; font-family:var(--strumento); margin-bottom:12px; }
+  .campo select { flex:1; min-width:0; font:inherit; color:var(--text); background:var(--incavo);
+                  border:1px solid var(--line); border-radius:6px; padding:6px 8px; }
+  .campo input { flex:1; font:inherit; color:var(--text); background:var(--incavo); border:1px solid var(--line);
+                 border-radius:6px; padding:6px 8px; }
+  .campo input:disabled { color:var(--dim); }
+  .nota { font-size:0.8rem; margin-top:8px !important; }
+  .errore { color:var(--rosso) !important; min-height:1em; }
+  .azioni { display:flex; justify-content:flex-end; gap:8px; }
+  #dialogo-crea { width:560px; max-width:calc(100vw - 32px); }
+  #crea { display:inline-flex; align-items:center; gap:7px; color:#fff; border:1px solid #8a6cf0;
+          background:linear-gradient(135deg, #7b5cf0, #2f7fe8); box-shadow:0 0 12px rgba(123,92,240,0.45); }
+  #crea:hover:not(:disabled) { background:linear-gradient(135deg, #8d72f5, #4c95f0); border-color:#a58df7;
+                               box-shadow:0 0 16px rgba(123,92,240,0.65); }
+  #crea:disabled { box-shadow:none; }
+  #crea .scintille { width:16px; height:16px; fill:currentColor; flex:none; }
+  #crea-testo { width:100%; min-height:7em; resize:vertical; font:inherit; color:var(--text);
+                background:var(--incavo); border:1px solid var(--line); border-radius:6px; padding:8px 10px; margin-bottom:12px; }
+  .crea-spunta { display:flex; align-items:center; gap:8px; color:var(--dim); font-size:0.88rem; margin-bottom:12px; }
+  #crea-cambia-chiave { font-size:0.8rem; padding:2px 8px; }
+  #crea-attesa { color:var(--accent-chiaro); min-height:1em; }
+  #importa-blocchi { list-style:none; margin:0 0 12px; padding:0; display:grid; gap:4px; font-size:0.85rem; }
+  #importa-blocchi li { display:grid; grid-template-columns:1.6em 4.2em 1fr auto; column-gap:8px; align-items:baseline; }
+  #importa-blocchi .n { color:var(--faint); font-family:var(--strumento); text-align:right; }
+  #importa-blocchi .slot { color:var(--accent-chiaro); font-family:var(--strumento); font-weight:700; font-size:0.75rem; letter-spacing:0.05em; }
+  #importa-blocchi .modello { overflow-wrap:anywhere; }
+  #importa-blocchi .acceso { color:var(--green); font-size:0.78rem; }
+  #importa-blocchi li.spento .acceso, #importa-blocchi li.spento .modello { color:var(--faint); }
+  #importa-blocchi .nota-slot { grid-column:3 / -1; color:var(--dim); font-size:0.76rem; }
+  #backup-stato:empty { display:none; }
+  #db-link { color:var(--accent-chiaro); font-size:0.8rem; }
+  #dialogo-backup, #dialogo-crediti { width:600px; max-width:calc(100vw - 32px); }
+  .bk-cima { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+  .bk-cima h2 { margin:0; flex:1; }
+  .bk-cima .icona { padding:4px 9px; }
+  .bk-carta { background:var(--incavo); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:12px; }
+  .bk-testa { display:flex; align-items:center; gap:11px; margin-bottom:12px; }
+  .bk-testa svg { width:26px; height:26px; flex:none; fill:none; stroke:var(--accent-chiaro); stroke-width:1.5;
+                  stroke-linecap:round; stroke-linejoin:round; }
+  .bk-testa h3 { font-family:var(--strumento); font-size:0.95rem; margin:0; }
+  .bk-testa p { margin:1px 0 0; font-size:0.78rem; }
+  button.bk-grande { display:flex; flex-direction:column; align-items:flex-start; gap:2px; width:100%; text-align:left;
+                     padding:10px 14px; font-size:0.95rem; }
+  button.bk-grande small { font-weight:400; font-size:0.76rem; opacity:0.85; }
+  .bk-righe { margin-top:10px; border-top:1px solid var(--line-soft); }
+  .bk-riga, .bk-scelta { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line-soft); }
+  .bk-riga:last-child { border-bottom:0; }
+  .bk-nome { font-family:var(--strumento); font-size:0.74rem; letter-spacing:0.06em; text-transform:uppercase;
+             color:var(--dim); width:6.5em; flex:none; }
+  .bk-tasti { display:flex; flex-wrap:wrap; gap:6px; flex:1; justify-content:flex-end; }
+  .bk-tasti button { padding:5px 12px; font-size:0.82rem; min-width:6.5em; }
+  .bk-scelta { margin-top:10px; border-bottom:0; }
+  .bk-scelta select { flex:1; min-width:0; font:inherit; font-size:0.85rem; color:var(--text); background:var(--panel);
+                      border:1px solid var(--line); border-radius:6px; padding:5px 7px; }
+  .bk-piede { display:flex; justify-content:space-between; gap:8px; margin-top:6px; }
+  .bk-piede button.lieve, .bk-cima .icona { background:none; border-color:transparent; color:var(--dim); font-size:0.8rem; }
+  .bk-piede button.lieve:hover { color:var(--text); }
+  .bk-campo { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:8px; }
+  .bk-campo input { flex:1; min-width:10em; font:inherit; font-size:0.85rem; color:var(--text); background:var(--panel);
+                    border:1px solid var(--line); border-radius:6px; padding:6px 9px; }
+  .bk-campo button { padding:5px 12px; font-size:0.82rem; }
+  #menu-tendina .sotto { margin-left:auto; font-size:0.72rem; color:var(--faint); }
+  #menu-tendina .sotto.vecchio { color:var(--ambra); }
+  #sicurezza summary { cursor:pointer; list-style:none; margin-bottom:0; }
+  #sicurezza summary::-webkit-details-marker { display:none; }
+  #sicurezza summary > div { flex:1; }
+  #sicurezza[open] summary { margin-bottom:10px; }
+  #sicurezza .freccia-giu { color:var(--dim); transition:transform .15s; }
+  #sicurezza[open] .freccia-giu { transform:rotate(180deg); }
+  #sicurezza .conta { font-size:0.72rem; color:var(--dim); background:var(--panel); border:1px solid var(--line);
+                      border-radius:999px; padding:0 7px; margin-left:4px; vertical-align:1px; }
+  #sicurezza .conta:empty { display:none; }
+  #sic-elenco { list-style:none; margin:0; padding:0; max-height:230px; overflow-y:auto; border-top:1px solid var(--line-soft); }
+  #sic-elenco li { display:grid; grid-template-columns:5.6em 4.6em minmax(0, 1fr) auto auto; align-items:center; gap:8px;
+                   padding:6px 0; border-bottom:1px solid var(--line-soft); font-size:0.8rem; }
+  #sic-elenco .sic-quando { color:var(--dim); font-family:var(--strumento); font-size:0.74rem; }
+  #sic-elenco .sic-tipo { color:var(--accent-chiaro); font-family:var(--strumento); font-size:0.72rem; text-transform:uppercase;
+                          letter-spacing:0.05em; }
+  #sic-elenco .sic-perche { overflow-wrap:anywhere; }
+  #sic-elenco button { padding:3px 10px; font-size:0.76rem; }
+  #sic-elenco button.lieve { background:none; border-color:transparent; color:var(--dim); }
+  #sic-elenco li.sic-vuoto { display:block; color:var(--faint); border:0; }
+  .crediti-corpo { max-height:min(66vh, 620px); overflow-y:auto; padding-right:6px; }
+  .crediti-corpo h3 { font-family:var(--strumento); font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase;
+                      color:var(--accent-chiaro); margin:18px 0 6px; }
+  .crediti-corpo p { font-size:0.88rem; }
+  .crediti-corpo a { color:var(--accent-chiaro); }
+  .crediti-corpo code { font-size:0.8rem; color:var(--text); }
+  #dialogo-ripristino { width:660px; max-width:calc(100vw - 32px); }
+  #rip-elenco { list-style:none; margin:0 0 10px; padding:0; max-height:min(52vh, 440px); overflow-y:auto;
+                border:1px solid var(--line); border-radius:8px; background:var(--incavo); }
+  #rip-elenco li { border-bottom:1px solid var(--line); font-size:0.85rem; }
+  #rip-elenco li:last-child { border-bottom:none; }
+  #rip-elenco label { display:grid; grid-template-columns:auto 2.4em minmax(0, 1fr) minmax(0, 1.3fr); gap:8px;
+                      align-items:baseline; padding:5px 10px; cursor:pointer; }
+  #rip-elenco input { align-self:center; accent-color:var(--accent); }
+  #rip-elenco .rip-posto { color:var(--faint); font-family:var(--strumento); }
+  #rip-elenco .rip-nome { overflow-wrap:anywhere; }
+  #rip-elenco .rip-esito { color:var(--dim); font-size:0.78rem; overflow-wrap:anywhere; }
+  #rip-elenco li.r-uguale .rip-esito, #rip-elenco li.r-attesa .rip-esito { color:var(--faint); }
+  #rip-elenco li.r-vuoto .rip-esito, #rip-elenco li.r-diverso .rip-esito { color:var(--accent-chiaro); }
+  #rip-elenco li.r-lavoro .rip-esito { color:var(--text); }
+  #rip-elenco li.r-fatto .rip-esito { color:var(--green); }
+  #rip-elenco li.r-avviso .rip-esito, #rip-elenco li.r-errore .rip-esito { color:var(--rosso); }
+  #rip-stato:empty { display:none; }
+  #imp-corpo h3 { font-family:var(--strumento); font-size:0.8rem; letter-spacing:0.08em;
+                                      text-transform:uppercase; color:var(--accent-chiaro); margin:16px 0 6px; }
+  .gest-riga { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:8px; }
+  .gest-riga select { flex:1; min-width:10em; font:inherit; color:var(--text); background:var(--incavo);
+                      border:1px solid var(--line); border-radius:6px; padding:4px 6px; }
+  .gest-liste { list-style:none; padding:0; margin:0 0 12px; }
+  .gest-liste li { display:flex; align-items:center; gap:8px; padding:4px 0; border-bottom:1px solid var(--line); }
+  .gest-liste .gest-nome { flex:1; min-width:0; overflow-wrap:anywhere; }
+  .gest-nota { color:var(--dim); font-size:0.8rem; }
+  .gest-liste button, .gest-riga button { padding:3px 10px; font-size:0.78rem; }
+  #imp-corpo h4 { font-family:var(--strumento); font-size:0.8rem; color:var(--dim); margin:10px 0 2px; }
+  .imp-riga { display:grid; grid-template-columns:minmax(120px, 11em) 1fr 5.5em; align-items:center; gap:10px;
+              padding:4px 0; font-size:0.9rem; }
+  .imp-riga input[type=range] { width:100%; accent-color:var(--accent); }
+  .imp-riga select { font:inherit; color:var(--text); background:var(--incavo); border:1px solid var(--line);
+                     border-radius:6px; padding:4px 6px; }
+  .imp-riga .imp-valore { font-family:var(--strumento); text-align:right; color:var(--dim); }
+  .imp-riga .pill { justify-self:start; }
+  @media (max-width:520px) { .imp-riga { grid-template-columns:1fr 4.5em; } .imp-riga > :nth-child(2) { grid-column:1 / -1; grid-row:2; } }
+
+  /* ---------------------------------------------------------------- le schermate (Songlist, poi le impostazioni) */
+  dialog.schermo { width:calc(100vw - 40px); height:calc(100vh - 40px); max-width:none; max-height:none; padding:16px 18px;
+                   background:var(--bg); }
+  dialog.schermo[open] { display:flex; flex-direction:column; gap:14px; }
+  .sch-cima { display:flex; align-items:center; gap:8px; flex:none; }
+  .sch-cima h2 { margin:0; font-size:1.3rem; }
+  .sl-corpo { flex:1; min-height:0; display:grid; grid-template-columns:300px minmax(0, 1fr); gap:16px; }
+  .sl-preset { display:flex; flex-direction:column; min-height:0; background:var(--panel); border:1px solid var(--line);
+               border-radius:12px; overflow:hidden; }
+  #sl-cerca { margin:10px; padding:7px 10px; font:inherit; color:var(--text); background:var(--incavo);
+              border:1px solid var(--line); border-radius:7px; }
+  #sl-preset { list-style:none; margin:0; padding:0 8px 10px; overflow-y:auto; flex:1; }
+  #sl-preset li { display:flex; align-items:center; gap:8px; padding:5px 6px 5px 8px; border-radius:7px; cursor:grab;
+                  user-select:none; touch-action:none; font-size:0.88rem; }
+  #sl-preset li:hover { background:var(--rialzo); }
+  #sl-preset li.suona { background:rgba(47,127,232,0.22); }
+  #sl-preset li.preso { opacity:0.35; }
+  #sl-preset .n, .sl-toni .n { font-family:var(--strumento); color:var(--faint); min-width:2.2em; text-align:right; font-size:0.8rem; }
+  #sl-preset .nome { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mini-tasto { padding:2px 7px; font-size:0.78rem; line-height:1.2; background:transparent; border-color:transparent;
+                color:var(--faint); visibility:hidden; }
+  li:hover > .mini-tasto, .sl-testa:hover .mini-tasto { visibility:visible; }
+  .mini-tasto:hover:not(:disabled) { color:var(--text); background:var(--incavo); border-color:var(--line); }
+  .mini-tasto.via:hover:not(:disabled) { color:var(--rosso); }
+  /* ogni Songlist è un riquadro a sé: bordo netto, ombra, spazio attorno; l'elenco dentro è incassato */
+  #sl-blocchi { min-height:0; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));
+                grid-auto-rows:300px; gap:22px; align-content:start; padding:18px; background:var(--incavo);
+                border:1px solid var(--line); border-radius:12px; }
+  .sl-blocco { display:flex; flex-direction:column; min-height:0; background:var(--panel2); border:1px solid #4d5868;
+               border-radius:12px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+               transition:border-color 0.12s, box-shadow 0.12s, background 0.12s; }
+  .sl-testa { display:flex; align-items:center; gap:6px; padding:10px 8px 10px 12px; background:linear-gradient(#3a4452, #313a47);
+              border-bottom:1px solid #4d5868; border-top:4px solid var(--accent); }
+  .sl-nome { flex:1; min-width:0; font-family:var(--strumento); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sl-conta { font-family:var(--strumento); font-size:0.72rem; color:var(--dim); font-variant-numeric:tabular-nums;
+              background:var(--incavo); border:1px solid var(--line); border-radius:999px; padding:1px 8px; }
+  .sl-toni { list-style:none; margin:8px; padding:4px; overflow-y:auto; flex:1; background:var(--incavo);
+             border:1px solid var(--line); border-radius:8px; }
+  .sl-toni li { display:flex; gap:8px; align-items:center; padding:3px 4px 3px 6px; border-radius:6px; font-size:0.86rem; cursor:pointer; }
+  .sl-toni li .nome { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sl-toni li:hover { background:var(--rialzo); }
+  .sl-toni li.suona { background:var(--accent); color:var(--su-accent); }
+  .sl-toni li.suona .n, .sl-toni li.suona .mini-tasto { color:var(--su-accent); }
+  .sl-toni li.nuovo { animation:nuovo 1.2s ease-out; }
+  @keyframes nuovo { from { background:rgba(76,211,138,0.45); } to { background:transparent; } }
+  .sl-vuota { flex:1; margin:8px; border:2px dashed var(--line); border-radius:8px; display:flex; align-items:center;
+              justify-content:center; font-size:2rem; color:var(--line); background:var(--incavo); }
+  .schermo.trascina, .schermo.trascina * { cursor:grabbing !important; }
+  .schermo.trascina .sl-blocco { border-style:dashed; }
+  .sl-blocco.sopra { border-color:var(--accent-chiaro); border-style:solid !important; background:rgba(47,127,232,0.16);
+                     box-shadow:0 0 0 2px var(--accent), 0 10px 24px rgba(0,0,0,0.4); }
+  .sl-blocco.sopra.pieno { border-color:var(--rosso); background:rgba(255,122,122,0.1); box-shadow:0 0 0 2px var(--rosso); }
+  .sl-blocco.lavora { opacity:0.55; pointer-events:none; }
+  /* la bozza: i blocchi cambiati hanno la testa ambra finché non si salva */
+  .sl-blocco.toccata .sl-testa { border-top-color:var(--ambra); }
+  /* il blocco che si sposta: la copia vola col mouse, al suo posto un riquadro tratteggiato */
+  .blocco-volante { position:fixed; left:0; top:0; z-index:20; margin:0; pointer-events:none; opacity:0.96;
+                    box-shadow:0 22px 44px rgba(0,0,0,0.6), 0 0 0 2px var(--accent-chiaro); }
+  .sl-blocco.segnaposto { background:rgba(47,127,232,0.08); border:2px dashed var(--accent-chiaro) !important; box-shadow:none; }
+  .sl-blocco.segnaposto > * { visibility:hidden; }
+  .pill-modificato { font-family:var(--strumento); font-size:0.72rem; font-weight:600; letter-spacing:0.03em;
+                     color:var(--ambra); border:1px solid var(--ambra); border-radius:999px; padding:3px 10px; }
+  /* il riordino: la testa del blocco e le righe si prendono col mouse; dove cadono c'è una linea blu */
+  .sl-testa { cursor:grab; touch-action:none; user-select:none; }
+  .sl-toni li { touch-action:none; user-select:none; }
+  .sl-toni li.sopra { box-shadow:inset 0 3px 0 var(--accent-chiaro); background:rgba(47,127,232,0.12); }
+  .sl-toni li.preso, .sl-blocco.preso { opacity:0.35; }
+  .fantasma { position:fixed; left:0; top:0; z-index:20; pointer-events:none; display:flex; gap:8px; align-items:center;
+              padding:7px 14px; border-radius:8px; background:var(--accent); color:var(--su-accent); font-weight:600;
+              box-shadow:0 12px 28px rgba(0,0,0,0.55); white-space:nowrap; }
+  .fantasma .n { font-family:var(--strumento); opacity:0.75; }
+
+  /* ---------------------------------------------------------------- la schermata Impostazioni (come l'app) */
+  .imp-corpo { flex:1; min-height:0; display:grid; grid-template-columns:360px minmax(0, 1fr); gap:18px; }
+  #imp-menu { display:grid; grid-template-columns:repeat(3, 1fr); grid-auto-rows:min-content; gap:12px; align-content:start; }
+  .imp-voce { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; min-height:104px;
+              padding:14px 8px; border-radius:16px; background:var(--panel); border:1px solid var(--line);
+              font-family:var(--font); font-weight:400; font-size:0.95rem; letter-spacing:0; color:var(--text); }
+  .imp-voce:hover:not(:disabled) { background:var(--panel2); }
+  .imp-voce.attiva { border-color:var(--accent-chiaro); box-shadow:0 0 0 2px var(--accent); }
+  .imp-voce .ico { width:30px; height:30px; }
+  .imp-sound, .imp-eq { grid-column:span 3; flex-direction:row; justify-content:flex-start; gap:14px; padding:14px 16px; min-height:88px; }
+  .imp-eq { grid-column:2 / span 2; }
+  .imp-voce { width:100%; min-width:0; }
+  .imp-tondo { display:flex; align-items:center; justify-content:center; }
+  .imp-sound .imp-tondo, .imp-eq .imp-tondo { width:52px; height:52px; border-radius:14px; background:var(--rialzo); flex:none; }
+  .imp-eq.acceso { background:var(--accent); border-color:var(--accent); color:var(--su-accent); }
+  .imp-eq.acceso .imp-tondo { background:rgba(0,0,0,0.25); }
+  .imp-testi { display:flex; flex-direction:column; align-items:flex-start; gap:4px; min-width:0; text-align:left; }
+  .imp-voce:not(.imp-sound):not(.imp-eq) .imp-testi { align-items:center; }
+  .imp-testi b { font-family:var(--strumento); font-size:0.95rem; }
+  .imp-riga-eq { display:flex; align-items:center; gap:8px; }
+  .ico { fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+
+  .interr { display:inline-flex; align-items:center; width:42px; height:24px; padding:2px; border-radius:999px;
+            border:2px solid var(--faint); background:var(--incavo); flex:none; transition:all 0.15s; }
+  .interr .pallino { width:16px; height:16px; border-radius:50%; background:var(--dim); transition:transform 0.15s; }
+  .interr.on { border-color:currentColor; background:transparent; }
+  .interr.on .pallino { transform:translateX(18px); background:currentColor; }
+
+  #imp-pagina { min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:16px; padding:18px 22px;
+                background:var(--panel); border:1px solid var(--line); border-radius:16px; }
+  .imp-titolo { display:flex; align-items:center; gap:12px; flex:none; }
+  .imp-titolo h3 { margin:0; flex:1; font-family:var(--strumento); font-size:1.15rem; }
+  .imp-manopole { display:flex; flex-wrap:wrap; justify-content:center; gap:28px 56px; padding:8px 0; }
+  .mg { display:flex; flex-direction:column; align-items:center; gap:8px; user-select:none; }
+  .mg-nome, .imp-nome { font-size:0.95rem; color:var(--text); }
+  .mg-tondo { position:relative; cursor:ns-resize; touch-action:none; }
+  .mg { --colore:var(--accent-chiaro); }
+  .mg-anello { position:absolute; inset:0; overflow:visible; }
+  .pag-audio .imp-manopole, .pag-tuner .imp-manopole { flex:1; align-content:center; align-items:center; }
+  .pag-usb .imp-manopole { padding-top:10px; }
+  .mg-pista { fill:none; stroke:#3a414d; stroke-width:9; stroke-linecap:butt; }
+  .mg-riempi { fill:none; stroke:var(--colore); stroke-width:9; stroke-linecap:butt; }
+  .mg-corpo { fill:#353c48; stroke:#1b2028; stroke-width:4; }
+  .mg-centro { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; color:var(--text); }
+  .mg-centro .ico { width:32%; height:32%; color:var(--colore, var(--text)); }
+  .mg-scritta { font-family:var(--font); font-size:0.95rem; letter-spacing:0.03em; color:var(--text); }
+  .mg-valore { font-family:var(--strumento); font-weight:700; font-size:1.1rem; color:var(--colore); font-variant-numeric:tabular-nums; }
+  .imp-griglia.carte { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:14px; max-width:760px; width:100%; margin:0 auto; }
+  .imp-griglia.scelte { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; }
+  .imp-carta { display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:84px; padding:14px 18px;
+               border-radius:16px; background:var(--incavo); border:1px solid #4d5868; text-align:left;
+               font-family:var(--font); font-weight:400; font-size:0.95rem; letter-spacing:0; color:var(--text); }
+  button.imp-carta:hover:not(:disabled) { border-color:var(--faint); }
+  .imp-carta.on { background:var(--accent); border-color:var(--accent); color:var(--su-accent); }
+  .imp-carta.modo { justify-content:center; min-height:64px; font-family:var(--strumento); font-weight:600; }
+  .imp-scelta { appearance:base-select; font-family:var(--strumento); font-weight:700; font-size:0.95rem; color:var(--text);
+                background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:4px 10px; cursor:pointer; }
+  .imp-scelta::picker(select) { appearance:base-select; background:var(--panel); border:1px solid #4d5868; border-radius:10px;
+                                padding:6px; box-shadow:0 14px 34px rgba(0,0,0,0.6); }
+  .imp-scelta option { padding:5px 12px; border-radius:6px; font-family:var(--font); font-weight:400; }
+  .imp-scelta option:hover { background:var(--rialzo); }
+  .imp-scelta option:checked { background:var(--accent); color:var(--su-accent); }
+  .imp-scelta option::checkmark { display:none; }
+  .imp-tema-cima { display:flex; justify-content:space-between; max-width:760px; width:100%; margin:6px auto 0; }
+  .imp-tinte { display:grid; grid-template-columns:repeat(9, 1fr); gap:12px; max-width:760px; width:100%; margin:0 auto; }
+  .tinta { aspect-ratio:1; max-width:64px; width:100%; padding:0; border-radius:14px; border:3px solid transparent; }
+  .tinta.on { border-color:var(--text); box-shadow:0 0 0 2px var(--bg) inset; }
+
+  .imp-eq-on { display:flex; align-items:center; gap:10px; background:var(--incavo); color:var(--accent-chiaro); }
+  .eq-grafico { flex:1; min-height:150px; position:relative; }
+  .eq-grafico svg { display:block; }
+  .eq-fondo { fill:#1d222a; stroke:var(--line); }
+  .eq-riga { stroke:#343c48; stroke-width:1; }
+  .eq-riga.zero { stroke:#4d5868; }
+  .eq-scritta { fill:var(--faint); font-family:var(--strumento); font-size:11px; }
+  .eq-curva { fill:none; stroke:var(--accent-chiaro); stroke-width:2.5; }
+  .eq-area { fill:rgba(47,127,232,0.14); }
+  .eq-grafico.spento .eq-curva { stroke:var(--faint); }
+  .eq-grafico.spento .eq-area { fill:rgba(150,160,175,0.07); }
+  .eq-punto { cursor:grab; }
+  .eq-punto circle { fill:#2a313c; stroke:var(--accent-chiaro); stroke-width:2; }
+  .eq-punto text { fill:var(--text); font-family:var(--strumento); font-size:11px; font-weight:700; pointer-events:none; }
+  .eq-punto.spento circle { stroke:var(--faint); }
+  .eq-punto.spento text { fill:var(--faint); }
+  .eq-punto.scelto circle { fill:var(--accent); stroke:#fff; }
+  .eq-schede { display:flex; gap:10px; flex:none; flex-wrap:wrap; }
+  .eq-scheda { border-radius:999px; padding:8px 22px; font-size:0.9rem; background:transparent; border:1px solid #4d5868; color:var(--text); }
+  .eq-scheda.on { background:var(--accent); border-color:var(--accent); color:var(--su-accent); }
+  .eq-comandi { display:flex; align-items:center; justify-content:center; gap:44px; flex:none; min-height:178px; }
+  .eq-banda-on { display:flex; flex-direction:column; align-items:center; gap:10px; background:transparent; border:0; padding:0; }
+  .eq-banda-on .ico { width:64px; height:64px; padding:16px; border-radius:16px; background:var(--rialzo); color:var(--faint); box-sizing:border-box; }
+  .eq-banda-on b { color:var(--faint); font-size:1rem; }
+  .eq-banda-on.on .ico { color:var(--accent-chiaro); }
+  .eq-banda-on.on b { color:var(--accent-chiaro); }
+  .eq-volume { display:flex; align-items:center; gap:18px; flex:none; max-width:640px; width:100%; margin:0 auto; }
+  .eq-volume input { flex:1; -webkit-appearance:none; appearance:none; height:22px; border-radius:999px; cursor:pointer;
+                     background:linear-gradient(90deg, var(--accent) var(--q, 50%), var(--rialzo) var(--q, 50%)); }
+  .eq-volume input::-webkit-slider-thumb { -webkit-appearance:none; width:22px; height:22px; border-radius:50%; background:#fff;
+                                           box-shadow:0 1px 4px rgba(0,0,0,0.5); }
+  .eq-volume b { font-family:var(--strumento); min-width:2.2em; text-align:right; }
+
+  /* ================================================================ l'aspetto grafico (9 novembre 2026, i sette punti) */
+
+  /* 3. le icone: tutte SVG a tratto, come quelle del menu */
+  .ico.pieno { fill:currentColor; }
+  .ico.puntini { stroke-width:3.2; }
+  button > svg.ico { width:16px; height:16px; flex:none; display:block; }
+  button:has(> svg.ico) { display:inline-flex; align-items:center; justify-content:center; gap:6px; }
+  button.icona > svg.ico, .freccia > svg.ico { width:18px; height:18px; }
+  button.icona:has(> svg.ico) { padding:5px 7px; }
+  .bk-cima .icona { padding:5px; }
+  .mini-tasto > svg.ico { width:14px; height:14px; }
+  #elenco-tone button.piu > svg.ico { width:18px; height:18px; }
+  .freccia-giu > svg.ico { width:16px; height:16px; display:block; }
+  #drum-play > svg.ico, #jam-apri > svg.ico { width:13px; height:13px; }
+  #drum-prima > svg.ico, #drum-dopo > svg.ico { width:15px; height:15px; }
+
+  /* 1. i messaggi: la riga sotto il nome dice solo il lavoro in corso; errori e conferme volano */
+  /* il nome del tone in centro (anche in verticale); «modificato» accanto, fuori dal conto del centro */
+  .sb-centro { justify-content:center; align-self:stretch; }
+  .tone-riga { position:relative; }
+  .tone-riga #modificato { position:absolute; left:calc(100% + 10px); top:50%; transform:translateY(-50%); white-space:nowrap; }
+  @media (max-width:1279px) {
+    /* poco posto: solo un pallino ambra (il titolo dice cosa) */
+    .tone-riga #modificato { width:11px; height:11px; padding:0; font-size:0; border-radius:50%; background:var(--ambra); }
+  }
+  .messaggio.lavoro { padding:7px 12px; font-size:0.8rem; line-height:1.35; background:var(--panel2); border:1px solid #4d5868;
+                      color:var(--text); align-items:center; }
+  .messaggio.lavoro.esempio { border-color:var(--ambra); color:#ffe2b3; }
+  .girella { display:none; width:12px; height:12px; flex:none; border:2px solid var(--line); border-top-color:var(--accent-chiaro);
+             border-radius:50%; animation:gira 0.8s linear infinite; }
+  .messaggio.lavoro.gira .girella { display:block; }
+  @keyframes gira { to { transform:rotate(360deg); } }
+  #avvisi { inset:auto 18px 18px auto; margin:0; padding:0; border:0; background:none; overflow:visible; color:var(--text);
+            width:min(420px, calc(100vw - 36px)); }
+  #avvisi:popover-open { display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+  .messaggio { display:flex; align-items:flex-start; gap:10px; max-width:100%; padding:10px 8px 10px 12px; border-radius:10px;
+               font-size:0.86rem; line-height:1.45; box-shadow:0 12px 30px rgba(0,0,0,0.5);
+               animation:entra 0.2s ease-out; transition:opacity 0.2s, transform 0.2s; }
+  .messaggio .testo { flex:1; min-width:0; overflow-wrap:anywhere; }
+  .messaggio .ico-msg { width:18px; height:18px; flex:none; margin-top:1px; }
+  .messaggio.errore { background:#3a2228; border:1px solid #9c4650; border-left:4px solid var(--rosso); color:#ffe3e3; }
+  .messaggio.errore .ico-msg { color:var(--rosso); }
+  .messaggio.ok { padding:7px 12px; font-size:0.8rem; line-height:1.35; background:#1d3428; border:1px solid #2d7650; color:#d6f5e4; }
+  .messaggio.ok .ico-msg { width:16px; height:16px; color:var(--green); margin-top:0; }
+  .chiudi-msg { flex:none; padding:2px; margin:-1px 0 0; background:none; border:0; border-radius:6px; color:#ffc4c4; }
+  .chiudi-msg:hover:not(:disabled) { background:rgba(255,255,255,0.1); color:#fff; }
+  .chiudi-msg > svg.ico { width:16px; height:16px; }
+  .messaggio.via { opacity:0; transform:translateY(8px); }
+  .messaggio.scossa { animation:scossa 0.35s; }
+  @keyframes entra { from { opacity:0; transform:translateY(10px); } }
+  @keyframes scossa { 25% { transform:translateX(-5px); } 75% { transform:translateX(5px); } }
+
+  /* 2. il palco: il riquadro dell'immagine largo quanto l'immagine (--foto, da adattaPalco), senza bordo */
+  #palco-corpo { grid-template-columns:var(--foto, minmax(160px, 27%)) minmax(0, 1fr) 220px; }
+  #foto { padding:12px; }   /* il riquadro di prima (sfondo e angoli tondi), più stretto o largo secondo l'immagine */
+  #foto img { width:100%; height:100%; max-width:none; max-height:100%; object-fit:contain; }
+  .comando { width:84px; }
+  .dettaglio { overflow-x:hidden; overflow-y:auto; scrollbar-width:thin; }
+
+  /* 4. le finestre come quella del Backup: cima con la ✕, carte con l'icona */
+  #dialogo-salva, #dialogo-tone { width:480px; max-width:calc(100vw - 32px); }
+  #dialogo-importa { width:560px; max-width:calc(100vw - 32px); }
+  .bk-carta .campo { margin-bottom:10px; }
+  .bk-carta > :last-child, .bk-carta .campo:last-child { margin-bottom:0; }
+  .bk-carta .campo select, .bk-carta .campo input, .bk-carta textarea { background:var(--panel); }
+  .campo .bk-nome { width:6.5em; }
+  #dialogo-crea .campo .bk-nome { width:9em; }
+  .bk-tasti button.via:hover:not(:disabled) { color:var(--rosso); border-color:var(--rosso); }
+  #crea-chiave-riga .campo { margin-bottom:10px; }
+  #crea-testo { margin-bottom:10px; min-height:6em; }
+  .bk-carta .crea-spunta { margin-bottom:0; }
+  #importa-blocchi { margin-bottom:10px; }
+  dialog > .nota:empty, dialog > .errore:empty { display:none; }
+
+  /* 5. la schermata d'avvio: il logo e il tasto grande */
+  .benvenuto { display:flex; flex-direction:column; align-items:center; gap:24px; text-align:center; padding:20px; }
+  .vuoto .benvenuto img { width:min(340px, 60%); opacity:0.32; }
+  #collega-grande { font-size:1.05rem; padding:14px 28px; border-radius:12px; gap:10px;
+                    box-shadow:0 8px 24px rgba(47,127,232,0.35); }
+  #collega-grande > svg.ico { width:20px; height:20px; }
+  #collega-grande:disabled { opacity:0.75; box-shadow:none; }
+  #benvenuto-nota { margin:0; color:var(--dim); font-size:0.88rem; max-width:32em; line-height:1.5; }
+
+  /* 6. l'elenco dei tone: il segno delle Songlist */
+  #elenco-tone button .nome { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #elenco-tone .in-lista { flex:none; display:flex; align-items:center; color:var(--accent-chiaro); opacity:0.85; }
+  #elenco-tone .in-lista > svg.ico { width:14px; height:14px; }
+  #elenco-tone button.suona .in-lista { color:var(--su-accent); }
+
+  /* 7. schermi stretti. La Jam diventa un tasto che apre il suo pannello (il popover lo mette app.js). */
+  #jam-apri { font-family:var(--strumento); gap:7px; }
+  #jam-apri.suona { background:var(--accent); border-color:var(--accent); color:#fff; }
+  #drum[popover] { inset:auto; margin:0; padding:10px 12px; flex-wrap:wrap; gap:8px; max-width:calc(100vw - 16px);
+                   background:var(--panel); border:1px solid var(--line); border-radius:12px; color:var(--text);
+                   box-shadow:0 14px 34px rgba(0,0,0,0.45); }
+  #drum[popover]:not(:popover-open) { display:none; }
+  #drum[popover] .etichetta { display:none; }
+  #drum[popover] #drum-prima, #drum[popover] #drum-dopo { display:inline-flex; }
+  #drum[popover] #drum-volume, #drum[popover] #drum-volume-v { display:inline-block; }
+  #drum[popover] #drum-ritmo { width:11em; }
+  @media (max-width:1279px) {
+    .sotto-barra .gruppo .etichetta, .sotto-barra .lungo { display:none; }
+    .centro { grid-template-columns:minmax(0, 1fr) 220px; gap:10px; }
+    #palco-corpo { grid-template-columns:var(--foto, minmax(140px, 25%)) minmax(0, 1fr) 180px; gap:12px; }
+    .sotto-barra #tone-nome { font-size:1.4rem; }
+    .sotto-barra { gap:10px; padding:5px 12px 4px; }
+  }
+  /* finestra molto stretta: il nome del tone su una riga sua, sopra i tasti, così non sparisce mai */
+  @media (max-width:900px) {
+    .sotto-barra { grid-template-columns:auto auto; grid-template-areas:"nome nome" "sx dx"; justify-content:space-between;
+                   row-gap:4px; column-gap:8px; }
+    .sb-centro { grid-area:nome; }
+    .sb-lato { grid-area:sx; }
+    .sb-lato.destra { grid-area:dx; }
+    #songlist .lungo-stretto { display:none; }
+  }
+  /* metà schermo e meno: la barra in alto ci deve stare tutta (il menu ☰ compreso) */
+  @media (max-width:760px) {
+    .logo { height:24px; }
+    #tone-volume { width:48px; }
+    #tone-volume-v, #collega-testo { display:none; }
+    #collega .lampada { margin-right:0; }
+    .centro { grid-template-columns:minmax(0, 1fr) 170px; }
+    .centro #palco-corpo { grid-template-columns:minmax(0, 1fr); }
+    #foto { display:none; }
+  }
+  @media (max-width:1023px) {
+    #palco-corpo .modelli { display:none; }
+    #palco-corpo { grid-template-columns:var(--foto, minmax(140px, 30%)) minmax(0, 1fr); }
+    .centro { grid-template-columns:minmax(0, 1fr) 190px; padding:10px 10px 0; }
+    .catena { margin:10px 10px 10px; padding:8px 10px 10px; }
+    #catena { gap:4px; }
+    .anello .chip { width:auto; padding:3px 8px; }
+  }
+  /* portatili bassi: catena e barre più basse, così il palco ha spazio */
+  @media (max-height:780px) {
+    .barra { padding:5px 12px; }
+    .logo { height:28px; }
+    .sotto-barra #tone-nome { font-size:1.3rem; }
+    .freccia { width:30px; height:30px; }
+    .centro { padding-top:8px; }
+    #palco { padding:10px; }
+    .catena { margin:8px 16px 8px; padding:6px 14px 8px; }
+    .anello { gap:4px; }
+    .anello .chip { padding:2px 0; font-size:0.66rem; }
+    .miniatura { height:80px; padding:4px; }
+    .miniatura img { max-height:70px; }
+    .anello .mod { padding:3px 6px; font-size:0.74rem; }
+    .fila::before { top:62px; }
+    .capo { margin-top:48px; }
+    #manopole { margin-top:10px; gap:12px 8px; }
+    .det-piede { padding-top:8px; }
+    #det-nome { font-size:1.6rem; }
+  }
+
+  /* le parti scritte in due lingue (crediti): si vede solo quella scelta */
+  html[lang="en"] [data-lingua="it"], html[lang="it"] [data-lingua="en"] { display:none !important; }
+
+  /* ================================================================ la guida (9 novembre 2026) */
+  button.aiuto { flex:none; width:28px; height:28px; padding:0; border-radius:50%; background:transparent;
+                 border:1px solid transparent; color:var(--accent-chiaro); }
+  button.aiuto:hover:not(:disabled) { background:rgba(47,127,232,0.16); border-color:var(--accent); color:#fff; }
+  button.aiuto > svg.ico { width:20px; height:20px; }
+  .bk-testa > div { flex:1; min-width:0; }
+  .bk-cima .aiuto, .sch-cima .aiuto { margin-left:auto; }
+
+  .guida-corpo { flex:1; min-height:0; display:grid; grid-template-columns:240px minmax(0, 1fr); gap:18px; }
+  #guida-indice { overflow-y:auto; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px; }
+  #guida-indice a { display:block; padding:7px 10px; border-radius:7px; color:var(--dim); text-decoration:none;
+                    font-family:var(--strumento); font-size:0.88rem; font-weight:600; }
+  #guida-indice a:hover { background:var(--rialzo); color:var(--text); }
+  #guida-indice a.qui { background:var(--accent); color:var(--su-accent); }
+  #guida-testo { position:relative; overflow-y:auto;background:var(--panel); border:1px solid var(--line); border-radius:12px;
+                 padding:8px 34px 40vh; line-height:1.65; font-size:0.95rem; scroll-behavior:smooth; }
+  #guida-testo section { max-width:780px; padding-top:18px; }
+  #guida-testo section + section { border-top:1px solid var(--line-soft); margin-top:26px; }
+  #guida-testo h2 { font-family:var(--strumento); font-size:1.45rem; margin:6px 0 10px; color:var(--text); }
+  #guida-testo h3 { font-family:var(--strumento); font-size:1.02rem; margin:22px 0 6px; color:var(--accent-chiaro); }
+  #guida-testo h4 { font-family:var(--strumento); font-size:0.92rem; margin:16px 0 4px; color:var(--text); }
+  #guida-testo p, #guida-testo li { color:#c9d1dc; }
+  #guida-testo p { margin:0 0 10px; }
+  #guida-testo ul, #guida-testo ol { margin:0 0 12px; padding-left:1.4em; }
+  #guida-testo li { margin:5px 0; }
+  #guida-testo b { color:var(--text); }
+  #guida-testo a { color:var(--accent-chiaro); }
+  #guida-testo code { font-size:0.85em; background:var(--incavo); border:1px solid var(--line); border-radius:4px; padding:0 5px; }
+  #guida-testo .tasto { display:inline-flex; align-items:center; gap:4px; vertical-align:1px; font-family:var(--strumento);
+                        font-size:0.8rem; font-weight:600; color:var(--text); background:var(--rialzo); border:1px solid var(--line);
+                        border-radius:6px; padding:1px 8px; white-space:nowrap; line-height:1.5; }
+  #guida-testo .tasto > svg.ico { width:14px; height:14px; }
+  #guida-testo .consiglio, #guida-testo .attenzione, #guida-testo .esempi { border-radius:10px; padding:10px 14px; margin:12px 0;
+                        border:1px solid var(--line); border-left-width:4px; background:var(--incavo); }
+  #guida-testo .consiglio { border-left-color:var(--accent); }
+  #guida-testo .attenzione { border-left-color:var(--ambra); }
+  #guida-testo .esempi { border-left-color:#8a6cf0; }
+  #guida-testo .sicuro { border-radius:10px; padding:10px 14px; margin:12px 0; border:1px solid #2d7650; border-left:4px solid var(--green);
+                         background:#18291f; }
+  #guida-testo .sicuro p { margin:0 0 4px; }
+  #guida-testo .sicuro ul { margin-bottom:2px; }
+  #guida-testo .esempi p { font-style:italic; margin:4px 0; }
+  #guida-testo .esempi p:first-child { font-style:normal; }
+  #guida-testo .pill-verde, #guida-testo .pill-rosso { border-radius:999px; padding:0 8px; font-size:0.85em; }
+  #guida-testo .pill-verde { background:#1d3428; border:1px solid #2d7650; color:#d6f5e4; }
+  #guida-testo .pill-rosso { background:#3a2228; border:1px solid #9c4650; color:#ffe3e3; }
+  #guida-testo .lampeggia { animation:lampeggia 1.4s ease-out; }
+  @keyframes lampeggia { from { background:rgba(47,127,232,0.28); } to { background:transparent; } }
+  @media (max-width:900px) {
+    .guida-corpo { grid-template-columns:minmax(0, 1fr); }
+    #guida-indice { display:none; }
+    #guida-testo { padding:4px 18px 40vh; }
+  }
+</style>
+</head>
+<body>
+<header class="barra">
+  <img class="logo" src="img/logo.png" alt="Pulze Mazz Editor" title="Pulze Mazz Editor · catalogo Pulze Editor 2.1.3 · etichette da Reniori/pulze-tone-generator (MIT)">
+  <button id="rileggi" class="icona" data-icona="ricarica" disabled title="Rileggi" aria-label="Rileggi"></button>
+  <div class="gruppo">
+    <label for="tone-volume">Vol</label>
+    <input id="tone-volume" type="range" min="0" max="100" step="1" disabled>
+    <span id="tone-volume-v">—</span>
+  </div>
+  <div class="gruppo">
+    <label for="tone-tempo">BPM</label>
+    <input id="tone-tempo" class="numero" type="number" min="40" max="250" step="1" disabled>
+  </div>
+  <button id="jam-apri" type="button" popovertarget="drum" data-icona="play" data-icona-cls="pieno" hidden title="Jam">Jam</button>
+  <div class="gruppo" id="drum">
+    <span class="etichetta">Jam</span>
+    <button id="drum-play" data-icona="play" data-icona-cls="pieno" disabled aria-label="Play"></button>
+    <button id="drum-prima" disabled title="Ritmo precedente" aria-label="Ritmo precedente" data-icona="sinistra"></button>
+    <select id="drum-ritmo" disabled title="Ritmo"></select>
+    <button id="drum-dopo" disabled title="Ritmo successivo" aria-label="Ritmo successivo" data-icona="destra"></button>
+    <input id="drum-bpm" class="numero" type="number" min="40" max="300" step="1" disabled title="bpm">
+    <button id="drum-tap" disabled >Tap</button>
+    <button id="drum-sync" disabled >Sync</button>
+    <input id="drum-volume" type="range" min="0" max="100" step="1" disabled title="Volume">
+    <span id="drum-volume-v">—</span>
+  </div>
+  <span class="spazio"></span>
+  <button id="collega" class="primario" title="Collega / Scollega il Pulze Mini"><span class="lampada"></span><span id="collega-testo">Collega</span></button>
+  <button id="menu" class="icona" type="button" popovertarget="menu-tendina" aria-label="Menu" title="Menu"><svg
+    viewBox="0 0 22 22" aria-hidden="true"><path d="M4 6h14M4 11h14M4 16h14"/></svg></button>
+</header>
+<div id="menu-tone" popover>
+  <p id="mt-titolo"></p>
+  <button id="mt-suona" type="button" data-azione="suona">Suona</button>
+  <button type="button" data-azione="rinomina">Rinomina…</button>
+  <button type="button" data-azione="copia">Copia in un altro posto…</button>
+  <button type="button" data-azione="scambia">Scambia con…</button>
+  <hr>
+  <button id="mt-cancella" type="button" data-azione="cancella" class="pericolo">Cancella…</button>
+</div>
+<div id="menu-tendina" popover>
+  <button id="backup" type="button" disabled><svg viewBox="0 0 20 20" aria-hidden="true"><path
+    d="M3 12.5v3a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5v-3M10 3v9.5M6.5 9l3.5 3.5L13.5 9"/></svg>Backup…<span
+    id="ultimo-backup" class="sotto"></span></button>
+  <button id="impostazioni" type="button" disabled><svg viewBox="0 0 20 20" aria-hidden="true"><path
+    d="M3 5.5h8M15 5.5h2M3 10h2M9 10h8M3 14.5h6M13 14.5h4"/><circle cx="13" cy="5.5" r="2"/><circle cx="7" cy="10" r="2"/><circle
+    cx="11" cy="14.5" r="2"/></svg>Impostazioni</button>
+  <button id="guida" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path
+    d="M3.5 4.5c2.5-1 4.5-1 6.5.5 2-1.5 4-1.5 6.5-.5v11c-2.5-1-4.5-1-6.5.5-2-1.5-4-1.5-6.5-.5zM10 5v11"/></svg>Guida</button>
+  <button id="lingua" type="button" data-icona="mondo" title="Lingua"><span id="lingua-testo" data-notrad>English</span></button>
+  <hr>
+  <button id="crediti" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path
+    d="M10 9v5M10 6.2h.01"/></svg>Crediti e responsabilità</button>
+  <button id="caffe" type="button" class="voce-caffe"><svg viewBox="0 0 20 20" aria-hidden="true"><path
+    d="M3 8h11v4a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5zM14 9h1.5a2 2 0 0 1 0 4H14M6 2.5v2.5M9 2.5v2.5"/></svg>Offrimi un caffè</button>
+</div>
+<div class="sotto-barra">
+  <div class="sb-lato">
+    <button id="salva" class="primario" data-icona="salva" disabled>Salva…</button>
+    <div class="gruppo storia">
+      <button id="annulla" type="button" class="icona" disabled title="Annulla l'ultima modifica" aria-label="Annulla l'ultima modifica"><svg viewBox="0 0 20 20" aria-hidden="true"><path
+        d="M7.5 5L4 8.5 7.5 12M4.5 8.5h7a4.5 4.5 0 0 1 0 9H9"/></svg></button>
+      <button id="ripeti" type="button" class="icona" disabled title="Ripeti la modifica annullata" aria-label="Ripeti la modifica annullata"><svg viewBox="0 0 20 20" aria-hidden="true"><path
+        d="M12.5 5L16 8.5 12.5 12M15.5 8.5h-7a4.5 4.5 0 0 0 0 9H11"/></svg></button>
+      <button id="confronta" type="button" disabled title="Confronta col tone salvato">A/B</button>
+    </div>
+    <div class="gruppo">
+      <span class="etichetta">.prst</span>
+      <button id="importa" data-icona="apri" disabled title="Importa un .prst nel tone che suona"><span class="lungo">Importa…</span></button>
+      <button id="esporta" data-icona="scarica" disabled title="Esporta il tone che suona in un .prst"><span class="lungo">Esporta</span></button>
+    </div>
+    <input id="importa-file" type="file" accept=".prst" hidden>
+  </div>
+  <div class="sb-centro">
+    <div class="tone-riga">
+      <button id="tone-prima" class="freccia" disabled title="Tone precedente" aria-label="Tone precedente" data-icona="sinistra"></button>
+      <h1 id="tone-nome">—</h1>
+      <button id="tone-dopo" class="freccia" disabled title="Tone successivo" aria-label="Tone successivo" data-icona="destra"></button>
+      <span id="modificato" hidden>modificato · non salvato</span>
+    </div>
+  </div>
+  <div class="sb-lato destra">
+  <button id="crea" disabled><svg
+    class="scintille" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2.5l1.9 5.6 5.6 1.9-5.6 1.9L10 17.5l-1.9-5.6L2.5 10l5.6-1.9z"/><path
+    d="M18.5 13.5l.95 2.55 2.55.95-2.55.95-.95 2.55-.95-2.55L15 17l2.55-.95z"/></svg><span><span class="lungo">Crea preset </span>AI…</span></button>
+  <button id="songlist" data-icona="lista" disabled title="Songlist"><span class="lungo-stretto">Songlist</span></button>
+  </div>
+</div>
+
+<div class="centro">
+  <section id="palco">
+    <div class="vuoto" id="vuoto">
+      <div class="benvenuto">
+        <img src="img/logo.png" alt="Pulze Mazz Editor">
+        <button id="collega-grande" type="button" class="primario" data-icona="bluetooth"><span id="collega-grande-testo">Collega il Pulze Mini</span></button>
+        <p id="benvenuto-nota">Chiudi prima l'app Pulze Editor sul telefono: il Mini accetta un collegamento alla volta.</p>
+      </div>
+    </div>
+    <div id="palco-corpo" hidden>
+      <div id="foto"></div>
+      <div class="dettaglio">
+        <div class="det-cima">
+          <button id="det-slot" class="etichetta-slot" type="button">—</button>
+        </div>
+        <h2 id="det-nome">—</h2>
+        <p id="det-sotto"></p>
+        <p id="det-info"></p>
+        <ul id="manopole"></ul>
+      </div>
+      <div class="modelli">
+        <input id="cerca-modello" type="search" placeholder="Cerca modello…" autocomplete="off">
+        <ul id="lista-modelli"></ul>
+      </div>
+    </div>
+  </section>
+
+  <aside id="elenco" hidden>
+    <h2>Tone</h2>
+    <div class="elenco-cima">
+      <select id="elenco-lista" title="Quale elenco"><option value="255">Tutti i tone</option></select>
+    </div>
+    <input id="elenco-cerca" type="search" placeholder="Cerca tone…" autocomplete="off" spellcheck="false">
+    <ol id="elenco-tone"><li class="attesa">leggo l'elenco…</li></ol>
+  </aside>
+</div>
+
+<section class="catena" hidden>
+  <div class="fila">
+    <div class="capo"><b></b>IN</div>
+    <div id="catena"></div>
+    <div class="capo"><b></b>OUT</div>
+  </div>
+</section>
+
+<dialog id="dialogo-crea">
+  <div class="bk-cima">
+    <h2>Crea preset AI</h2>
+    <button type="button" class="aiuto" data-guida="g-ai" title="Guida: Crea preset AI" aria-label="Guida: Crea preset AI"></button>
+    <button type="button" class="icona" aria-label="Chiudi" title="Chiudi" data-icona="chiudi" data-chiudi="#crea-annulla"></button>
+  </div>
+  <section class="bk-carta">
+    <div class="bk-testa" data-icona="scintille">
+      <div><h3>Il suono</h3><p>Descrivilo a parole: genere, artista, ampli, effetti.</p></div>
+    </div>
+    <textarea id="crea-testo" placeholder="Per esempio: crunch anni '70 con un po' di delay"></textarea>
+    <label class="crea-spunta"><input id="crea-parti" type="checkbox"> Parti dal tone che suona</label>
+  </section>
+  <section class="bk-carta">
+    <div class="bk-testa" data-icona="chiave">
+      <div><h3>L'AI</h3><p>La tua chiave va solo a OpenAI o Anthropic e resta in questo browser.</p></div>
+      <button type="button" class="aiuto" data-guida="g-ai-chiave" title="Guida: la chiave API" aria-label="Guida: la chiave API"></button>
+    </div>
+    <label class="campo"><span class="bk-nome">AI</span> <select id="crea-ai"><option value="openai">OpenAI</option><option value="claude">Claude (Anthropic)</option></select></label>
+    <div id="crea-chiave-riga">
+      <label class="campo"><span class="bk-nome" id="crea-chiave-nome">Chiave OpenAI</span> <input id="crea-chiave" type="password" autocomplete="off" placeholder="sk-…"></label>
+    </div>
+    <label class="campo"><span class="bk-nome">Modello</span> <select id="crea-modello"><option>—</option></select>
+      <button id="crea-cambia-chiave" type="button" hidden>Chiave…</button></label>
+  </section>
+  <p id="crea-attesa" class="nota"></p>
+  <p id="crea-errore" class="errore"></p>
+  <div class="azioni">
+    <button id="crea-annulla" type="button">Annulla</button>
+    <button id="crea-conferma" type="button" class="primario">Crea</button>
+  </div>
+</dialog>
+<dialog id="dialogo-importa">
+  <div class="bk-cima">
+    <h2 id="importa-titolo">Importa</h2>
+    <button type="button" class="aiuto" data-guida="g-prst" title="Guida: file .prst" aria-label="Guida: file .prst"></button>
+    <button type="button" class="icona" aria-label="Chiudi" title="Chiudi" data-icona="chiudi" data-chiudi="#importa-annulla"></button>
+  </div>
+  <section class="bk-carta">
+    <div class="bk-testa" data-icona="apri">
+      <div><h3>Nel tone che suona</h3><p>Catena e blocchi del file. Niente è salvato finché non premi Salva.</p></div>
+    </div>
+    <ol id="importa-blocchi"></ol>
+    <p class="nota" id="importa-note"></p>
+  </section>
+  <div class="azioni">
+    <button id="importa-annulla" type="button">Annulla</button>
+    <button id="importa-conferma" type="button" class="primario">Importa</button>
+  </div>
+</dialog>
+<dialog id="dialogo-tone">
+  <div class="bk-cima">
+    <h2 id="dt-titolo">Copia</h2>
+    <button type="button" class="aiuto" data-guida="g-tone" title="Guida: copiare e scambiare i tone" aria-label="Guida: copiare e scambiare i tone"></button>
+    <button type="button" class="icona" aria-label="Chiudi" title="Chiudi" data-icona="chiudi" data-chiudi="#dt-annulla"></button>
+  </div>
+  <section class="bk-carta">
+    <label class="campo"><span class="bk-nome" id="dt-etichetta">Nel posto</span> <select id="dt-posto"></select></label>
+    <label class="campo" id="dt-riga-nome"><span class="bk-nome">Nome</span> <input id="dt-nome" maxlength="16" autocomplete="off"></label>
+    <p class="nota" id="dt-nota"></p>
+  </section>
+  <p id="dt-errore" class="errore"></p>
+  <div class="azioni">
+    <button id="dt-annulla" type="button">Annulla</button>
+    <button id="dt-conferma" type="button" class="primario">Copia</button>
+  </div>
+</dialog>
+<dialog id="dialogo-salva">
+  <div class="bk-cima">
+    <h2>Salva sul Mini</h2>
+    <button type="button" class="icona" aria-label="Chiudi" title="Chiudi" data-icona="chiudi" data-chiudi="#salva-annulla"></button>
+  </div>
+  <section class="bk-carta">
+    <div class="bk-testa" data-icona="salva">
+      <div><h3>Il tone che suona</h3><p>Nel suo posto o in un altro: quello che c'era si sovrascrive.</p></div>
+    </div>
+    <label class="campo"><span class="bk-nome">Posto</span> <select id="salva-posto"><option>leggo i nomi…</option></select></label>
+    <label class="campo"><span class="bk-nome">Nome</span> <input id="salva-nome" maxlength="16" autocomplete="off"></label>
+  </section>
+  <p id="salva-errore" class="errore"></p>
+  <div class="azioni">
+    <button id="salva-annulla" type="button">Annulla</button>
+    <button id="salva-conferma" type="button" class="primario">Sovrascrivi</button>
+  </div>
+</dialog>
+<dialog id="dialogo-impostazioni" class="schermo">
+  <div class="sch-cima">
+    <h2>Impostazioni</h2>
+    <span id="imp-stato" class="errore"></span>
+    <span class="spazio"></span>
+    <button type="button" class="aiuto" data-guida="g-impostazioni" title="Guida: Impostazioni" aria-label="Guida: Impostazioni"></button>
+    <button id="imp-chiudi" type="button" class="icona" aria-label="Chiudi" title="Chiudi" data-icona="chiudi"></button>
+  </div>
+  <div class="imp-corpo">
+    <nav id="imp-menu"></nav>
+    <section id="imp-pagina"></section>
+  </div>
+</dialog>
+<dialog id="dialogo-backup">
+  <div class="bk-cima">
+    <h2>Backup</h2>
+    <button type="button" class="aiuto" data-guida="g-backup" title="Guida: Backup" aria-label="Guida: Backup"></button>
+    <button id="backup-x" type="button" class="icona" aria-label="Chiudi" title="Chiudi" data-icona="chiudi"></button>
+  </div>
+  <section class="bk-carta">
+    <div class="bk-testa">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="3.5" width="15" height="10" rx="1.5"/><path d="M7 17h6M10 13.5V17"/></svg>
+      <div><h3>Sul PC</h3><p>I file vanno nella cartella Download.</p></div>
+    </div>
+    <button id="backup-tutto" type="button" class="primario bk-grande">Backup completo<small>tutti i tone, i settaggi e le Songlist in uno .zip</small></button>
+    <div class="bk-righe">
+      <div class="bk-riga"><span class="bk-nome">Tone</span>
+        <div class="bk-tasti"><button id="backup-tone" type="button">Ripristina preset…</button></div></div>
+      <div class="bk-riga"><span class="bk-nome">Settaggi</span>
+        <div class="bk-tasti"><button id="backup-esporta" type="button">Esporta</button>
+          <button id="backup-importa" type="button">Importa…</button></div></div>
+      <div class="bk-riga"><span class="bk-nome">Songlist</span>
+        <div class="bk-tasti"><button id="backup-sl-esporta" type="button">Esporta</button>
+          <button id="backup-sl-importa" type="button">Importa…</button></div></div>
+    </div>
+    <input id="backup-file" type="file" accept=".glb" hidden>
+    <input id="backup-sl-file" type="file" accept=".json,.zip" hidden>
+    <input id="backup-tone-file" type="file" accept=".zip" hidden>
+  </section>
+  <section class="bk-carta">
+    <div class="bk-testa">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 15.5h9a3.5 3.5 0 0 0 .4-7 5 5 0 0 0-9.7 1.2A3 3 0 0 0 5.5 15.5z"/></svg>
+      <div><h3>Dropbox</h3><p>Nella tua app Dropbox, cartella dell'app.</p></div>
+      <button type="button" class="aiuto" data-guida="g-dropbox" title="Guida: collegare Dropbox" aria-label="Guida: collegare Dropbox"></button>
+    </div>
+    <div id="db-collegato" hidden>
+      <button id="db-su" type="button" class="primario bk-grande">Backup su Dropbox<small>lo stesso .zip, mandato lassù</small></button>
+      <label class="bk-scelta"><span class="bk-nome">Backup</span>
+        <select id="db-elenco"><option value="">(nessun backup su Dropbox)</option></select></label>
+      <div class="bk-righe">
+        <div class="bk-riga"><span class="bk-nome">Rimetti</span>
+          <div class="bk-tasti"><button id="db-tone" type="button">Tone</button>
+            <button id="db-settaggi" type="button">Settaggi</button>
+            <button id="db-songlist" type="button">Songlist</button></div></div>
+        <div class="bk-riga"><span class="bk-nome">Sul PC</span>
+          <div class="bk-tasti"><button id="db-scarica" type="button" data-icona="scarica" title="Scarica sul PC il backup scelto">Scarica</button></div></div>
+        <div class="bk-riga"><span class="bk-nome">Dropbox</span>
+          <div class="bk-tasti"><button id="db-via" type="button" class="via" title="Scollega Dropbox da questo browser">Scollega</button></div></div>
+      </div>
+    </div>
+    <div id="db-da-collegare">
+      <div class="bk-campo"><input id="db-chiave" type="text" placeholder="app key della tua app Dropbox" spellcheck="false" autocomplete="off">
+        <button id="db-collega" type="button">Collega</button></div>
+      <div class="bk-campo" id="db-passo-due" hidden><input id="db-codice" type="text" placeholder="codice da Dropbox" spellcheck="false" autocomplete="off">
+        <button id="db-fatto" type="button" class="primario">Fatto</button>
+        <a id="db-link" href="#" target="_blank" rel="noopener">apri Dropbox</a></div>
+    </div>
+  </section>
+  <details class="bk-carta" id="sicurezza">
+    <summary class="bk-testa">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5l6 2.2v4.6c0 3.9-2.6 6.6-6 8.2-3.4-1.6-6-4.3-6-8.2V4.7z"/><path d="M7.3 10l2 2 3.6-3.8"/></svg>
+      <div><h3>Copie di sicurezza <span id="sic-quante" class="conta"></span></h3>
+        <p>Si fanno da sole prima dei lavori che sovrascrivono qualcosa. Restano in questo browser.</p></div>
+      <button type="button" class="aiuto" data-guida="g-sicurezza" title="Guida: copie di sicurezza" aria-label="Guida: copie di sicurezza"></button>
+      <span class="freccia-giu" aria-hidden="true" data-icona="giu"></span>
+    </summary>
+    <ol id="sic-elenco"></ol>
+  </details>
+  <p class="nota" id="backup-stato"></p>
+  <div class="azioni"><button id="backup-ferma" type="button" hidden>Ferma</button>
+    <button id="backup-chiudi" type="button">Chiudi</button></div>
+</dialog>
+<dialog id="dialogo-crediti">
+  <div class="bk-cima">
+    <h2>Crediti e responsabilità</h2>
+    <button id="crediti-x" type="button" class="icona" aria-label="Chiudi" title="Chiudi" data-icona="chiudi"></button>
+  </div>
+  <div class="crediti-corpo" data-lingua="it">
+    <p><b>Pulze Mazz Editor</b> modifica i tone di un <b>Hotone Pulze Mini</b> dal PC, via Bluetooth, dentro il
+      browser: non c'è un account, e quello che fai resta sul Mini e su questo computer.</p>
+    <p>Scritto da <b>Massimo Togni</b>.</p>
+
+    <h3>Uso libero</h3>
+    <p>Questo programma è di <b>libero utilizzo</b> ed è gratuito. Se ti è utile e vuoi ringraziare, c'è
+      «Offrimi un caffè» nel menu.</p>
+
+    <h3>Nessuna garanzia, nessuna responsabilità</h3>
+    <p>Il programma è fornito <b>«così com'è»</b>, senza garanzie di alcun tipo, esplicite o implicite, comprese
+      quelle di commerciabilità, idoneità a uno scopo particolare e non violazione di diritti altrui.</p>
+    <p><b>L'autore non si assume alcuna responsabilità</b> per danni diretti o indiretti derivanti dall'uso di
+      questo programma: fra questi, a titolo di esempio e senza che l'elenco sia esaustivo, la perdita o
+      l'alterazione dei tone, delle Songlist e dei settaggi salvati nel Mini, malfunzionamenti dell'apparecchio, e
+      qualunque conseguenza di un comando mandato via Bluetooth. <b>Lo usi a tuo rischio.</b></p>
+    <p>Due cose da sapere, perché possono capitare davvero: salvare un tone in un posto <b>sovrascrive</b> quello
+      che c'era, e rimettere Songlist o settaggi da un file sostituisce quelli di adesso. Prima di lavori grossi
+      fai un <b>Backup completo</b>.</p>
+
+    <h3>Nessun rapporto con Hotone</h3>
+    <p>Questo è un progetto indipendente e <b>non ha alcun rapporto con Hotone Audio</b>: non è prodotto,
+      approvato, sponsorizzato né supportato da Hotone. Per l'assistenza sul Mini rivolgiti a Hotone: di questo
+      programma loro non sanno niente e non ne rispondono.</p>
+    <p>«Hotone», «Pulze» e «Pulze Mini» sono marchi dei rispettivi titolari, citati solo per dire con quale
+      apparecchio funziona il programma. Anche i nomi dei prodotti a cui si ispirano i modelli (ampli, pedali,
+      cabinet) appartengono ai loro titolari e sono citati solo a scopo descrittivo. Le immagini dei modelli
+      sono disegni generati per questo programma, non foto dei prodotti.</p>
+
+    <h3>Su cosa è stato provato</h3>
+    <p>Provato <b>solo su un Pulze Mini</b>, firmware 1.1.2, e su un solo esemplare. Il protocollo è stato
+      ricostruito osservando l'apparecchio, non viene da documentazione ufficiale, e con un altro firmware o un
+      altro modello può comportarsi in modo diverso.</p>
+
+    <h3>Cosa esce da qui</h3>
+    <p>Di suo, niente: nessun dato viene raccolto. Escono solo i comandi al Mini, via Bluetooth; i backup su
+      <b>Dropbox</b>, se lo colleghi, nella tua app Dropbox; e con <b>Crea preset AI</b> la descrizione che scrivi,
+      mandata al fornitore che scegli (OpenAI o Anthropic) con la tua chiave. Chiavi e collegamenti restano in
+      questo browser.</p>
+
+    <h3>Grazie a, e licenze</h3>
+    <p><b>Reniori, pulze-tone-generator</b> — <i>licenza MIT</i>, Copyright (c) 2026 reniori. Da lì vengono le
+      etichette dei selettori, le unità e il catalogo dei modelli usato da Crea preset AI; la licenza è in
+      <code>reference/reniori/LICENSE</code>.
+      <a href="https://github.com/Reniori/pulze-tone-generator" target="_blank" rel="noopener noreferrer">github.com/Reniori/pulze-tone-generator</a></p>
+    <p>Nomi dei modelli, posizioni e limiti delle manopole vengono dal catalogo dell'app ufficiale Pulze Editor
+      2.1.3, letti per far parlare i due programmi la stessa lingua.</p>
+  </div>
+  <div class="crediti-corpo" data-lingua="en">
+    <p><b>Pulze Mazz Editor</b> edits the tones of a <b>Hotone Pulze Mini</b> from your PC, over Bluetooth, inside the
+      browser: there is no account, and what you do stays on the Mini and on this computer.</p>
+    <p>Written by <b>Massimo Togni</b>.</p>
+
+    <h3>Free to use</h3>
+    <p>This program is <b>free to use</b> and costs nothing. If you find it useful and want to say thanks, there is
+      “Buy me a coffee” in the menu.</p>
+
+    <h3>No warranty, no liability</h3>
+    <p>The program is provided <b>“as is”</b>, without warranty of any kind, express or implied, including the
+      warranties of merchantability, fitness for a particular purpose and non-infringement.</p>
+    <p><b>The author accepts no liability</b> for any direct or indirect damage arising from the use of this program:
+      including, by way of example and without limitation, the loss or alteration of the tones, Songlists and settings
+      stored in the Mini, malfunctions of the device, and any consequence of a command sent over Bluetooth.
+      <b>You use it at your own risk.</b></p>
+    <p>Two things worth knowing, because they can really happen: saving a tone to a slot <b>overwrites</b> what was
+      there, and restoring Songlists or settings from a file replaces the current ones. Before big jobs, make a
+      <b>Full backup</b>.</p>
+
+    <h3>Not affiliated with Hotone</h3>
+    <p>This is an independent project and <b>has no relationship with Hotone Audio</b>: it is not made, approved,
+      sponsored or supported by Hotone. For support with the Mini, contact Hotone: they know nothing about this program
+      and are not responsible for it.</p>
+    <p>“Hotone”, “Pulze” and “Pulze Mini” are trademarks of their respective owners, mentioned only to say which device
+      the program works with. The names of the products the models are inspired by (amps, pedals, cabinets) also belong
+      to their owners and are mentioned for descriptive purposes only. The model images are drawings generated for this
+      program, not photos of the products.</p>
+
+    <h3>What it was tested on</h3>
+    <p>Tested <b>only on a Pulze Mini</b>, firmware 1.1.2, and on a single unit. The protocol was reconstructed by
+      observing the device, it does not come from official documentation, and with another firmware or another model it
+      may behave differently.</p>
+
+    <h3>What leaves this computer</h3>
+    <p>On its own, nothing: no data is collected. Only the commands to the Mini go out, over Bluetooth; the backups to
+      <b>Dropbox</b>, if you connect it, go to your own Dropbox app; and with <b>Create AI preset</b> the description you
+      write goes to the provider you choose (OpenAI or Anthropic) with your key. Keys and connections stay in this
+      browser.</p>
+
+    <h3>Thanks, and licenses</h3>
+    <p><b>Reniori, pulze-tone-generator</b> — <i>MIT license</i>, Copyright (c) 2026 reniori. The selector labels, the
+      units and the model catalog used by Create AI preset come from there; the license is in
+      <code>reference/reniori/LICENSE</code>.
+      <a href="https://github.com/Reniori/pulze-tone-generator" target="_blank" rel="noopener noreferrer">github.com/Reniori/pulze-tone-generator</a></p>
+    <p>Model names, positions and knob ranges come from the catalog of the official Pulze Editor 2.1.3 app, read so
+      that the two programs speak the same language.</p>
+  </div>
+</dialog>
+<dialog id="dialogo-ripristino">
+  <div class="bk-cima">
+    <h2>Rimetti tone dal backup</h2>
+    <button type="button" class="aiuto" data-guida="g-rimetti" title="Guida: rimettere i tone" aria-label="Guida: rimettere i tone"></button>
+    <button type="button" class="icona" aria-label="Chiudi" title="Chiudi" data-icona="chiudi" data-chiudi="#rip-chiudi"></button>
+  </div>
+  <p class="nota" id="rip-origine"></p>
+  <div class="gest-riga"><button id="rip-diversi" type="button">Solo i diversi</button>
+    <button id="rip-tutti" type="button">Tutti</button>
+    <button id="rip-nessuno" type="button">Nessuno</button></div>
+  <ol id="rip-elenco"></ol>
+  <p class="nota" id="rip-stato"></p>
+  <div class="azioni"><button id="rip-ferma" type="button" hidden>Ferma</button>
+    <button id="rip-chiudi" type="button">Chiudi</button>
+    <button id="rip-via" type="button" class="primario" disabled>Rimetti</button></div>
+</dialog>
+<dialog id="dialogo-guida" class="schermo">
+  <div class="sch-cima">
+    <h2>Guida</h2>
+    <span class="spazio"></span>
+    <button id="guida-chiudi" type="button" class="icona" aria-label="Chiudi" title="Chiudi" data-icona="chiudi"></button>
+  </div>
+  <div class="guida-corpo">
+    <nav id="guida-indice" aria-label="Indice della guida"></nav>
+    <article id="guida-testo" data-notrad><p class="attesa">Carico la guida…</p></article>
+  </div>
+</dialog>
+<dialog id="dialogo-songlist" class="schermo">
+  <div class="sch-cima">
+    <h2>Songlist</h2>
+    <span id="sl-modificato" class="pill-modificato" hidden>modifiche non salvate</span>
+    <span class="spazio"></span>
+    <button id="sl-nuova" type="button" data-icona="piu">Nuova Songlist</button>
+    <button id="sl-annulla" type="button" disabled>Annulla modifiche</button>
+    <button id="sl-salva" type="button" class="primario" disabled>Salva sul Mini</button>
+    <button type="button" class="aiuto" data-guida="g-songlist" title="Guida: Songlist" aria-label="Guida: Songlist"></button>
+    <button id="sl-chiudi" type="button" class="icona" aria-label="Chiudi" title="Chiudi" data-icona="chiudi"></button>
+  </div>
+  <div class="sl-corpo">
+    <aside class="sl-preset">
+      <input id="sl-cerca" type="search" placeholder="Cerca…" autocomplete="off">
+      <ol id="sl-preset"></ol>
+    </aside>
+    <div id="sl-blocchi"></div>
+  </div>
+</dialog>
+
+<div id="avvisi" popover="manual" aria-live="polite"></div>
+
+<script src="src/pulze-lingua.js"></script>
+<script src="src/pulze-protocollo.js"></script>
+<script src="src/pulze-catalogo.js"></script>
+<script src="src/pulze-immagini.js"></script>
+<script src="src/pulze-prst.js"></script>
+<script src="src/pulze-ricetta.js"></script>
+<script src="src/pulze-ble.js"></script>
+<script src="src/pulze-dropbox.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>

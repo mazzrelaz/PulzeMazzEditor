@@ -1,0 +1,1 @@
+File .prst di prova da Reniori, pulze-tone-generator (tests/fixtures), licenza MIT (../../reference/reniori/LICENSE).

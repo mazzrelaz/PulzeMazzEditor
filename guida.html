@@ -1,0 +1,406 @@
+<!-- guida.html - La guida del Pulze Mazz Editor. La pagina la carica nella finestra «Guida» (menu ☰ e i
+     tasti «?»): ogni <section id="g-…"> è una voce dell'indice, col suo <h2>. I link «#g-…» portano alle
+     altre sezioni. Testo per chi usa l'editor: niente protocollo, niente codice. -->
+
+<section id="g-inizio">
+  <h2>Per cominciare</h2>
+  <p><b>Pulze Mazz Editor</b> comanda un <b>Hotone Pulze Mini</b> dal PC, via Bluetooth: modifichi i tone, li salvi,
+    li organizzi in Songlist, fai i backup e puoi farti comporre un suono dall'AI.</p>
+  <h3>Cosa serve</h3>
+  <ul>
+    <li>Un PC col <b>Bluetooth</b> acceso.</li>
+    <li><b>Chrome</b> o <b>Edge</b>: sono i browser che sanno parlare col Bluetooth. Firefox no.</li>
+    <li>Il Pulze Mini acceso. L'editor è stato provato col firmware 1.1.2.</li>
+  </ul>
+  <h3>Collegarsi</h3>
+  <ol>
+    <li><b>Chiudi l'app Pulze Editor sul telefono</b> (o spegni il Bluetooth del telefono). Il Mini accetta
+      <b>un collegamento alla volta</b>: se il telefono è collegato, il PC non lo trova.</li>
+    <li>Premi <span class="tasto">Collega il Pulze Mini</span> al centro, o <span class="tasto">Collega</span> in alto a destra.</li>
+    <li>Nella finestra del browser scegli il <b>Pulze Mini</b> e premi <b>Associa</b>.</li>
+    <li>L'editor legge il tone che suona e l'elenco dei tone. In pochi secondi è pronto. In alto a destra la lucina
+      diventa verde.</li>
+  </ol>
+  <p>Per staccarti premi <span class="tasto">Scollega</span> (o, a finestra stretta, la lucina verde). Se la Jam sta
+    suonando, prima la ferma.</p>
+  <div class="consiglio">Le modifiche vanno al Mini <b>mentre le fai</b>: senti subito il risultato. Ma <b>non sono
+    salvate</b> finché non premi <span class="tasto">Salva…</span>: cambiando tone si perdono. Vedi
+    <a href="#g-salva">Salvare, Annulla e A/B</a>.</div>
+  <h3>Lingua</h3>
+  <p>L'editor parte nella lingua del browser (italiano o inglese). Per cambiarla: <span class="tasto" data-icona="menu"
+    aria-label="Menu"></span> → <b>English / Italiano</b>. La pagina si ricarica.</p>
+</section>
+
+<section id="g-schermata">
+  <h2>La schermata</h2>
+  <ul>
+    <li><b>Barra in alto</b>: <span class="tasto" data-icona="ricarica" aria-label="Rileggi"></span> rileggi (rilegge tutto dal Mini), <b>Vol</b> (il volume del
+      tone), <b>BPM</b> (il tempo del tone, quello che usano i delay col Sync), la <a href="#g-jam">Jam</a>,
+      <span class="tasto">Collega</span> e il menu <span class="tasto" data-icona="menu" aria-label="Menu"></span> (Backup, Impostazioni, Guida, Crediti).</li>
+    <li><b>Sotto la barra</b>: a sinistra <span class="tasto">Salva…</span>, Annulla / Ripeti, <span class="tasto">A/B</span>
+      e i file .prst; al centro il <b>nome del tone</b> con le frecce per passare al tone prima o dopo (accanto, in
+      ambra, «modificato · non salvato» quando hai cambiato qualcosa); a destra
+      <span class="tasto">Crea preset AI…</span> e <span class="tasto">Songlist</span>.</li>
+    <li><b>Al centro, il palco</b>: il blocco che hai scelto, grande, con le sue manopole e l'elenco dei modelli.</li>
+    <li><b>A destra, l'elenco dei tone</b>: vedi <a href="#g-tone">I tone</a>.</li>
+    <li><b>In basso, la catena</b>: i sette blocchi nell'ordine in cui il suono li attraversa, da IN a OUT.</li>
+    <li><b>Gli avvisi</b> compaiono in basso a destra: <span class="pill-verde">verdi</span> quando una cosa è andata
+      (spariscono da soli), <span class="pill-rosso">rossi</span> quando qualcosa non va (restano finché non premi la
+      ✕), grigi col cerchietto che gira mentre l'editor lavora.</li>
+  </ul>
+  <p>Con la finestra stretta (un portatile piccolo, o mezzo schermo) la pagina si compatta: la Jam diventa un tasto
+    che apre il suo pannello, alcuni tasti restano solo con l'icona e il nome del tone va su una riga sua.</p>
+</section>
+
+<section id="g-catena">
+  <h2>La catena e i blocchi</h2>
+  <p>I sette blocchi sono <b>DYN</b> (dinamica: gate, compressore), <b>PRE</b> (effetti prima dell'ampli),
+    <b>AMP</b> (ampli), <b>CAB</b> (cabinet), <b>EQ/MOD</b> (equalizzatori e modulazioni), <b>FX1</b> e <b>FX2</b>
+    (delay, riverberi e altro).</p>
+  <ul>
+    <li><b>Accendere e spegnere</b> un blocco: clicca l'etichetta colorata sopra l'immagine (blu = acceso). Un blocco
+      spento è grigio.</li>
+    <li><b>Vederlo sul palco</b>: clicca l'immagine.</li>
+    <li><b>Cambiare modello</b>: dalla tendina sotto l'immagine (i modelli sono divisi per categoria), oppure
+      dall'elenco a destra del palco, che ha anche la ricerca. Il modello nuovo parte coi suoi valori di fabbrica.</li>
+    <li><b>Spostare un blocco</b> nella catena: prendi l'immagine e trascinala dove vuoi; gli altri si fanno da parte.</li>
+  </ul>
+  <h3>Auto CAB</h3>
+  <p>Sul palco dell'AMP c'è l'interruttore <b>Auto CAB</b>. È un'impostazione <b>del Mini</b>, non del tone: vale per
+    tutti. Acceso, quando cambi ampli il Mini mette da solo il cabinet abbinato.</p>
+  <h3>Sound Clone e IR utente</h3>
+  <p>Se sul Mini hai caricato dei Sound Clone o delle IR, compaiono fra i modelli col nome che gli hai dato. Sul palco,
+    sotto il titolo, c'è <span class="tasto">Rinomina…</span> per cambiargli nome. Caricarne di nuovi dal PC non si può:
+    serve l'app del telefono.</p>
+</section>
+
+<section id="g-manopole">
+  <h2>Le manopole</h2>
+  <ul>
+    <li><b>Girare</b>: clicca la manopola e trascina <b>su</b> (aumenta) o <b>giù</b> (diminuisce).</li>
+    <li><b>Con più precisione</b>: tieni premuto <b>Maiusc</b> mentre trascini.</li>
+    <li><b>Rotella del mouse</b> sopra la manopola: un passo alla volta.</li>
+    <li><b>Doppio clic</b>: torna al valore di fabbrica.</li>
+    <li>I <b>selettori</b> con poche voci sono tasti affiancati (per esempio Cool / Hot); quelli con tante voci sono
+      una tendina; gli interruttori sono pillole On / Off.</li>
+    <li>I <b>tempi dei delay e delle modulazioni</b> hanno la pillola <b>Sync</b>: accesa, il tempo è una divisione
+      (1/4, 1/8 puntato…) del BPM del tone; spenta, è in millisecondi o in Hertz.</li>
+  </ul>
+</section>
+
+<section id="g-salva">
+  <h2>Salvare, Annulla e A/B</h2>
+  <h3>Salva…</h3>
+  <p><span class="tasto">Salva…</span> apre la finestra di salvataggio: scegli il <b>posto</b> (proposto quello del tone
+    che suona) e il <b>nome</b> (al massimo 16 caratteri, senza lettere accentate). Puoi salvarlo in un altro posto:
+    se è pieno, quello che c'era viene sovrascritto, ma prima l'editor ne fa una
+    <a href="#g-sicurezza">copia di sicurezza</a>.</p>
+  <h3>Annulla e Ripeti</h3>
+  <p>Le frecce curve accanto a Salva tornano indietro e avanti fra le modifiche (manopole, modelli, on/off, catena,
+    anche un import intero). Valgono finché resti sullo stesso tone.</p>
+  <h3>A/B: il confronto</h3>
+  <p>Dopo aver cambiato qualcosa, <span class="tasto">A/B</span> ti fa sentire <b>il tone com'è salvato</b> (il tasto
+    diventa ambra). Ripremilo e torni alle tue modifiche. Così senti se la modifica migliora davvero.</p>
+</section>
+
+<section id="g-tone">
+  <h2>I tone</h2>
+  <p>Il Mini ha <b>200 posti</b>. L'elenco a destra mostra quelli pieni.</p>
+  <ul>
+    <li><b>Clic</b> su un tone: suona. Se hai modifiche non salvate, prima te lo chiede.</li>
+    <li><b>Cerca tone…</b>: scrivi un pezzo del nome o il numero del posto.</li>
+    <li>La tendina in cima sceglie cosa vedere: <b>Tutti i tone</b> o una <a href="#g-songlist">Songlist</a>.</li>
+    <li>In «Tutti i tone», la <b>piccola icona a lista</b> accanto al nome vuol dire che quel tone sta in almeno una
+      Songlist; passaci sopra col mouse e ti dice in quali.</li>
+    <li><b>Tasto destro</b> su un tone (o il <span class="tasto" data-icona="altro" data-icona-cls="puntini" aria-label="Altro"></span> che compare passandoci sopra): Suona,
+      Rinomina…, Copia in un altro posto…, Scambia con…, Cancella….</li>
+  </ul>
+  <div class="attenzione">Il Mini non sa copiare un tone direttamente: l'editor <b>lo fa suonare e lo salva nel posto
+    nuovo</b>. Lo scambio sono tre copie passando da un posto vuoto. Le Songlist puntano ai <b>posti</b>: dopo uno scambio
+    una Songlist che conteneva il posto 5 suonerà il tone che ora sta al 5. L'editor te lo ricorda prima.</div>
+</section>
+
+<section id="g-prst">
+  <h2>File .prst: importa ed esporta</h2>
+  <p>Il <b>.prst</b> è il file di un tone dell'app Pulze Editor del telefono: si scambia con altri, si scarica da
+    internet, si salva sul PC.</p>
+  <ul>
+    <li><b>Esporta</b> (freccia in giù): salva il tone che suona in un .prst, nella cartella Download. L'app del telefono
+      lo importa.</li>
+    <li><b>Importa…</b> (cartella): scegli un .prst. Prima di toccare il Mini l'editor mostra <b>cosa c'è nel file</b>:
+      la catena, i modelli, chi è acceso e chi spento.</li>
+  </ul>
+  <p>Premendo <span class="tasto">Importa</span> il file va <b>nel tone che suona</b>, al posto di quello che c'era,
+    e l'editor rilegge i blocchi per controllare. <b>Non è salvato</b>: ascoltalo, ritoccalo, e se ti piace premi
+    <span class="tasto">Salva…</span> (il nome proposto è quello del file). Se non ti piace,
+    <span class="tasto">Annulla</span> lo toglie, oppure cambia tone senza salvare.</p>
+  <p>Se un blocco del file usa un modello che il Mini non può mettere in quello slot, l'editor lo dice
+    («resta quello del tone») e tiene il blocco che c'era.</p>
+</section>
+
+<section id="g-ai">
+  <h2>Crea preset AI</h2>
+  <p>Descrivi a parole il suono che vuoi («il crunch di AC/DC», «clean anni '80 con chorus e un delay lungo») e
+    un'intelligenza artificiale lo compone usando <b>i modelli veri del Mini</b>: sceglie ampli, cabinet ed effetti,
+    li mette in ordine, decide chi è acceso e regola le manopole. Il risultato lo vedi prima di metterlo sul Mini, e
+    arriva nel tone che suona come un file .prst: <b>niente viene salvato da solo</b>.</p>
+
+  <h3 id="g-ai-chiave">Cosa serve: una chiave API</h3>
+  <p>L'editor non ha un'AI sua: usa quella di <b>OpenAI</b> (ChatGPT) o di <b>Anthropic</b> (Claude), con <b>la tua
+    chiave API</b>. La chiave è una specie di password che permette all'editor di fare richieste a nome tuo.</p>
+  <div class="attenzione"><b>La chiave API si paga a consumo</b>, a parte: l'abbonamento a ChatGPT Plus o a Claude Pro
+    <b>non</b> la comprende. Ogni preset creato costa qualche centesimo (dipende dal modello scelto). Sul sito del
+    fornitore puoi caricare un piccolo credito e mettere un limite di spesa.</div>
+  <div class="sicuro">
+    <p><b>La tua chiave è al sicuro</b></p>
+    <ul>
+      <li>Va <b>direttamente</b> dal tuo PC a OpenAI o ad Anthropic, e a nessun altro. Non c'è un server dell'editor in
+        mezzo: l'editor è una pagina che gira sul tuo computer.</li>
+      <li>L'autore dell'editor <b>non la vede e non la riceve</b>, e non c'è nessun account dell'editor dove finisca.</li>
+      <li>Resta solo <b>nel tuo browser, su questo PC</b>, così non devi riscriverla ogni volta. Non va sul Mini, non va
+        su Dropbox, non finisce nei backup né nei file .prst.</li>
+      <li>Puoi sempre <b>cancellarla dal sito del fornitore</b> (nella pagina API keys): da quel momento non vale più,
+        per nessuno. E col <b>limite di spesa</b> sai sempre quanto puoi spendere al massimo.</li>
+    </ul>
+  </div>
+  <h4>Prendere la chiave di OpenAI</h4>
+  <ol>
+    <li>Vai su <b>platform.openai.com</b> e accedi (o crea un account).</li>
+    <li>In <b>Billing</b> carica un credito (bastano pochi euro).</li>
+    <li>In <b>API keys</b> premi <b>Create new secret key</b>, dagli un nome (per esempio «Pulze») e copia la chiave:
+      comincia con <code>sk-</code>. <b>Si vede una volta sola</b>: copiala subito.</li>
+  </ol>
+  <h4>Prendere la chiave di Anthropic (Claude)</h4>
+  <ol>
+    <li>Vai su <b>console.anthropic.com</b> e accedi (o crea un account).</li>
+    <li>In <b>Billing</b> carica un credito.</li>
+    <li>In <b>API Keys</b> premi <b>Create Key</b>, dagli un nome e copia la chiave: comincia con <code>sk-ant-</code>.</li>
+  </ol>
+
+  <h3>La prima volta</h3>
+  <ol>
+    <li>Premi <span class="tasto">Crea preset AI…</span> (viola, in alto a destra).</li>
+    <li>Nel riquadro <b>L'AI</b> scegli <b>OpenAI</b> o <b>Claude (Anthropic)</b>.</li>
+    <li>Incolla la chiave nel campo <b>Chiave</b>. L'editor la prova subito: se va, nella tendina <b>Modello</b>
+      compaiono i modelli del tuo account. Se non va, sotto c'è scritto perché (chiave sbagliata, credito finito…).</li>
+    <li>Scegli il <b>modello</b>. Il primo della lista è il più nuovo e di solito il migliore; quelli «mini» o «nano»
+      costano meno ma sbagliano di più. Con Claude il predefinito è <b>Claude Opus 5.5</b>.</li>
+  </ol>
+  <p>Chiave e modello restano <b>in questo browser</b>: le volte dopo non devi rimetterli. Per cambiarla c'è
+    <span class="tasto">Chiave…</span> accanto al modello. Puoi tenere sia la chiave OpenAI sia quella Claude e passare
+    dall'una all'altra.</p>
+
+  <h3>Creare un suono</h3>
+  <ol>
+    <li>Nel riquadro <b>Il suono</b> scrivi cosa vuoi. In italiano va benissimo.</li>
+    <li>Se vuoi <b>migliorare il tone che sta suonando</b> invece di partire da zero, spunta
+      <b>Parti dal tone che suona</b>: l'AI riceve anche il tone attuale e lo modifica («più gain», «togli il chorus e
+      metti un riverbero a molla»).</li>
+    <li>Premi <span class="tasto">Crea</span>. Sotto compare «…sta componendo il suono» coi secondi che passano: di
+      solito servono <b>da 10 secondi a un paio di minuti</b>, secondo il modello. <span class="tasto">Annulla</span>
+      la ferma.</li>
+    <li>Arriva la finestra <b>Prova «nome»</b>: la catena proposta, blocco per blocco, e sotto la <b>spiegazione</b>
+      dell'AI (perché ha scelto quei modelli). Se qualcosa non torna, è scritto lì.</li>
+    <li>Premi <span class="tasto">Importa</span>: il suono va <b>nel tone che suona</b> (quello di prima viene sostituito,
+      ma non sul Mini: non è salvato).</li>
+    <li><b>Suona e ascolta.</b> Ritocca le manopole a orecchio: l'AI non sente la tua chitarra né il tuo ampli.</li>
+    <li>Ti piace? <span class="tasto">Salva…</span>, scegli il posto (meglio uno vuoto, per non perdere il tone di
+      prima) e il nome. Non ti piace? <span class="tasto">Annulla</span>, oppure riprova con una descrizione diversa.</li>
+  </ol>
+
+  <h3>Scrivere una buona descrizione</h3>
+  <ul>
+    <li><b>Il genere e l'epoca</b>: «blues anni '60», «metal moderno», «funk pulito».</li>
+    <li><b>Un artista o un brano</b>: «il solo di Comfortably Numb», «la ritmica di Back in Black». L'AI conosce
+      l'attrezzatura di molti chitarristi famosi e sceglie i modelli più vicini.</li>
+    <li><b>Gli effetti che vuoi (o non vuoi)</b>: «con un delay a tempo, niente riverbero».</li>
+    <li><b>Quanto saturo</b>: pulito, crunch, distorto, molto distorto.</li>
+    <li><b>Come lo usi</b>: «per suonare piano a casa in cuffia», «per accompagnare», «per gli assoli».</li>
+    <li><b>La chitarra</b>, se conta: «con una Strat a single coil», «per humbucker».</li>
+  </ul>
+  <div class="esempi">
+    <p><b>Esempi</b></p>
+    <p>«Crunch alla Malcolm Young: Marshall anni '70, poco gain, niente effetti, un filo di riverbero.»</p>
+    <p>«Clean scintillante per arpeggi, chorus leggero e delay a un quarto puntato, stile The Edge.»</p>
+    <p>«Lead caldo e cantato per assoli blues, tipo Gary Moore, con un delay corto.»</p>
+    <p>Con «Parti dal tone che suona»: «Stesso suono ma meno basso e più presenza, e spegni il chorus.»</p>
+  </div>
+
+  <h3>Da sapere</h3>
+  <ul>
+    <li>L'AI usa solo i modelli che il Mini ha davvero, e i tuoi Sound Clone e IR caricati, col nome che gli hai dato.</li>
+    <li>Ogni richiesta è indipendente: se il risultato non va, riformula invece di ripetere uguale.</li>
+    <li>Se l'AI mette un modello in uno slot dove il Mini non lo accetta, nell'anteprima vedi «resta quello del tone»:
+      quel blocco non cambia.</li>
+    <li><b>Cosa esce dal PC</b>: la descrizione che scrivi, il catalogo dei modelli e, con «Parti dal tone che suona», il
+      tone attuale. Va al fornitore scelto (OpenAI o Anthropic) con la tua chiave, e a nessun altro. La chiave resta
+      solo nel tuo browser (vedi <a href="#g-ai-chiave">La tua chiave è al sicuro</a>).</li>
+  </ul>
+  <h3>Se non va</h3>
+  <ul>
+    <li><b>«La chiave non va»</b>: ricopia la chiave intera, senza spazi; controlla che sul sito ci sia credito.</li>
+    <li><b>«Non è andata: …»</b> con un messaggio del fornitore (troppe richieste, credito esaurito, modello non
+      disponibile): prova un altro modello o riprova fra poco.</li>
+    <li><b>«Claude ha rifiutato la richiesta»</b>: capita di rado; riformula la descrizione.</li>
+    <li><b>Il tasto è grigio</b>: l'editor sta ancora leggendo i blocchi dal Mini, o un import è in corso. Aspetta un
+      attimo.</li>
+  </ul>
+</section>
+
+<section id="g-songlist">
+  <h2>Le Songlist</h2>
+  <p>Una Songlist è una scaletta: i tone nell'ordine in cui li usi in una serata o per un genere. Il Mini ne tiene
+    fino a <b>40</b>, ognuna con fino a <b>50</b> tone. <span class="tasto">Songlist</span> apre la schermata.</p>
+  <ul>
+    <li><b>A sinistra</b> ci sono tutti i tone. <b>Trascina</b> un tone su una Songlist per aggiungerlo in fondo.
+      Doppio clic: suona. Passandoci sopra compaiono matita (rinomina) e ✕ (cancella il tone dal Mini).</li>
+    <li><b>A destra</b>, un riquadro per Songlist. Clic su un tone: suona. Trascina i tone dentro il riquadro per
+      cambiare l'ordine, o su un altro riquadro per aggiungerli lì. La ✕ sulla riga lo toglie dalla Songlist (il tone
+      resta sul Mini).</li>
+    <li>Trascina la <b>testa</b> di un riquadro per spostare la Songlist. Matita e ✕ nella testa la rinominano o la
+      cancellano. <span class="tasto">Nuova Songlist</span> ne crea una.</li>
+  </ul>
+  <div class="consiglio">Le modifiche alle Songlist sono una <b>bozza</b>: i riquadri cambiati hanno la testa ambra e in
+    alto c'è «modifiche non salvate». Niente va al Mini finché non premi <span class="tasto">Salva sul Mini</span>, che
+    fa tutto in una volta e poi rilegge per controllare (con tante modifiche può volerci mezzo minuto).
+    <span class="tasto">Annulla modifiche</span> torna a com'è sul Mini. Prima di salvare l'editor fa una
+    <a href="#g-sicurezza">copia di sicurezza</a> delle Songlist.</div>
+  <p>Rinominare e cancellare un <b>tone</b> (nella colonna di sinistra) invece vale subito.</p>
+</section>
+
+<section id="g-jam">
+  <h2>La Jam</h2>
+  <p>La <b>Jam</b> è la batteria del Mini, per suonarci sopra. È nella barra in alto (a finestra stretta, premi
+    <span class="tasto">Jam</span> e si apre il pannello).</p>
+  <ul>
+    <li><span class="tasto" data-icona="play" data-icona-cls="pieno" aria-label="Play"></span> fa partire e fermare la batteria; mentre suona, a finestra stretta, il tasto Jam è blu.</li>
+    <li>La tendina sceglie il <b>ritmo</b>: 100, divisi per genere (8-Beat, 16-Beat, Rock, Funk, Jazz, Blues, Latin…
+      fino ai metronomi). Le frecce passano al ritmo prima o dopo.</li>
+    <li>Il numero è il <b>BPM</b> della batteria; <span class="tasto">Tap</span> lo dai battendo a tempo;
+      <span class="tasto">Sync</span> è lo stesso Sync della batteria che c'è nell'app.</li>
+    <li>Il cursore è il <b>volume</b> della batteria.</li>
+  </ul>
+</section>
+
+<section id="g-impostazioni">
+  <h2>Impostazioni e Global EQ</h2>
+  <p><span class="tasto" data-icona="menu" aria-label="Menu"></span> → <b>Impostazioni</b> apre le impostazioni generali del Mini, come nell'app: valgono
+    per tutti i tone. Ogni modifica va subito al Mini.</p>
+  <ul>
+    <li><b>Sound Mode</b>: il carattere generale dell'uscita (Standard, Rock, Hi-Res…).</li>
+    <li><b>Audio</b>, <b>USB Audio</b>, <b>Tuner</b>: livelli e regolazioni. Le manopole grandi si trascinano su e giù
+      o si girano con la rotella.</li>
+    <li><b>Display</b>: lo schermo del Mini e il colore del tema.</li>
+    <li><b>Global EQ</b>: un equalizzatore su tutto, con l'interruttore per accenderlo.</li>
+  </ul>
+  <h3>Il Global EQ</h3>
+  <p>Il grafico mostra la curva. I punti <b>L</b> (taglio dei bassi), <b>1-4</b> (le quattro bande) e <b>H</b> (taglio
+    degli alti) si <b>trascinano</b>: a destra e sinistra cambi la frequenza, su e giù il guadagno; la
+    <b>rotella</b> sopra un punto cambia la larghezza (Q). Sotto, le schede di ogni banda col suo ON, GAIN, FREQ e Q, e
+    il volume generale.</p>
+  <p>La curva è un disegno calcolato dall'editor per farti vedere l'effetto, non una misura del Mini.</p>
+</section>
+
+<section id="g-backup">
+  <h2>Backup</h2>
+  <p><span class="tasto" data-icona="menu" aria-label="Menu"></span> → <b>Backup…</b>. Sotto «Backup…» il menu ti dice quando hai fatto l'ultimo backup
+    (in ambra se sono passati più di 14 giorni).</p>
+  <h3>Sul PC</h3>
+  <ul>
+    <li><span class="tasto">Backup completo</span>: tutti i tone (un .prst ciascuno), i settaggi (.glb) e le Songlist
+      (.json) in uno <b>.zip</b>, nella cartella Download. Con tanti tone ci vuole un paio di minuti: lascia lavorare.</li>
+    <li><b>Tone → Ripristina preset…</b>: rimette dei tone da un .zip di backup. Vedi
+      <a href="#g-rimetti">Rimettere i tone</a>.</li>
+    <li><b>Settaggi → Esporta / Importa…</b>: solo le impostazioni generali, in un file .glb (lo stesso dell'app).</li>
+    <li><b>Songlist → Esporta / Importa…</b>: solo le Songlist. L'import accetta anche lo .zip del backup completo.
+      Le Songlist sono legate ai <b>posti</b> dei tone: se un posto nel frattempo ha un altro tone, te lo dice prima.</li>
+  </ul>
+  <p>Nel menu <a href="#g-dropbox">Dropbox</a> c'è lo stesso backup, mandato sul tuo Dropbox.</p>
+</section>
+
+<section id="g-rimetti">
+  <h2>Rimettere i tone da un backup</h2>
+  <p>Da <b>Backup… → Ripristina preset…</b> (scegli uno .zip sul PC) o da <b>Dropbox → Rimetti: Tone</b> (lo .zip scelto
+    nell'elenco). Si apre la finestra <b>Rimetti tone dal backup</b>.</p>
+  <ol>
+    <li>L'editor <b>confronta</b> ogni tone del backup con quello che c'è adesso nello stesso posto del Mini (ci vogliono
+      una ventina di secondi) e scrive accanto a ciascuno: uguale, diverso (e in cosa), posto vuoto.</li>
+    <li>Sono già spuntati <b>solo i diversi e i vuoti</b>. Puoi cambiare a mano, o usare
+      <span class="tasto">Solo i diversi</span>, <span class="tasto">Tutti</span>, <span class="tasto">Nessuno</span>.</li>
+    <li>Premi <span class="tasto">Rimetti</span>. Per ogni tone spuntato l'editor lo mette nel tone che suona, lo salva
+      nel suo posto e lo rilegge per controllare. Qualche secondo a tone.
+      <span class="tasto">Ferma</span> finisce quello in corso e si ferma.</li>
+    <li>Alla fine torna al tone da cui eri partito.</li>
+  </ol>
+  <div class="attenzione">Il lavoro passa dal tone che suona: se hai modifiche non salvate si perdono (te lo chiede).
+    I tone sovrascritti finiscono prima in una <a href="#g-sicurezza">copia di sicurezza</a>.</div>
+</section>
+
+<section id="g-dropbox">
+  <h2>Backup su Dropbox</h2>
+  <p>I backup possono andare anche sul tuo <b>Dropbox</b>, così sono al sicuro se il PC si rompe. L'editor non passa
+    da nessun server suo: parla direttamente con Dropbox, attraverso una <b>piccola «app» Dropbox che crei tu</b> sul tuo
+    account. Si fa una volta sola, e sembra più complicato di quello che è.</p>
+  <h3>1. Crea la tua app Dropbox (una volta sola)</h3>
+  <ol>
+    <li>Vai su <b>dropbox.com/developers/apps</b> e accedi col tuo account Dropbox.</li>
+    <li>Premi <b>Create app</b>.</li>
+    <li>Scegli <b>Scoped access</b>, poi <b>App folder</b> (l'app vede solo la sua cartella, non il resto del tuo
+      Dropbox).</li>
+    <li>Dagli un nome qualsiasi, per esempio «Pulze Mazz Editor» con qualcosa di tuo (il nome dev'essere unico su
+      tutto Dropbox), e premi <b>Create app</b>.</li>
+    <li>Apri la scheda <b>Permissions</b>, spunta <b>files.content.write</b> e <b>files.content.read</b> e premi
+      <b>Submit</b> in fondo alla pagina.</li>
+    <li>Torna alla scheda <b>Settings</b> e copia l'<b>App key</b> (una fila di lettere e numeri). L'<i>App secret</i>
+      non serve.</li>
+  </ol>
+  <h3>2. Collega l'editor</h3>
+  <ol>
+    <li>Nell'editor: <span class="tasto" data-icona="menu" aria-label="Menu"></span> → <b>Backup…</b>, riquadro <b>Dropbox</b>.</li>
+    <li>Incolla l'App key nel campo e premi <span class="tasto">Collega</span>. Si apre la pagina di Dropbox (se non si
+      apre, c'è il link «apri Dropbox»).</li>
+    <li>Su Dropbox premi <b>Continua</b> e <b>Consenti</b>: ti mostra un <b>codice</b>. Copialo.</li>
+    <li>Torna all'editor, incolla il codice nel secondo campo e premi <span class="tasto">Fatto</span>.</li>
+  </ol>
+  <p>Il collegamento resta in questo browser: le volte dopo il riquadro Dropbox è già pronto. Se premi di nuovo
+    «Collega» a metà strada non succede niente di male. Un codice vale una volta sola.</p>
+  <h3>3. Usarlo</h3>
+  <ul>
+    <li><span class="tasto">Backup su Dropbox</span>: lo stesso .zip del backup completo, in
+      <b>Dropbox / Applicazioni / (nome della tua app) / Pulze Mini</b>. Ogni backup è un file nuovo: niente viene
+      sovrascritto.</li>
+    <li>La tendina <b>Backup</b> mostra i backup su Dropbox, dal più nuovo.</li>
+    <li><b>Rimetti</b>: <span class="tasto">Tone</span> (vedi <a href="#g-rimetti">Rimettere i tone</a>),
+      <span class="tasto">Settaggi</span> o <span class="tasto">Songlist</span> dal backup scelto.</li>
+    <li><b>Sul PC → Scarica</b>: scarica il backup scelto nella cartella Download.</li>
+    <li><b>Dropbox → Scollega</b>: toglie il collegamento da questo browser (i file su Dropbox restano).</li>
+  </ul>
+</section>
+
+<section id="g-sicurezza">
+  <h2>Copie di sicurezza</h2>
+  <p>Prima di ogni lavoro che sovrascrive qualcosa sul Mini, l'editor tiene <b>da solo</b> una copia di com'era:
+    salvare sopra un tone in un altro posto, copiare o scambiare tone, cancellare un tone, importare settaggi, salvare
+    le Songlist, rimettere tone da un backup.</p>
+  <p>Le trovi in <b>Backup… → Copie di sicurezza</b> (clicca per aprire l'elenco): quando, cosa e perché. Per ognuna
+    <span class="tasto">Ripristina</span> la rimette e <b>Scarica</b> la salva sul PC.</p>
+  <div class="attenzione">Le copie di sicurezza stanno <b>in questo browser</b> (le ultime 40), non sul Mini e non su
+    Dropbox: se cancelli i dati del browser o cambi PC non ci sono più. Sono un paracadute, non un backup:
+    il <a href="#g-backup">Backup completo</a> fallo lo stesso ogni tanto.</div>
+</section>
+
+<section id="g-problemi">
+  <h2>Se qualcosa non va</h2>
+  <ul>
+    <li><b>Il Mini non compare nella finestra del Bluetooth</b>: chiudi l'app sul telefono (o spegni il suo Bluetooth),
+      controlla che il Mini sia acceso e riprova. Se ancora niente, spegni e riaccendi il Mini.</li>
+    <li><b>«Questo browser non ha il Bluetooth per le pagine web»</b>: apri l'editor con Chrome o Edge.</li>
+    <li><b>Un avviso rosso dice che il Mini non ha confermato</b>: premi <span class="tasto" data-icona="ricarica" aria-label="Rileggi"></span> (rileggi) per
+      vedere com'è davvero il tone sul Mini.</li>
+    <li><b>Il collegamento è caduto</b>: premi di nuovo Collega. Le modifiche non salvate sono rimaste sul Mini finché
+      non cambi tone.</li>
+    <li><b>Ho rovinato un tone</b>: se non l'hai salvato, cambia tone o premi Annulla. Se l'hai salvato, guarda nelle
+      <a href="#g-sicurezza">copie di sicurezza</a> o <a href="#g-rimetti">rimettilo da un backup</a>.</li>
+  </ul>
+  <p>L'editor è un progetto indipendente, senza rapporto con Hotone. Leggi <b>☰ → Crediti e responsabilità</b>.</p>
+</section>

@@ -1,0 +1,406 @@
+<!-- guida.en.html - The Pulze Mazz Editor guide in English (the Italian one is guida.html: same sections, same
+     ids). The page loads it into the "Guide" window when the language is English. -->
+
+<section id="g-inizio">
+  <h2>Getting started</h2>
+  <p><b>Pulze Mazz Editor</b> controls a <b>Hotone Pulze Mini</b> from your PC over Bluetooth: you edit tones, save
+    them, organize them into Songlists, make backups, and you can have an AI put a sound together for you.</p>
+  <h3>What you need</h3>
+  <ul>
+    <li>A PC with <b>Bluetooth</b> turned on.</li>
+    <li><b>Chrome</b> or <b>Edge</b>: they are the browsers that can talk to Bluetooth. Firefox and Safari cannot.</li>
+    <li>The Pulze Mini switched on. The editor has been tested with firmware 1.1.2.</li>
+  </ul>
+  <h3>Connecting</h3>
+  <ol>
+    <li><b>Close the Pulze Editor app on your phone</b> (or turn off the phone's Bluetooth). The Mini accepts
+      <b>one connection at a time</b>: if the phone is connected, the PC won't find it.</li>
+    <li>Press <span class="tasto">Connect the Pulze Mini</span> in the middle, or <span class="tasto">Connect</span> at the top right.</li>
+    <li>In the browser window choose the <b>Pulze Mini</b> and press <b>Pair</b>.</li>
+    <li>The editor reads the current tone and the list of tones. In a few seconds it's ready, and the light at the top
+      right turns green.</li>
+  </ol>
+  <p>To disconnect press <span class="tasto">Disconnect</span> (or, in a narrow window, the green light). If the Jam is
+    playing, it stops it first.</p>
+  <div class="consiglio">Changes go to the Mini <b>as you make them</b>: you hear the result right away. But they are
+    <b>not saved</b> until you press <span class="tasto">Save…</span>: switching tone loses them. See
+    <a href="#g-salva">Saving, Undo and A/B</a>.</div>
+  <h3>Language</h3>
+  <p>The editor starts in the language of your browser (Italian or English). To change it: <span class="tasto"
+    data-icona="menu" aria-label="Menu"></span> → <b>Italiano / English</b>. The page reloads.</p>
+</section>
+
+<section id="g-schermata">
+  <h2>The screen</h2>
+  <ul>
+    <li><b>Top bar</b>: <span class="tasto" data-icona="ricarica" aria-label="Reload"></span> reload (re-reads everything
+      from the Mini), <b>Vol</b> (the tone's volume), <b>BPM</b> (the tone's tempo, used by delays with Sync on), the
+      <a href="#g-jam">Jam</a>, <span class="tasto">Connect</span> and the <span class="tasto" data-icona="menu"
+      aria-label="Menu"></span> menu (Backup, Settings, Guide, Language, Credits).</li>
+    <li><b>Below the bar</b>: on the left <span class="tasto">Save…</span>, Undo / Redo, <span class="tasto">A/B</span>
+      and the .prst files; in the middle the <b>tone name</b> with the arrows to the previous or next tone (next to it, in
+      amber, “modified · not saved” when you have changed something); on the right <span class="tasto">Create AI
+      preset…</span> and <span class="tasto">Songlist</span>.</li>
+    <li><b>In the middle, the stage</b>: the block you chose, big, with its knobs and the list of models.</li>
+    <li><b>On the right, the list of tones</b>: see <a href="#g-tone">Tones</a>.</li>
+    <li><b>At the bottom, the chain</b>: the seven blocks in the order the sound goes through them, from IN to OUT.</li>
+    <li><b>Messages</b> appear at the bottom right: <span class="pill-verde">green</span> when something worked (they go
+      away by themselves), <span class="pill-rosso">red</span> when something is wrong (they stay until you press the ✕),
+      grey with a spinning circle while the editor is working.</li>
+  </ul>
+  <p>In a narrow window (a small laptop, or half the screen) the page gets more compact: the Jam becomes a button that
+    opens its own panel, some buttons show only their icon and the tone name moves to its own row.</p>
+</section>
+
+<section id="g-catena">
+  <h2>The chain and the blocks</h2>
+  <p>The seven blocks are <b>DYN</b> (dynamics: gate, compressor), <b>PRE</b> (effects before the amp), <b>AMP</b>,
+    <b>CAB</b> (cabinet), <b>EQ/MOD</b> (equalizers and modulations), <b>FX1</b> and <b>FX2</b> (delays, reverbs and
+    more).</p>
+  <ul>
+    <li><b>Turning a block on and off</b>: click the colored label above the picture (blue = on). A block that is off is
+      grey.</li>
+    <li><b>Showing it on the stage</b>: click the picture.</li>
+    <li><b>Changing model</b>: from the drop-down under the picture (models are grouped by category), or from the list to
+      the right of the stage, which also has a search box. The new model starts with its factory values.</li>
+    <li><b>Moving a block</b> in the chain: grab the picture and drag it where you want; the others make room.</li>
+  </ul>
+  <h3>Auto CAB</h3>
+  <p>On the AMP stage there is the <b>Auto CAB</b> switch. It is a setting <b>of the Mini</b>, not of the tone: it applies
+    to all tones. When it's on and you change amp, the Mini picks the matching cabinet by itself.</p>
+  <h3>Sound Clones and user IRs</h3>
+  <p>If you have loaded Sound Clones or IRs on the Mini, they show up among the models with the name you gave them. On
+    the stage, under the title, there is <span class="tasto">Rename…</span> to change it. Loading new ones from the PC is
+    not possible: you need the phone app.</p>
+</section>
+
+<section id="g-manopole">
+  <h2>The knobs</h2>
+  <ul>
+    <li><b>Turning</b>: click the knob and drag <b>up</b> (more) or <b>down</b> (less).</li>
+    <li><b>More precisely</b>: hold <b>Shift</b> while dragging.</li>
+    <li><b>Mouse wheel</b> over the knob: one step at a time.</li>
+    <li><b>Double-click</b>: back to the factory value.</li>
+    <li><b>Selectors</b> with few choices are buttons side by side (for example Cool / Hot); those with many choices are a
+      drop-down; switches are On / Off pills.</li>
+    <li><b>Delay and modulation times</b> have the <b>Sync</b> pill: when it's on, the time is a division (1/4, dotted
+      1/8…) of the tone's BPM; when it's off, it's in milliseconds or Hertz.</li>
+  </ul>
+</section>
+
+<section id="g-salva">
+  <h2>Saving, Undo and A/B</h2>
+  <h3>Save…</h3>
+  <p><span class="tasto">Save…</span> opens the save window: choose the <b>slot</b> (the current tone's slot is
+    suggested) and the <b>name</b> (16 characters max, no accented letters). You can save it to a different slot: if that
+    slot is full, what was there is overwritten, but the editor first makes a <a href="#g-sicurezza">safety copy</a>
+    of it.</p>
+  <h3>Undo and Redo</h3>
+  <p>The curved arrows next to Save go back and forward through your changes (knobs, models, on/off, chain, even a whole
+    import). They work as long as you stay on the same tone.</p>
+  <h3>A/B: the comparison</h3>
+  <p>After changing something, <span class="tasto">A/B</span> lets you hear <b>the tone as it is saved</b> (the button
+    turns amber). Press it again to go back to your changes. That way you can hear whether the change is really an
+    improvement.</p>
+</section>
+
+<section id="g-tone">
+  <h2>Tones</h2>
+  <p>The Mini has <b>200 slots</b>. The list on the right shows the ones that are full.</p>
+  <ul>
+    <li><b>Click</b> a tone: it plays. If you have unsaved changes, it asks you first.</li>
+    <li><b>Search tones…</b>: type part of the name or the slot number.</li>
+    <li>The drop-down at the top chooses what to show: <b>All tones</b> or a <a href="#g-songlist">Songlist</a>.</li>
+    <li>In “All tones”, the <b>small list icon</b> next to a name means that tone is in at least one Songlist; hover over
+      it and it tells you which.</li>
+    <li><b>Right-click</b> a tone (or the <span class="tasto" data-icona="altro" data-icona-cls="puntini"
+      aria-label="More"></span> that appears when you hover over it): Play, Rename…, Copy to another slot…, Swap with…,
+      Delete….</li>
+  </ul>
+  <div class="attenzione">The Mini can't copy a tone directly: the editor <b>plays it and saves it to the new slot</b>. A
+    swap is three copies through an empty spare slot. Songlists point to <b>slots</b>: after a swap, a Songlist that
+    contained slot 5 will play the tone that is now in slot 5. The editor reminds you before doing it.</div>
+</section>
+
+<section id="g-prst">
+  <h2>.prst files: import and export</h2>
+  <p>A <b>.prst</b> is a tone file of the Pulze Editor phone app: you can share it, download it from the internet, keep
+    it on your PC.</p>
+  <ul>
+    <li><b>Export</b> (down arrow): saves the current tone to a .prst in the Downloads folder. The phone app can import it.</li>
+    <li><b>Import…</b> (folder): choose a .prst. Before touching the Mini the editor shows <b>what is in the file</b>: the
+      chain, the models, what is on and what is off.</li>
+  </ul>
+  <p>When you press <span class="tasto">Import</span> the file goes <b>into the current tone</b>, replacing what was
+    there, and the editor re-reads the blocks to check. <b>It is not saved</b>: listen to it, tweak it, and if you like it
+    press <span class="tasto">Save…</span> (the suggested name is the file's). If you don't like it,
+    <b>Undo</b> removes it, or just switch tone without saving.</p>
+  <p>If a block in the file uses a model the Mini can't put in that slot, the editor says so (“the tone's own block
+    stays”) and keeps the block that was there.</p>
+</section>
+
+<section id="g-ai">
+  <h2>Create AI preset</h2>
+  <p>Describe the sound you want in words (“AC/DC's crunch”, “80s clean with chorus and a long delay”) and an artificial
+    intelligence builds it using <b>the Mini's real models</b>: it picks the amp, cabinet and effects, puts them in order,
+    decides what is on and sets the knobs. You see the result before it goes on the Mini, and it arrives in the current
+    tone like a .prst file: <b>nothing is saved by itself</b>.</p>
+
+  <h3 id="g-ai-chiave">What you need: an API key</h3>
+  <p>The editor has no AI of its own: it uses <b>OpenAI</b>'s (ChatGPT) or <b>Anthropic</b>'s (Claude), with <b>your own
+    API key</b>. The key is a kind of password that lets the editor send requests on your behalf.</p>
+  <div class="attenzione"><b>API keys are pay-as-you-go</b>, billed separately: a ChatGPT Plus or Claude Pro subscription
+    does <b>not</b> include them. Each preset costs a few cents (it depends on the model you choose). On the provider's
+    site you can add a small amount of credit and set a spending limit.</div>
+  <div class="sicuro">
+    <p><b>Your key is safe</b></p>
+    <ul>
+      <li>It goes <b>directly</b> from your PC to OpenAI or Anthropic, and to nobody else. There is no editor server in
+        between: the editor is a page running on your computer.</li>
+      <li>The author of the editor <b>never sees or receives it</b>, and there is no editor account it could end up in.</li>
+      <li>It stays only <b>in your browser, on this PC</b>, so you don't have to type it every time. It doesn't go to the
+        Mini, to Dropbox, into backups or into .prst files.</li>
+      <li>You can always <b>delete it on the provider's site</b> (on the API keys page): from then on it no longer works,
+        for anyone. And with the <b>spending limit</b> you always know the most you can spend.</li>
+    </ul>
+  </div>
+  <h4>Getting an OpenAI key</h4>
+  <ol>
+    <li>Go to <b>platform.openai.com</b> and sign in (or create an account).</li>
+    <li>Under <b>Billing</b>, add some credit (a few dollars is enough).</li>
+    <li>Under <b>API keys</b> press <b>Create new secret key</b>, give it a name (for example “Pulze”) and copy the key:
+      it starts with <code>sk-</code>. <b>It is shown only once</b>: copy it right away.</li>
+  </ol>
+  <h4>Getting an Anthropic (Claude) key</h4>
+  <ol>
+    <li>Go to <b>console.anthropic.com</b> and sign in (or create an account).</li>
+    <li>Under <b>Billing</b>, add some credit.</li>
+    <li>Under <b>API Keys</b> press <b>Create Key</b>, give it a name and copy the key: it starts with <code>sk-ant-</code>.</li>
+  </ol>
+
+  <h3>The first time</h3>
+  <ol>
+    <li>Press <span class="tasto">Create AI preset…</span> (purple, top right).</li>
+    <li>In the <b>The AI</b> box choose <b>OpenAI</b> or <b>Claude (Anthropic)</b>.</li>
+    <li>Paste the key into the <b>key</b> field. The editor tries it straight away: if it works, the <b>Model</b>
+      drop-down fills with the models on your account. If it doesn't, the reason is written underneath (wrong key, no
+      credit left…).</li>
+    <li>Choose the <b>model</b>. The first in the list is the newest and usually the best; “mini” or “nano” models cost
+      less but make more mistakes. With Claude the default is <b>Claude Opus 5.5</b>.</li>
+  </ol>
+  <p>Key and model stay <b>in this browser</b>: next time you don't need to enter them again. To change the key there is
+    <span class="tasto">Key…</span> next to the model. You can keep both the OpenAI and the Claude key and switch between
+    them.</p>
+
+  <h3>Creating a sound</h3>
+  <ol>
+    <li>In the <b>The sound</b> box, write what you want. Any language works.</li>
+    <li>If you want to <b>improve the tone that is playing</b> rather than start from scratch, tick
+      <b>Start from the current tone</b>: the AI also receives the current tone and modifies it (“more gain”, “remove the
+      chorus and add a spring reverb”).</li>
+    <li>Press <span class="tasto">Create</span>. Underneath you see “…is composing the sound” with the seconds ticking:
+      it usually takes <b>from 10 seconds to a couple of minutes</b>, depending on the model.
+      <span class="tasto">Cancel</span> stops it.</li>
+    <li>The <b>Try “name”</b> window appears: the proposed chain, block by block, and underneath the AI's
+      <b>explanation</b> (why it chose those models). If something doesn't fit, it's written there.</li>
+    <li>Press <span class="tasto">Import</span>: the sound goes <b>into the current tone</b> (the previous one is
+      replaced, but not on the Mini: it isn't saved).</li>
+    <li><b>Play and listen.</b> Adjust the knobs by ear: the AI can't hear your guitar or your amp.</li>
+    <li>Like it? <span class="tasto">Save…</span>, choose the slot (better an empty one, so you don't lose the previous
+      tone) and the name. Don't like it? <b>Undo</b>, or try again with a different description.</li>
+  </ol>
+
+  <h3>Writing a good description</h3>
+  <ul>
+    <li><b>Genre and era</b>: “60s blues”, “modern metal”, “clean funk”.</li>
+    <li><b>An artist or a song</b>: “the Comfortably Numb solo”, “the Back in Black rhythm”. The AI knows the gear of
+      many famous guitarists and picks the closest models.</li>
+    <li><b>The effects you want (or don't)</b>: “with a tempo-synced delay, no reverb”.</li>
+    <li><b>How much gain</b>: clean, crunch, distorted, very distorted.</li>
+    <li><b>How you'll use it</b>: “for quiet playing at home on headphones”, “for rhythm”, “for solos”.</li>
+    <li><b>The guitar</b>, if it matters: “with a single-coil Strat”, “for humbuckers”.</li>
+  </ul>
+  <div class="esempi">
+    <p><b>Examples</b></p>
+    <p>“Malcolm Young crunch: 70s Marshall, low gain, no effects, a touch of reverb.”</p>
+    <p>“Sparkling clean for arpeggios, light chorus and a dotted-eighth delay, The Edge style.”</p>
+    <p>“Warm, singing lead for blues solos, Gary Moore style, with a short delay.”</p>
+    <p>With “Start from the current tone”: “Same sound but less bass and more presence, and turn off the chorus.”</p>
+  </div>
+
+  <h3>Good to know</h3>
+  <ul>
+    <li>The AI only uses models the Mini really has, plus your loaded Sound Clones and IRs, with the names you gave them.</li>
+    <li>Each request is independent: if the result isn't right, rephrase rather than repeat the same words.</li>
+    <li>If the AI puts a model in a slot where the Mini doesn't accept it, the preview says “the tone's own block stays”:
+      that block doesn't change.</li>
+    <li><b>What leaves your PC</b>: the description you write, the model catalog and, with “Start from the current
+      tone”, the current tone. It goes to the provider you chose (OpenAI or Anthropic) with your key, and to nobody else.
+      The key stays only in your browser (see <a href="#g-ai-chiave">Your key is safe</a>).</li>
+  </ul>
+  <h3>If it doesn't work</h3>
+  <ul>
+    <li><b>“The key does not work”</b>: copy the whole key again, without spaces; check that there is credit on the site.</li>
+    <li><b>“It did not work: …”</b> with a message from the provider (too many requests, credit used up, model not
+      available): try another model or try again in a moment.</li>
+    <li><b>“Claude refused the request”</b>: it rarely happens; rephrase the description.</li>
+    <li><b>The button is grey</b>: the editor is still reading the blocks from the Mini, or an import is in progress. Wait a
+      moment.</li>
+  </ul>
+</section>
+
+<section id="g-songlist">
+  <h2>Songlists</h2>
+  <p>A Songlist is a set list: the tones in the order you use them for a gig or a genre. The Mini holds up to <b>40</b>,
+    each with up to <b>50</b> tones. <span class="tasto">Songlist</span> opens the screen.</p>
+  <ul>
+    <li><b>On the left</b> are all the tones. <b>Drag</b> a tone onto a Songlist to add it at the end. Double-click: it
+      plays. Hovering shows a pencil (rename) and ✕ (deletes the tone from the Mini).</li>
+    <li><b>On the right</b>, one box per Songlist. Click a tone: it plays. Drag tones inside the box to change the order,
+      or onto another box to add them there. The ✕ on a row removes it from the Songlist (the tone stays on the Mini).</li>
+    <li>Drag a box's <b>header</b> to move the Songlist. The pencil and ✕ in the header rename or delete it.
+      <span class="tasto">New Songlist</span> creates one.</li>
+  </ul>
+  <div class="consiglio">Songlist changes are a <b>draft</b>: changed boxes have an amber header and at the top it says
+    “unsaved changes”. Nothing goes to the Mini until you press <span class="tasto">Save to the Mini</span>, which does
+    everything at once and then re-reads to check (with many changes it can take half a minute).
+    <span class="tasto">Discard changes</span> goes back to what is on the Mini. Before saving, the editor makes a
+    <a href="#g-sicurezza">safety copy</a> of the Songlists.</div>
+  <p>Renaming and deleting a <b>tone</b> (in the left column), on the other hand, happens immediately.</p>
+</section>
+
+<section id="g-jam">
+  <h2>The Jam</h2>
+  <p>The <b>Jam</b> is the Mini's drum machine, to play along with. It's in the top bar (in a narrow window, press
+    <span class="tasto">Jam</span> and its panel opens).</p>
+  <ul>
+    <li><span class="tasto" data-icona="play" data-icona-cls="pieno" aria-label="Play"></span> starts and stops the
+      drums; while they play, in a narrow window, the Jam button is blue.</li>
+    <li>The drop-down chooses the <b>rhythm</b>: 100 of them, grouped by genre (8-Beat, 16-Beat, Rock, Funk, Jazz, Blues,
+      Latin… down to the metronomes). The arrows go to the previous or next rhythm.</li>
+    <li>The number is the drums' <b>BPM</b>; <span class="tasto">Tap</span> sets it by tapping in time;
+      <span class="tasto">Sync</span> is the same drum Sync as in the app.</li>
+    <li>The slider is the drums' <b>volume</b>.</li>
+  </ul>
+</section>
+
+<section id="g-impostazioni">
+  <h2>Settings and Global EQ</h2>
+  <p><span class="tasto" data-icona="menu" aria-label="Menu"></span> → <b>Settings</b> opens the Mini's general settings,
+    as in the app: they apply to all tones. Every change goes to the Mini immediately.</p>
+  <ul>
+    <li><b>Sound Mode</b>: the overall character of the output (Standard, Rock, Hi-Res…).</li>
+    <li><b>Audio</b>, <b>USB Audio</b>, <b>Tuner</b>: levels and adjustments. The big knobs are dragged up and down or
+      turned with the mouse wheel.</li>
+    <li><b>Display</b>: the Mini's screen and the theme color.</li>
+    <li><b>Global EQ</b>: an equalizer on everything, with its own on/off switch.</li>
+  </ul>
+  <h3>The Global EQ</h3>
+  <p>The graph shows the curve. The points <b>L</b> (low cut), <b>1-4</b> (the four bands) and <b>H</b> (high cut) can be
+    <b>dragged</b>: left and right changes the frequency, up and down the gain; the <b>mouse wheel</b> over a point
+    changes its width (Q). Below are the tabs for each band with its ON, GAIN, FREQ and Q, and the overall volume.</p>
+  <p>The curve is drawn by the editor to show you the effect; it isn't measured by the Mini.</p>
+</section>
+
+<section id="g-backup">
+  <h2>Backup</h2>
+  <p><span class="tasto" data-icona="menu" aria-label="Menu"></span> → <b>Backup…</b>. Under “Backup…” the menu tells you
+    when you made your last backup (in amber if it's more than 14 days ago).</p>
+  <h3>On this PC</h3>
+  <ul>
+    <li><span class="tasto">Full backup</span>: all tones (one .prst each), the settings (.glb) and the Songlists (.json)
+      in one <b>.zip</b>, in the Downloads folder. With many tones it takes a couple of minutes: let it work.</li>
+    <li><b>Tone → Restore presets…</b>: puts tones back from a backup .zip. See
+      <a href="#g-rimetti">Restoring tones</a>.</li>
+    <li><b>Settings → Export / Import…</b>: only the general settings, in a .glb file (the same as the app's).</li>
+    <li><b>Songlist → Export / Import…</b>: only the Songlists. Import also accepts the full backup .zip. Songlists are
+      tied to tone <b>slots</b>: if a slot now holds a different tone, it tells you first.</li>
+  </ul>
+  <p>In the <a href="#g-dropbox">Dropbox</a> box there is the same backup, sent to your Dropbox.</p>
+</section>
+
+<section id="g-rimetti">
+  <h2>Restoring tones from a backup</h2>
+  <p>From <b>Backup… → Restore presets…</b> (choose a .zip on your PC) or from <b>Dropbox → Restore: Tone</b> (the .zip
+    chosen in the list). The <b>Restore tones from a backup</b> window opens.</p>
+  <ol>
+    <li>The editor <b>compares</b> each tone in the backup with what is now in the same slot on the Mini (it takes about
+      twenty seconds) and writes next to each one: identical, different (and how), empty slot.</li>
+    <li><b>Only the different and empty ones</b> are already ticked. You can change that by hand, or use
+      <span class="tasto">Only the different ones</span>, <span class="tasto">All</span>, <span class="tasto">None</span>.</li>
+    <li>Press <span class="tasto">Restore</span>. For each ticked tone the editor puts it in the current tone, saves it to
+      its slot and re-reads it to check. A few seconds per tone. <span class="tasto">Stop</span> finishes the one in
+      progress and stops.</li>
+    <li>At the end it goes back to the tone you started from.</li>
+  </ol>
+  <div class="attenzione">The work goes through the current tone: if you have unsaved changes they are lost (it asks
+    you). Overwritten tones first go into a <a href="#g-sicurezza">safety copy</a>.</div>
+</section>
+
+<section id="g-dropbox">
+  <h2>Backup to Dropbox</h2>
+  <p>Backups can also go to your <b>Dropbox</b>, so they are safe if the PC breaks. The editor doesn't go through any
+    server of its own: it talks directly to Dropbox, through a <b>small Dropbox “app” that you create</b> on your account.
+    You do it once, and it's simpler than it sounds.</p>
+  <h3>1. Create your Dropbox app (once)</h3>
+  <ol>
+    <li>Go to <b>dropbox.com/developers/apps</b> and sign in with your Dropbox account.</li>
+    <li>Press <b>Create app</b>.</li>
+    <li>Choose <b>Scoped access</b>, then <b>App folder</b> (the app only sees its own folder, not the rest of your
+      Dropbox).</li>
+    <li>Give it any name, for example “Pulze Mazz Editor” plus something of yours (the name must be unique across all of
+      Dropbox), and press <b>Create app</b>.</li>
+    <li>Open the <b>Permissions</b> tab, tick <b>files.content.write</b> and <b>files.content.read</b> and press
+      <b>Submit</b> at the bottom of the page.</li>
+    <li>Go back to the <b>Settings</b> tab and copy the <b>App key</b> (a string of letters and numbers). The <i>App
+      secret</i> is not needed.</li>
+  </ol>
+  <h3>2. Connect the editor</h3>
+  <ol>
+    <li>In the editor: <span class="tasto" data-icona="menu" aria-label="Menu"></span> → <b>Backup…</b>, <b>Dropbox</b> box.</li>
+    <li>Paste the App key into the field and press <span class="tasto">Connect</span>. The Dropbox page opens (if it
+      doesn't, use the “open Dropbox” link).</li>
+    <li>On Dropbox press <b>Continue</b> and <b>Allow</b>: it shows you a <b>code</b>. Copy it.</li>
+    <li>Back in the editor, paste the code into the second field and press <span class="tasto">Done</span>.</li>
+  </ol>
+  <p>The connection stays in this browser: next time the Dropbox box is already ready. Pressing “Connect” again halfway
+    through does no harm. A code works only once.</p>
+  <h3>3. Using it</h3>
+  <ul>
+    <li><span class="tasto">Backup to Dropbox</span>: the same .zip as the full backup, in
+      <b>Dropbox / Apps / (your app's name) / Pulze Mini</b>. Each backup is a new file: nothing is overwritten.</li>
+    <li>The <b>Backup</b> drop-down shows the backups on Dropbox, newest first.</li>
+    <li><b>Restore</b>: <span class="tasto">Tone</span> (see <a href="#g-rimetti">Restoring tones</a>),
+      <span class="tasto">Settings</span> or <span class="tasto">Songlist</span> from the chosen backup.</li>
+    <li><b>On this PC → Download</b>: downloads the chosen backup to the Downloads folder.</li>
+    <li><b>Dropbox → Disconnect</b>: removes the connection from this browser (the files on Dropbox stay).</li>
+  </ul>
+</section>
+
+<section id="g-sicurezza">
+  <h2>Safety copies</h2>
+  <p>Before any job that overwrites something on the Mini, the editor keeps <b>by itself</b> a copy of how it was: saving
+    over a tone in another slot, copying or swapping tones, deleting a tone, importing settings, saving Songlists,
+    restoring tones from a backup.</p>
+  <p>You'll find them in <b>Backup… → Safety copies</b> (click to open the list): when, what and why. For each one,
+    <span class="tasto">Restore</span> puts it back and <b>Download</b> saves it to your PC.</p>
+  <div class="attenzione">Safety copies live <b>in this browser</b> (the last 40), not on the Mini and not on Dropbox: if
+    you clear the browser's data or change PC, they are gone. They are a parachute, not a backup: still make a
+    <a href="#g-backup">Full backup</a> now and then.</div>
+</section>
+
+<section id="g-problemi">
+  <h2>If something goes wrong</h2>
+  <ul>
+    <li><b>The Mini doesn't appear in the Bluetooth window</b>: close the app on your phone (or turn off its Bluetooth),
+      check that the Mini is on and try again. If still nothing, switch the Mini off and on again.</li>
+    <li><b>“This browser has no Bluetooth for web pages”</b>: open the editor with Chrome or Edge.</li>
+    <li><b>A red message says the Mini did not confirm</b>: press <span class="tasto" data-icona="ricarica"
+      aria-label="Reload"></span> (reload) to see how the tone really is on the Mini.</li>
+    <li><b>The connection dropped</b>: press Connect again. Unsaved changes stay on the Mini until you switch tone.</li>
+    <li><b>I ruined a tone</b>: if you haven't saved it, switch tone or press Undo. If you have saved it, look in the
+      <a href="#g-sicurezza">safety copies</a> or <a href="#g-rimetti">restore it from a backup</a>.</li>
+  </ul>
+  <p>The editor is an independent project, not affiliated with Hotone. Read <span class="tasto" data-icona="menu"
+    aria-label="Menu"></span> → <b>Credits and disclaimer</b>.</p>
+</section>
