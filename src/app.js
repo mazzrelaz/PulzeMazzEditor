@@ -4131,6 +4131,15 @@
     $('#guida').addEventListener('click', () => apriGuida());
     // la lingua: la voce del menu dice l'altra; cambiando, la pagina si ricarica
     $('#lingua-testo').textContent = LINGUA === 'en' ? 'Italiano' : 'English';
+    // la bandierina disegnata (le emoji delle bandiere su Windows sono due lettere)
+    $('#lingua-bandiera').innerHTML = LINGUA === 'en'
+      ? '<svg class="bandiera" viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" fill="#009246"/>' +
+        '<rect x="1" width="1" height="2" fill="#f1f2f1"/><rect x="2" width="1" height="2" fill="#ce2b37"/></svg>'
+      : '<svg class="bandiera" viewBox="0 0 60 30" preserveAspectRatio="none"><clipPath id="bandiera-uk">' +
+        '<path d="M30,15h30v15zv15h-30zh-30v-15zv-15h30z"/></clipPath><rect width="60" height="30" fill="#012169"/>' +
+        '<path d="M0,0L60,30M60,0L0,30" stroke="#fff" stroke-width="6"/>' +
+        '<path d="M0,0L60,30M60,0L0,30" clip-path="url(#bandiera-uk)" stroke="#c8102e" stroke-width="4"/>' +
+        '<path d="M30,0v30M0,15h60" stroke="#fff" stroke-width="10"/><path d="M30,0v30M0,15h60" stroke="#c8102e" stroke-width="6"/></svg>';
     $('#lingua').addEventListener('click', () => {
       if (ble && ble.collegato() &&
         !confirm('La pagina si ricarica e il Mini si scollega: le modifiche non salvate si perdono. Cambio lingua?')) return;

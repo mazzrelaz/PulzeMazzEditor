@@ -81,6 +81,12 @@
   #menu-tendina svg { width:18px; height:18px; flex:none; fill:none; stroke:var(--dim); stroke-width:1.6;
                       stroke-linecap:round; stroke-linejoin:round; }
   #menu-tendina hr { border:0; border-top:1px solid var(--line); margin:6px 4px; }
+  /* tutte le voci allineate a sinistra (le icone data-icona centravano il tasto) */
+  #menu-tendina button { justify-content:flex-start; }
+  /* la lingua: la bandierina accanto al nome */
+  #lingua-bandiera { display:inline-flex; margin-left:-3px; }
+  #menu-tendina svg.bandiera { width:22px; height:15px; stroke:none; border-radius:2px;
+                               box-shadow:0 0 0 1px rgba(255,255,255,0.18); }
   #menu-tendina .presto { margin-left:auto; font-family:var(--strumento); font-size:0.66rem; letter-spacing:0.06em;
                           text-transform:uppercase; color:var(--faint); border:1px solid var(--line); border-radius:999px;
                           padding:1px 7px; }
@@ -906,6 +912,8 @@
   <button id="mt-cancella" type="button" data-azione="cancella" class="pericolo">Cancella…</button>
 </div>
 <div id="menu-tendina" popover>
+  <button id="lingua" type="button" data-icona="mondo" title="Lingua"><span id="lingua-testo" data-notrad>English</span><span id="lingua-bandiera" aria-hidden="true"></span></button>
+  <hr>
   <button id="backup" type="button" disabled><svg viewBox="0 0 20 20" aria-hidden="true"><path
     d="M3 12.5v3a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5v-3M10 3v9.5M6.5 9l3.5 3.5L13.5 9"/></svg>Backup…<span
     id="ultimo-backup" class="sotto"></span></button>
@@ -915,7 +923,6 @@
   <button id="guida" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path
     d="M3.5 4.5c2.5-1 4.5-1 6.5.5 2-1.5 4-1.5 6.5-.5v11c-2.5-1-4.5-1-6.5.5-2-1.5-4-1.5-6.5-.5zM10 5v11"/></svg>Guida</button>
   <button id="installa" type="button" data-icona="scarica" hidden>Installa sul PC</button>
-  <button id="lingua" type="button" data-icona="mondo" title="Lingua"><span id="lingua-testo" data-notrad>English</span></button>
   <hr>
   <button id="crediti" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path
     d="M10 9v5M10 6.2h.01"/></svg>Crediti e responsabilità</button>
