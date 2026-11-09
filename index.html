@@ -282,6 +282,9 @@
      Barra, sotto-barra e catena hanno la loro altezza; il centro prende quello che resta. */
   html, body { height:100%; }
   body { display:flex; flex-direction:column; overflow:hidden; }
+  /* niente «tira giù per ricaricare» (né avanti/indietro col gesto): ricaricando si scollegherebbe il Mini */
+  html, body { overscroll-behavior:none; }
+  ol, ul, #guida-testo, #guida-indice, .crediti-corpo, #sl-blocchi, .dettaglio { overscroll-behavior:contain; }
   .barra { position:static; flex:none; flex-wrap:nowrap; }
   .barra > * { flex:none; }
   .sotto-barra { flex:none; display:grid; grid-template-columns:minmax(max-content, 1fr) minmax(0, 440px) minmax(max-content, 1fr);
