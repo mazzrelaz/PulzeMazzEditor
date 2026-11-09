@@ -1,20 +1,20 @@
-/**
+﻿/**
  * sw.js - Il service worker: rende l'editor installabile come app e lo fa partire anche senza internet.
- * Come quello dello Spark: si risponde dalla cache quando c'è, e la rete la rinfresca in sottofondo per la
- * volta dopo (stale-while-revalidate). Gira solo sul sito pubblicato (https), non da localhost: lì si lavora
+ * Come quello dello Spark: si risponde dalla cache quando c'Ã¨, e la rete la rinfresca in sottofondo per la
+ * volta dopo (stale-while-revalidate). Gira solo sul sito pubblicato (https), non da localhost: lÃ¬ si lavora
  * sul codice e una cache in mezzo darebbe file vecchi (lo decide src/pulze-pwa.js).
  *
  * VERSIONE va alzata a ogni pubblicazione: fa ripartire l'installazione, butta le cache vecchie e fa
- * comparire nella pagina «C'è una versione nuova». Anche dimenticandosene, la rete rinfresca i file
- * comunque: solo un caricamento più tardi.
+ * comparire nella pagina Â«C'Ã¨ una versione nuovaÂ». Anche dimenticandosene, la rete rinfresca i file
+ * comunque: solo un caricamento piÃ¹ tardi.
  */
 'use strict';
 
-const VERSIONE = 'v4';
+const VERSIONE = 'v5';
 const CACHE = 'pulzemazz-' + VERSIONE;
 
 // l'elenco delle immagini dei modelli (window.PulzeImmagini): va caricato qui in cima, Chrome non lo
-// permette più tardi
+// permette piÃ¹ tardi
 self.window = self;
 try { importScripts('./src/pulze-immagini.js'); } catch (e) { /* senza: le immagini si prendono quando servono */ }
 
@@ -62,7 +62,7 @@ self.addEventListener('activate', event => {
 
 /** Le immagini dei modelli (174, ~9 MB), per averle anche senza internet: una per una, in sottofondo,
  *  quando la pagina lo chiede (a ogni apertura riprende da dove era rimasta). Non qui nell'activate:
- *  finché l'activate non finisce, la pagina aspetterebbe. */
+ *  finchÃ© l'activate non finisce, la pagina aspetterebbe. */
 async function precaricaImmagini() {
   const cache = await caches.open(CACHE);
   for (const src of new Set(Object.values(self.PulzeImmagini || {}))) {
@@ -76,13 +76,13 @@ self.addEventListener('fetch', event => {
   const richiesta = event.request;
   if (richiesta.method !== 'GET') return;
   const url = new URL(richiesta.url);
-  // OpenAI, Anthropic, Dropbox e il caffè passano dritti: qui solo i file dell'editor
+  // OpenAI, Anthropic, Dropbox e il caffÃ¨ passano dritti: qui solo i file dell'editor
   if (url.origin !== self.location.origin) return;
   event.respondWith(rispondi(event));
 });
 
 /** La copia in cache subito, la rete la aggiorna per la volta dopo; senza copia si aspetta la rete; senza
- *  rete né copia, la pagina principale (così l'app aperta offline non finisce sul dinosauro). */
+ *  rete nÃ© copia, la pagina principale (cosÃ¬ l'app aperta offline non finisce sul dinosauro). */
 async function rispondi(event) {
   const richiesta = event.request;
   const cache = await caches.open(CACHE);

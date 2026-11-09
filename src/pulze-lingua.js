@@ -236,7 +236,7 @@
     ['Il file è per «{0}», non per il Pulze Mini (AP-10).', 'The file is for “{0}”, not for the Pulze Mini (AP-10).'],
     ['Importo: la catena è cambiata, rileggo il blocco {0} di 7…', 'Importing: the chain changed, re-reading block {0} of 7…'],
     ['{0}: il Mini non ha preso {1}', '{0}: the Mini did not take {1}'],
-    ['Importo: i valori di {0}…', 'Importing: the values of {0}…'], ['Importo: {0} in {1}…', 'Importing: {0} into {1}…'],
+    ['Importo: i valori di {0}…', 'Importing: the values of {0}…'], ['Importo: riscrivo {0}…', 'Importing: rewriting {0}…'], ['Importo: {0} in {1}…', 'Importing: {0} into {1}…'],
     ['Importo: controllo il blocco {0} di 7…', 'Importing: checking block {0} of 7…'], ['Importo: {0} {1}…', 'Importing: {0} {1}…'],
     ['{0} non riletto', '{0} not re-read'], ['{0}: il Mini dice {1}', '{0}: the Mini says {1}'],
     ['{0} {1}, nel file no', '{0} {1}, not in the file'],

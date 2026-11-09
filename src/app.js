@@ -1866,30 +1866,50 @@
       dire('Importo: controllo il blocco ' + (pos + 1) + ' di 7…');
       await ble.chiediBlocco(pos);
     }
+    // Le manopole diverse dal file in un blocco riletto. Solo le posizioni che sono manopole (e i Sync):
+    // nelle altre il Mini tiene i suoi valori (provato il 5 novembre: CloudDiezel). Una manopola che il Mini
+    // ha solo arrotondato al suo passo (461 ms → 460) non è diversa; quelle diverse davvero si dicono per
+    // nome coi due valori, «FX1: Time 460 ms (file: 480 ms)» (prima: «1 valore diverso dal file»).
+    const manopoleDiverse = (uid, fb, b) => {
+      const diversi = [];
+      for (const k of C.modelli[uid].k) {
+        const [nome, pos, tipo] = k;
+        const vf = fb.valori[pos], vm = b.valori[pos];
+        let tolleranza = 1e-4 * Math.max(1, Math.abs(vf));
+        if (tipo === 'c' || tipo === 'd') {
+          const [, , , min, max, u] = k;
+          tolleranza = Math.max(tolleranza, (passoDi(k) || passo(min, max, u)) * 0.51);
+        } else if (tipo === 'o') tolleranza = Math.max(tolleranza, Math.abs(vf) * 0.006);
+        const diverso = Math.abs(Math.fround(vf) - vm) > tolleranza ||
+          (tipo === 'd' && (fb.valori[k[6]] >= 0.5) !== (b.valori[k[6]] >= 0.5));
+        if (diverso) diversi.push({ k, testo: nome + ' ' + valoreDi(k, b.valori).testo + ' (file: ' + valoreDi(k, fb.valori).testo + ')' });
+      }
+      return diversi;
+    };
     for (let s = 0; s < 7; s++) {
-      const pl = piano[s], fb = p.blocchi[s], b = stato.blocchi[s];
+      const pl = piano[s], fb = p.blocchi[s];
+      let b = stato.blocchi[s];
       if (!b) { avvisi.push(P.SLOT[s] + ' non riletto'); continue; }
       if (pl.uid != null && b.uid !== pl.uid) avvisi.push(P.SLOT[s] + ': il Mini dice ' + (nomeModello(b.uid) || '?'));
       else if (pl.uid != null) {
-        // solo le posizioni che sono manopole (e i Sync): nelle altre il Mini tiene i suoi valori
-        // (provato col Mini il 5 novembre: CloudDiezel, tutte le manopole uguali al file)
-        // Una manopola che il Mini ha solo arrotondato al suo passo (461 ms → 460) non è diversa; quelle
-        // diverse davvero si dicono per nome, coi due valori: «FX1: Time 460 ms (file: 480 ms)». Prima diceva
-        // solo «1 valore diverso dal file» (Crea preset AI, 9 novembre: non si capiva quale).
-        const diversi = [];
-        for (const k of C.modelli[pl.uid].k) {
-          const [nome, pos, tipo] = k;
-          const vf = fb.valori[pos], vm = b.valori[pos];
-          let tolleranza = 1e-4 * Math.max(1, Math.abs(vf));
-          if (tipo === 'c' || tipo === 'd') {
-            const [, , , min, max, u] = k;
-            tolleranza = Math.max(tolleranza, (passoDi(k) || passo(min, max, u)) * 0.51);
-          } else if (tipo === 'o') tolleranza = Math.max(tolleranza, Math.abs(vf) * 0.006);
-          const diverso = Math.abs(Math.fround(vf) - vm) > tolleranza ||
-            (tipo === 'd' && (fb.valori[k[6]] >= 0.5) !== (b.valori[k[6]] >= 0.5));
-          if (diverso) diversi.push(nome + ' ' + valoreDi(k, b.valori).testo + ' (file: ' + valoreDi(k, fb.valori).testo + ')');
+        let diversi = manopoleDiverse(pl.uid, fb, b);
+        if (diversi.length) {
+          // Un secondo tentativo: il blocco riscritto con le manopole del file, poi riletto. Il 9 novembre,
+          // da Crea preset AI sul sito, il Time di un Digi Dly è rimasto a 500 ms (fabbrica) invece di 560,
+          // con tutte le altre manopole giuste; rifatto a mano e da un .prst uguale, invece, va: la causa
+          // non si è vista (online non c'è il registro), quindi si riprova e si controlla di nuovo.
+          salvaRegistro('import: ' + P.SLOT[s] + ' diverso al primo giro: ' + diversi.map(d => d.testo).join(', '));
+          const pos = stato.testa.catena.indexOf(s);
+          const valori = b.valori.slice();
+          for (const { k } of diversi) { valori[k[1]] = fb.valori[k[1]]; if (k[2] === 'd') valori[k[6]] = fb.valori[k[6]]; }
+          dire('Importo: riscrivo ' + P.SLOT[s] + '…');
+          await ble.manda((num, max) => P.scriviBlocco(num, { corpo: b.corpo, uid: b.uid, acceso: b.acceso, valori }, max));
+          await new Promise(r => setTimeout(r, RITMO_MS * 2));
+          b = P.leggiBlocco((await ble.chiediBlocco(pos)).corpo);
+          diversi = manopoleDiverse(pl.uid, fb, b);
+          salvaRegistro('import: ' + P.SLOT[s] + ' al secondo giro: ' + (diversi.length ? diversi.map(d => d.testo).join(', ') : 'uguale'));
         }
-        if (diversi.length) avvisi.push(P.SLOT[s] + ': ' + diversi.join(', '));
+        if (diversi.length) avvisi.push(P.SLOT[s] + ': ' + diversi.map(d => d.testo).join(', '));
       }
       if (pl.acceso && b.acceso !== fb.acceso) avvisi.push(P.SLOT[s] + ' ' + (b.acceso ? 'acceso' : 'spento') + ', nel file no');
     }
