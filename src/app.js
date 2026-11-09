@@ -1873,11 +1873,23 @@
       else if (pl.uid != null) {
         // solo le posizioni che sono manopole (e i Sync): nelle altre il Mini tiene i suoi valori
         // (provato col Mini il 5 novembre: CloudDiezel, tutte le manopole uguali al file)
-        const usate = new Set();
-        for (const k of C.modelli[pl.uid].k) { usate.add(k[1]); if (k[2] === 'd') usate.add(k[6]); }
-        const diversi = fb.valori.filter((v, i) => usate.has(i) &&
-          Math.abs(Math.fround(v) - b.valori[i]) > 1e-4 * Math.max(1, Math.abs(v))).length;
-        if (diversi) avvisi.push(P.SLOT[s] + ': ' + diversi + (diversi === 1 ? ' valore diverso' : ' valori diversi') + ' dal file');
+        // Una manopola che il Mini ha solo arrotondato al suo passo (461 ms → 460) non è diversa; quelle
+        // diverse davvero si dicono per nome, coi due valori: «FX1: Time 460 ms (file: 480 ms)». Prima diceva
+        // solo «1 valore diverso dal file» (Crea preset AI, 9 novembre: non si capiva quale).
+        const diversi = [];
+        for (const k of C.modelli[pl.uid].k) {
+          const [nome, pos, tipo] = k;
+          const vf = fb.valori[pos], vm = b.valori[pos];
+          let tolleranza = 1e-4 * Math.max(1, Math.abs(vf));
+          if (tipo === 'c' || tipo === 'd') {
+            const [, , , min, max, u] = k;
+            tolleranza = Math.max(tolleranza, (passoDi(k) || passo(min, max, u)) * 0.51);
+          } else if (tipo === 'o') tolleranza = Math.max(tolleranza, Math.abs(vf) * 0.006);
+          const diverso = Math.abs(Math.fround(vf) - vm) > tolleranza ||
+            (tipo === 'd' && (fb.valori[k[6]] >= 0.5) !== (b.valori[k[6]] >= 0.5));
+          if (diverso) diversi.push(nome + ' ' + valoreDi(k, b.valori).testo + ' (file: ' + valoreDi(k, fb.valori).testo + ')');
+        }
+        if (diversi.length) avvisi.push(P.SLOT[s] + ': ' + diversi.join(', '));
       }
       if (pl.acceso && b.acceso !== fb.acceso) avvisi.push(P.SLOT[s] + ' ' + (b.acceso ? 'acceso' : 'spento') + ', nel file no');
     }
