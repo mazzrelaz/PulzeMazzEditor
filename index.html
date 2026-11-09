@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pulze Mazz Editor</title>
-<link rel="icon" href="img/logo.png">
+<link rel="icon" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#262d37">
 <style>
   @font-face { font-family:'Inter'; src:url('fonts/inter-latin.woff2') format('woff2'); font-weight:100 900; font-display:swap; }
   @font-face { font-family:'Space Grotesk'; src:url('fonts/space-grotesk-latin.woff2') format('woff2'); font-weight:300 700; font-display:swap; }
@@ -791,6 +794,16 @@
     #det-nome { font-size:1.6rem; }
   }
 
+  /* l'app da installare (src/pulze-pwa.js): la striscia in basso a sinistra */
+  .pwa-striscia { position:fixed; left:18px; bottom:18px; z-index:40; display:flex; align-items:center; gap:10px;
+                  max-width:min(540px, calc(100vw - 36px)); padding:9px 8px 9px 14px; border-radius:10px;
+                  background:var(--panel2); border:1px solid #4d5868; border-left:4px solid var(--accent);
+                  box-shadow:0 12px 30px rgba(0,0,0,0.5); font-size:0.86rem; line-height:1.4; animation:entra 0.2s ease-out; }
+  .pwa-striscia span { flex:1; min-width:0; }
+  .pwa-striscia .primario { flex:none; }
+  .pwa-striscia .pwa-no { flex:none; background:none; border-color:transparent; color:var(--dim); }
+  .pwa-striscia .pwa-no svg { width:16px; height:16px; display:block; }
+
   /* le parti scritte in due lingue (crediti): si vede solo quella scelta */
   html[lang="en"] [data-lingua="it"], html[lang="it"] [data-lingua="en"] { display:none !important; }
 
@@ -898,6 +911,7 @@
     cx="11" cy="14.5" r="2"/></svg>Impostazioni</button>
   <button id="guida" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path
     d="M3.5 4.5c2.5-1 4.5-1 6.5.5 2-1.5 4-1.5 6.5-.5v11c-2.5-1-4.5-1-6.5.5-2-1.5-4-1.5-6.5-.5zM10 5v11"/></svg>Guida</button>
+  <button id="installa" type="button" data-icona="scarica" hidden>Installa sul PC</button>
   <button id="lingua" type="button" data-icona="mondo" title="Lingua"><span id="lingua-testo" data-notrad>English</span></button>
   <hr>
   <button id="crediti" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path
@@ -1302,6 +1316,7 @@
 <div id="avvisi" popover="manual" aria-live="polite"></div>
 
 <script src="src/pulze-lingua.js"></script>
+<script src="src/pulze-pwa.js"></script>
 <script src="src/pulze-protocollo.js"></script>
 <script src="src/pulze-catalogo.js"></script>
 <script src="src/pulze-immagini.js"></script>

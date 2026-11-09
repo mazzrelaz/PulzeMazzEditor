@@ -7,7 +7,8 @@ const path = require('path');
 const radice = path.join(__dirname, '..');
 const porta = +process.argv[2] || 8100;
 const tipi = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
-  '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.woff2': 'font/woff2', '.svg': 'image/svg+xml' };
+  '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.woff2': 'font/woff2', '.svg': 'image/svg+xml',
+  '.png': 'image/png', '.webp': 'image/webp', '.webmanifest': 'application/manifest+json' };
 
 http.createServer((req, res) => {
   // La pagina manda qui il suo registro Bluetooth quando qualcosa non torna: finisce in

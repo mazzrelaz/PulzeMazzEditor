@@ -35,6 +35,11 @@
       'Pulze Mazz Editor · Pulze Editor 2.1.3 catalog · labels from Reniori/pulze-tone-generator (MIT)'],
     ['Mini finto pronto: premi Collega.', 'Fake Mini ready: press Connect.'],
     ['Indice della guida', 'Guide contents'], ['Lingua', 'Language'],
+    ['Installa sul PC', 'Install on this PC'], ['Installa', 'Install'], ['Aggiorna', 'Update'],
+    ['Installa il Pulze Mazz Editor sul PC: si apre dal Desktop, in una finestra sua, anche senza internet.',
+      'Install Pulze Mazz Editor on this PC: it opens from the Desktop, in its own window, even without internet.'],
+    ['C\'è una versione nuova dell\'editor (la pagina si ricarica e il Mini si scollega).',
+      'There is a new version of the editor (the page reloads and the Mini disconnects).'],
     ['La pagina si ricarica e il Mini si scollega: le modifiche non salvate si perdono. Cambio lingua?',
       'The page reloads and the Mini disconnects: unsaved changes are lost. Change language?'],
     // ---- il palco e la catena
