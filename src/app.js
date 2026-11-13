@@ -1263,7 +1263,8 @@
         await sicurezzaTone([dest], 'prima di salvare «' + nome + '» sopra «' + nomiTone[dest] + '» (posto ' + (dest + 1) + ')');
       }
       scriviStato('Salvo «' + nome + '» nel posto ' + (dest + 1) + '…');
-      await new Promise(r => setTimeout(r, RITMO_MS * 2));   // che le ultime manopole siano partite
+      // che le ultime manopole siano partite e il Mini abbia finito di rispondere alla lettura per la copia
+      await new Promise(r => setTimeout(r, Math.max(RITMO_MS * 2, 1000)));
       const r = await ble.salva(t.numero, nome, ordineSonglist, dest);
       const nomi = (await ble.chiediNomi()).nomi;
       nomiTone = nomi;
@@ -2123,9 +2124,18 @@
     if (!confirm('Cancello il tone «' + nome + '» (posto ' + (tone + 1) + ') dal Mini? Ne resta una copia di sicurezza in Backup….')) return;
     scriviStato('Copia di sicurezza di «' + nome + '»…');
     await sicurezzaTone([tone], 'prima di cancellare «' + nome + '» (posto ' + (tone + 1) + ')');
-    if (await operazioneElenco('Cancello «' + nome + '»', (num, max) => P.cancellaTone(num, [tone], max), true)) {
-      scriviStato('Tone «' + nome + '» cancellato: il posto ' + (tone + 1) + ' è vuoto.', 'ok');
+    // due tentativi: dopo la lettura per la copia il Mini può rispondere «fatto» senza cancellare
+    for (let giro = 0; giro < 2; giro++) {
+      await new Promise(r => setTimeout(r, 1000));
+      if (!await operazioneElenco('Cancello «' + nome + '»', (num, max) => P.cancellaTone(num, [tone], max), true)) return;
+      if (!nomiTone[tone]) {
+        scriviStato('Tone «' + nome + '» cancellato: il posto ' + (tone + 1) + ' è vuoto.', 'ok');
+        salvaRegistro('cancellato «' + nome + '» (posto ' + (tone + 1) + ') al tentativo ' + (giro + 1));
+        return;
+      }
     }
+    salvaRegistro('cancellazione di «' + nome + '» (posto ' + (tone + 1) + '): il Mini risponde ma il tone resta');
+    scriviStato('Il Mini ha risposto, ma «' + nomiTone[tone] + '» è ancora nel posto ' + (tone + 1) + '.', 'errore');
   }
 
   // ---------------------------------------------------------------- il menu sul tone (elenco a destra)
