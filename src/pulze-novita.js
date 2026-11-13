@@ -6,6 +6,14 @@
 (function () {
   const NOVITA = [
     {
+      versione: 'v8',
+      data: '13 novembre 2026',
+      voci: [
+        { icona: '💾', titolo: 'Salvato in un altro posto: si passa lì',
+          testo: 'Quando salvi un tone in un altro posto, il Mini passa al tone appena salvato e la scritta «modificato · non salvato» sparisce.' },
+      ],
+    },
+    {
       versione: 'v7.10',
       data: '13 novembre 2026',
       voci: [

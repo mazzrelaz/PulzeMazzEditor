@@ -1330,7 +1330,15 @@
       nomeProposto = null;
       scriviStato('Salvato sul Mini: «' + nome + '», posto ' + (dest + 1) + '.', 'ok');
       // il Mini potrebbe essere passato al tone nuovo: la testa lo dice, e se è un altro si rileggono i blocchi
-      const nuova = P.leggiTesta((await ble.chiediTesta()).corpo);
+      let nuova = P.leggiTesta((await ble.chiediTesta()).corpo);
+      // salvato in un altro posto ma il Mini è rimasto su quello di prima: si passa al tone salvato,
+      // così quello che si sente è quello che c'è nel posto (e niente resta «modificato»)
+      if (nuova && nuova.numero !== dest) {
+        try {
+          await suonaEAspetta(dest);
+          nuova = P.leggiTesta((await ble.chiediTesta()).corpo);
+        } catch (e) { /* resta sul tone di prima */ }
+      }
       if (nuova && nuova.numero !== t.numero) rileggiBlocchi();
       if (nuova && nuova.numero === dest) { stato.modificato = false; confronto = null; storia.base = istantanea(); }
       disegnaTesta();
