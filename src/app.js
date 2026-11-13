@@ -865,7 +865,21 @@
       const n = await ble.chiediNomi();
       const testa = P.leggiTesta((await ble.chiediTesta()).corpo);
       const sl = (await ble.chiediSonglist()).corpo;
-      const testo = JSON.stringify({ versione: 'diagnosi-1', quando: new Date().toISOString(),
+      // i tone letti uno per uno (0/0): numero → nome e ID scritti dentro il tone
+      const veri = [];
+      const posti = [0, 1, 2, 3, 4, 5];
+      for (let i = 125; i <= 145; i++) posti.push(i);
+      for (const p of posti) {
+        b.textContent = 'Leggo il posto ' + (p + 1) + '…';
+        ble.num = (ble.num + 1) & 0x7f || 1;
+        const attesa = ble.aspetta(m => m.tipo === 0 && m.gruppo === 0 && m.corpo && m.corpo.length >= 532 && m.corpo[8] === p, 2500);
+        ble._accoda(P.richiesta(ble.num, 0, 0, P.corpoChiediTone(p), ble.max));
+        try {
+          const c = (await attesa).corpo;
+          veri.push(p + ':' + c[8] + ',' + c[9] + ':' + String.fromCharCode(...c.slice(12, 28).filter(x => x >= 32 && x < 127)));
+        } catch (e) { veri.push(p + ':-'); }
+      }
+      const testo = JSON.stringify({ versione: 'diagnosi-2', quando: new Date().toISOString(), veri: veri.join(' | '),
         testa: { numero: testa.numero, nome: testa.nome },
         ordine: n.ordine.join(' '), altro: n.altro.join(' '),
         nomi: n.nomi.map((x, i) => (x ? i + ':' + x : null)).filter(Boolean),
