@@ -191,7 +191,14 @@
    *  (il posto N = il tone N della lista intera). */
   function leggiNomi(c) {
     if (c.length < 4400) return null;
-    return { ordine: c.slice(0, 200), altro: c.slice(200, 400), nomi: Array.from({ length: 200 }, (_, i) => testo(c.slice(400 + 20 * i, 420 + 20 * i))) };
+    // Il Mini tiene una LISTA compatta: alla voce k il posto ordine[k] (ff = fine) e il nome k. I posti fuori
+    // dalla lista sono vuoti anche se dentro c'è ancora un tone (cancellare toglie dalla lista e basta).
+    // Diagnosi del 13 novembre: ordine «3 4 5 … 129 131 132 136 138 138 138 133 135 135», nomi allineati
+    // alle voci, e i tone letti uno per uno (0/0) coincidono col posto. Una voce può ripetere un posto.
+    const ordine = c.slice(0, 200), elenco = Array.from({ length: 200 }, (_, i) => testo(c.slice(400 + 20 * i, 420 + 20 * i)));
+    const nomi = new Array(200).fill('');
+    for (let k = 0; k < 200; k++) if (ordine[k] < 200 && elenco[k]) nomi[ordine[k]] = elenco[k];
+    return { ordine, altro: c.slice(200, 400), elenco, nomi };
   }
 
   /** Le Songlist (tipo 0, gruppo 3; 2840 byte): 40 byte d'ordine (gli id nell'ordine dell'app, ff =

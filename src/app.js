@@ -1318,6 +1318,7 @@
       // il Mini potrebbe essere passato al tone nuovo: la testa lo dice, e se è un altro si rileggono i blocchi
       const nuova = P.leggiTesta((await ble.chiediTesta()).corpo);
       if (nuova && nuova.numero !== t.numero) rileggiBlocchi();
+      if (nuova && nuova.numero === dest) { stato.modificato = false; confronto = null; storia.base = istantanea(); }
       disegnaTesta();
     } catch (e) {
       scriviStato('Salvataggio non confermato: ' + e.message, 'errore');

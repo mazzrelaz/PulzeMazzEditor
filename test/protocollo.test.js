@@ -296,6 +296,17 @@ prova('prima Songlist: Clean, primo tone 0', sl && sl.liste[0].nome === 'Clean' 
     prova(nome + ' come l\'app', app && uguale(nostro, app), app && app.slice(0, 40).join(','));
   }
   prova('cancella tone come l\'app', uguale(P.corpoCancellaTone([133]), a(8, 544)));
+  {
+    // la lista compatta del Mini (diagnosi del 13 novembre): voce k → posto ordine[k]
+    const c = new Array(4400).fill(0);
+    for (let i = 0; i < 200; i++) c[i] = 0xff;
+    [[3, 'Acoustic Sim 1'], [131, 'Proggy Drive'], [138, 'Monk VintageHot'], [135, 'EVH Eruption']].forEach(([p, n], k) => {
+      c[k] = p; for (let j = 0; j < n.length; j++) c[400 + 20 * k + j] = n.charCodeAt(j);
+    });
+    const l = P.leggiNomi(c);
+    prova('nomi per posto vero', l.nomi[3] === 'Acoustic Sim 1' && l.nomi[138] === 'Monk VintageHot' && l.nomi[135] === 'EVH Eruption');
+    prova('posti fuori dalla lista vuoti', l.nomi[0] === '' && l.nomi[1] === '' && l.nomi[136] === '');
+  }
 }
 
 // Backup e settaggi (stessa cattura): il tone 0/0 del Mini diventa il .prst uguale a quello dell'app

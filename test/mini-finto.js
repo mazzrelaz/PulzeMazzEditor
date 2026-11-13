@@ -101,8 +101,16 @@
         if (m.tipo === 1 && m.gruppo === 0) rispondi(1, 0, testa());
         if (m.tipo === 2 && m.gruppo === 0) rispondi(2, 0, blocchi[m.corpo[0]]);
         if (m.tipo === 3 && m.gruppo === 0) {            // i nomi: 200 d'ordine, 200 ?, 200 × 20
+          // come il Mini vero: lista compatta, alla voce k il posto (byte k) e il nome; ff in fondo
           const c = new Array(4400).fill(0);
-          nomi.forEach((n, i) => { c[i] = i; for (let k = 0; k < n.length; k++) c[400 + 20 * i + k] = n.charCodeAt(k); });
+          for (let i = 0; i < 200; i++) c[i] = 0xff;
+          let k = 0;
+          nomi.forEach((n, i) => {
+            if (!n) return;
+            c[k] = i;
+            for (let j = 0; j < n.length; j++) c[400 + 20 * k + j] = n.charCodeAt(j);
+            k++;
+          });
           rispondi(3, 0, c);
         }
         if (m.tipo === 0 && m.gruppo === 3) rispondi(0, 3, songlist);   // 40 d'ordine e 40 da 70 byte
