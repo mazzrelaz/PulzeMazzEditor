@@ -1260,6 +1260,12 @@
       sel.textContent = '';
       nomiTone.forEach((_, i) => { const o = el('option', '', postoNome(i)); o.value = i; sel.appendChild(o); });
       sel.value = String(t.numero);
+      // un suono importato o creato con l'AI è un tone nuovo: si propone il primo posto vuoto, non quello
+      // del tone che suonava (il 13 novembre «Europa» è stato sovrascritto così)
+      if (nomeProposto) {
+        const vuoto = nomiTone.findIndex(n => !n);
+        if (vuoto >= 0) sel.value = String(vuoto);
+      }
       sel.disabled = false;
     } catch (e) {
       sel.textContent = '';
@@ -1273,12 +1279,9 @@
   function aggiornaSalva() {
     const t = stato.testa;
     const dest = $('#salva-posto').disabled ? t.numero : +$('#salva-posto').value;
-    if (dest === t.numero) {
-      $('#salva-conferma').textContent = 'Sovrascrivi';
-    } else {
-      const vuoto = !(nomiTone && nomiTone[dest]);
-      $('#salva-conferma').textContent = vuoto ? 'Salva' : 'Sovrascrivi';
-    }
+    // sopra un tone pieno il tasto dice quale si perde
+    const pieno = nomiTone && nomiTone[dest];
+    $('#salva-conferma').textContent = pieno ? 'Sovrascrivi «' + pieno + '»' : dest === t.numero ? 'Sovrascrivi' : 'Salva';
     $('#salva-conferma').disabled = false;
   }
   /** Un nome che nessun altro posto ha già: «EVH Eruption» → «EVH Eruption (2)», (3)… (16 caratteri al più). */

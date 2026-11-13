@@ -6,6 +6,14 @@
 (function () {
   const NOVITA = [
     {
+      versione: 'v8.1',
+      data: '13 novembre 2026',
+      voci: [
+        { icona: '🛡️', titolo: 'Un suono nuovo va in un posto vuoto',
+          testo: 'Per un suono importato o creato con l\'AI, Salva… propone il primo posto vuoto. Sopra un tone pieno il tasto dice quale si perde: «Sovrascrivi «Europa»».' },
+      ],
+    },
+    {
       versione: 'v8',
       data: '13 novembre 2026',
       voci: [
