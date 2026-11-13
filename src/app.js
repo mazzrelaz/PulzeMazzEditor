@@ -856,6 +856,29 @@
   /** Il registro Bluetooth in editor/registro-pagina.txt (lo scrive tools/serve.js), per capire cosa
    *  è successo. Solo con l'editor aperto dal PC (avvia-editor.cmd, localhost): pubblicato su GitHub Pages
    *  non c'è nessuno che lo riceva, e il traffico Bluetooth di chi lo usa non deve andare da nessuna parte. */
+  /** Diagnosi dei posti: nomi (con i 400 byte d'ordine), testa e Songlist, negli appunti. */
+  async function copiaDiagnosi() {
+    const b = $('#backup-diagnosi');
+    if (!ble || !ble.collegato()) { b.textContent = 'Mini non collegato'; return; }
+    b.disabled = true; b.textContent = 'Leggo…';
+    try {
+      const n = await ble.chiediNomi();
+      const testa = P.leggiTesta((await ble.chiediTesta()).corpo);
+      const sl = (await ble.chiediSonglist()).corpo;
+      const testo = JSON.stringify({ versione: 'diagnosi-1', quando: new Date().toISOString(),
+        testa: { numero: testa.numero, nome: testa.nome },
+        ordine: n.ordine.join(' '), altro: n.altro.join(' '),
+        nomi: n.nomi.map((x, i) => (x ? i + ':' + x : null)).filter(Boolean),
+        songlist: Array.from(sl).join(' ') });
+      try { await navigator.clipboard.writeText(testo); } catch (e) {
+        const t = el('textarea'); t.value = testo; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
+      }
+      b.textContent = 'Copiata: incollala nella chat';
+    } catch (e) {
+      b.textContent = 'Non riuscita: ' + e.message;
+    } finally { b.disabled = false; setTimeout(() => { b.textContent = 'Copia diagnosi'; }, 4000); }
+  }
+
   function salvaRegistro(perche) {
     if (!ble || !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return;
     const testo = '=== ' + new Date().toISOString() + ' ' + perche + '\n' + ble.registro.join('\n') + '\n';
@@ -4176,6 +4199,7 @@
     $('#crea-conferma').addEventListener('click', creaPreset);
     $('#crea-annulla').addEventListener('click', () => $('#dialogo-crea').close());
     $('#crea-copia').addEventListener('click', copiaDomanda);
+    $('#backup-diagnosi').addEventListener('click', copiaDiagnosi);
     $('#crea-testo').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) copiaDomanda(); });
     $('#salva-conferma').addEventListener('click', salvaOra);
     $('#tone-prima').addEventListener('click', sfoglia(P.CC.TONE_PRIMA));

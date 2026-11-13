@@ -191,7 +191,7 @@
    *  (il posto N = il tone N della lista intera). */
   function leggiNomi(c) {
     if (c.length < 4400) return null;
-    return { ordine: c.slice(0, 200), nomi: Array.from({ length: 200 }, (_, i) => testo(c.slice(400 + 20 * i, 420 + 20 * i))) };
+    return { ordine: c.slice(0, 200), altro: c.slice(200, 400), nomi: Array.from({ length: 200 }, (_, i) => testo(c.slice(400 + 20 * i, 420 + 20 * i))) };
   }
 
   /** Le Songlist (tipo 0, gruppo 3; 2840 byte): 40 byte d'ordine (gli id nell'ordine dell'app, ff =
