@@ -6,6 +6,16 @@
 (function () {
   const NOVITA = [
     {
+      versione: 'v7.9',
+      data: '13 novembre 2026',
+      voci: [
+        { icona: '🔤', titolo: 'Niente più nomi doppi',
+          testo: 'Se salvi o copi un tone in un altro posto con un nome che c\'è già, MazzRig aggiunge un numero: «EVH Eruption (2)», «(3)»…' },
+        { icona: '🏷️', titolo: 'Il nome giusto in alto',
+          testo: 'Un preset importato o creato con l\'AI mostra subito il suo nome, anche prima di salvarlo.' },
+      ],
+    },
+    {
       versione: 'v7.8',
       data: '13 novembre 2026',
       voci: [

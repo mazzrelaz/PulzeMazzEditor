@@ -144,7 +144,8 @@
 
   function disegnaTesta() {
     const t = stato.testa;
-    $('#tone-nome').textContent = t ? t.nome || '(senza nome)' : '—';
+    // un tone importato o creato con l'AI e non ancora salvato si chiama già col suo nome
+    $('#tone-nome').textContent = t ? (stato.modificato && nomeProposto) || t.nome || '(senza nome)' : '—';
     $('#tone-nome').title = t ? 'Posto ' + (t.numero + 1) : '';
     for (const [id, campo] of [['#tone-volume', 'volume'], ['#tone-tempo', 'tempo']]) {
       const i = $(id);
@@ -1280,6 +1281,18 @@
     }
     $('#salva-conferma').disabled = false;
   }
+  /** Un nome che nessun altro posto ha già: «EVH Eruption» → «EVH Eruption (2)», (3)… (16 caratteri al più). */
+  function nomeUnico(nome, dest) {
+    const usato = n => (nomiTone || []).some((x, i) => i !== dest && x && x.trim().toLowerCase() === n.trim().toLowerCase());
+    if (!usato(nome)) return nome;
+    const base = nome.replace(/\s*\(\d+\)$/, '');
+    for (let k = 2; k < 200; k++) {
+      const coda = ' (' + k + ')';
+      const n = base.slice(0, 16 - coda.length).trimEnd() + coda;
+      if (!usato(n)) return n;
+    }
+    return nome;
+  }
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   /** Salva il tone che suona nel posto scelto (byte 2 del 5/2 = la destinazione, provato il 5 novembre),
@@ -1287,11 +1300,12 @@
   async function salvaOra() {
     const t = stato.testa;
     const dest = $('#salva-posto').disabled ? t.numero : +$('#salva-posto').value;
-    const nome = $('#salva-nome').value.trim();
+    let nome = $('#salva-nome').value.trim();
     if (!/^[\x20-\x7e]{1,16}$/.test(nome)) {
       $('#salva-errore').textContent = 'Da 1 a 16 caratteri, senza accenti.';
       return;
     }
+    nome = nomeUnico(nome, dest);
     $('#dialogo-salva').close();
     try {
       await leggiOrdine();
@@ -2270,8 +2284,9 @@
   async function confermaDialogoTone() {
     const d = $('#dialogo-tone'), modo = d.dataset.modo, n = +d.dataset.numero, a = +$('#dt-posto').value;
     if (modo === 'copia') {
-      const nome = $('#dt-nome').value;
+      let nome = $('#dt-nome').value;
       if (!/^[\x20-\x7e]{1,16}$/.test(nome) || !nome.trim()) { $('#dt-errore').textContent = 'Da 1 a 16 caratteri, senza accenti.'; return; }
+      nome = nomeUnico(nome, a);
       d.close();
       await lavoraTone('Copio «' + nomiTone[n] + '» nel posto ' + (a + 1), async dire => {
         if (nomiTone[a]) {

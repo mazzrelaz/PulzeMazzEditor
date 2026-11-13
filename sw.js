@@ -10,7 +10,7 @@
  */
 'use strict';
 
-const VERSIONE = 'v7.8';
+const VERSIONE = 'v7.9';
 const CACHE = 'pulzemazz-' + VERSIONE;
 
 // l'elenco delle immagini dei modelli (window.PulzeImmagini): va caricato qui in cima, Chrome non lo
