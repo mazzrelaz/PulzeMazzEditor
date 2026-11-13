@@ -6,6 +6,14 @@
 (function () {
   const NOVITA = [
     {
+      versione: 'v7.10',
+      data: '13 novembre 2026',
+      voci: [
+        { icona: '🌍', titolo: 'Tutto anche in inglese',
+          testo: 'Anche i messaggi nuovi (diagnosi, cancellazione) si leggono in inglese.' },
+      ],
+    },
+    {
       versione: 'v7.9',
       data: '13 novembre 2026',
       voci: [
