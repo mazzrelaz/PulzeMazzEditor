@@ -198,6 +198,7 @@
     const ordine = c.slice(0, 200), elenco = Array.from({ length: 200 }, (_, i) => testo(c.slice(400 + 20 * i, 420 + 20 * i)));
     const nomi = new Array(200).fill('');
     for (let k = 0; k < 200; k++) if (ordine[k] < 200 && elenco[k]) nomi[ordine[k]] = elenco[k];
+    ultimoOrdine = ordine;
     return { ordine, altro: c.slice(200, 400), elenco, nomi };
   }
 
@@ -223,7 +224,17 @@
   const MODELLO_SALTO = 'ff2002000000f04100004842000048420000000000000000000000000000000000000000000000000000000000000000' +
     '00000000000000000000000000000000113261004d637a20426c75657300000000000000000000006f02000103040506' +
     '00000003040000071b0000004700000a350000012100000b1200000c';
+  // Nella lista intera (ff) il salto vuole la VOCE della lista, non il posto (prova del 13 novembre: col
+  // posto 135 il Mini non è andato). Si converte con l'ultima lista letta (03/00).
+  let ultimoOrdine = null;
+  function voceDelPosto(posto) {
+    if (!ultimoOrdine) return posto;
+    const k = Array.prototype.indexOf.call(ultimoOrdine, posto);
+    return k >= 0 ? k : posto;
+  }
+
   function corpoSalto(lista, posizione) {
+    if ((lista & 0xff) === 0xff) posizione = voceDelPosto(posizione);
     const c = [];
     for (let i = 0; i < MODELLO_SALTO.length; i += 2) c.push(parseInt(MODELLO_SALTO.slice(i, i + 2), 16));
     c[0] = lista & 0xff;

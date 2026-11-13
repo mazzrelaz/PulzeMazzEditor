@@ -6,6 +6,14 @@
 (function () {
   const NOVITA = [
     {
+      versione: 'v7.8',
+      data: '13 novembre 2026',
+      voci: [
+        { icona: '🎯', titolo: 'Cambio di tone corretto',
+          testo: 'Dopo aver cancellato dei tone, il doppio clic in «Tutti i tone» poteva non cambiare tone. Ora va al tone giusto.' },
+      ],
+    },
+    {
       versione: 'v7.7',
       data: '13 novembre 2026',
       voci: [
