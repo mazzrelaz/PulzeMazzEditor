@@ -1,0 +1,11 @@
+#!/bin/sh
+# Prima di ogni commit: tutte le prove, compreso l'inglese delle Novità e del Benvenuto (test/lingua.test.js).
+# Si installa una volta, dalla cartella editor: cp tools/pre-commit .git/hooks/pre-commit
+cd "$(git rev-parse --show-toplevel)" || exit 1
+for f in test/*.test.js; do
+  if ! out=$(node "$f" 2>&1); then
+    echo "Commit fermato: $f"
+    echo "$out" | grep -E "^NO|fallite|Error"
+    exit 1
+  fi
+done
