@@ -20,6 +20,8 @@
     velo.innerHTML = quale === 1
       ? '<div class="bv-carta" role="dialog" aria-modal="true">' + LOGO +
         '<h2>Benvenuto in MazzRig</h2>' +
+        '<div class="bv-beta"><strong>⚠️ App in beta</strong>' +
+        '<span>Prima di usarla fai assolutamente un backup completo della tua libreria (dall\'app ufficiale o da Backup… qui in MazzRig): salvare, copiare e cancellare i preset può ancora toccare il posto sbagliato.</span></div>' +
         '<p>Grazie per aver scelto MazzRig! MazzRig è e resterà gratuito. ' + MESTIERE + '</p>' +
         '<p>Se l\'app ti piace, un caffè è il modo più bello per dirmelo e per farla crescere.</p>' + FIRMA +
         '<div class="benvenuto-azioni"><button type="button" class="primario grande" data-a="chiudi">Cominciamo</button>' +

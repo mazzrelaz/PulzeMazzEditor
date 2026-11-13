@@ -20,7 +20,9 @@
     ['Comanda il Live con una pedaliera MIDI, Bluetooth o USB: suona i tone, cambia pagina, accende e spegne gli effetti.',
       'Drive Live with a MIDI pedalboard, Bluetooth or USB: play tones, change page, turn effects on and off.'],
     // ---- le finestre di benvenuto
-    ['Benvenuto in MazzRig', 'Welcome to MazzRig'],
+    ['Benvenuto in MazzRig', 'Welcome to MazzRig'], ['⚠️ App in beta', '⚠️ Beta app'],
+    ['Prima di usarla fai assolutamente un backup completo della tua libreria (dall\'app ufficiale o da Backup… qui in MazzRig): salvare, copiare e cancellare i preset può ancora toccare il posto sbagliato.',
+      'Before using it, make sure you back up your whole library (from the official app or from Backup… here in MazzRig): saving, copying and deleting presets may still hit the wrong slot.'],
     ['Grazie per aver scelto MazzRig! MazzRig è e resterà gratuito. Dietro però ci sono centinaia di ore di lavoro: notti passate a decifrare il protocollo del Pulze Mini, a provare e riprovare sul Mini vero.',
       'Thanks for choosing MazzRig! MazzRig is and will stay free. Behind it, though, are hundreds of hours of work: nights spent decoding the Pulze Mini\'s protocol, testing again and again on the real Mini.'],
     ['MazzRig è e resterà gratuito. Dietro però ci sono centinaia di ore di lavoro: notti passate a decifrare il protocollo del Pulze Mini, a provare e riprovare sul Mini vero.',
