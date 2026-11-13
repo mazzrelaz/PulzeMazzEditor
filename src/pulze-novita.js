@@ -1,10 +1,24 @@
-// pulze-novita.js - La finestra «Novità», come in SparklingTones: ogni aggiornamento pubblicato porta le sue
+﻿// pulze-novita.js - La finestra «Novità», come in SparklingTones: ogni aggiornamento pubblicato porta le sue
 // novità, che si vedono una volta sola alla prima apertura dopo l'aggiornamento. Chi apre l'editor per la
 // prima volta non le vede: per lui è tutto nuovo. Con #novita nell'indirizzo si vede sempre (per provarla).
 // Per pubblicare: una voce nuova IN CIMA a NOVITA, con la stessa versione di VERSIONE in sw.js.
 // I testi sono in italiano: in inglese li traduce pulze-lingua.js, come il resto della pagina.
 (function () {
   const NOVITA = [
+    {
+      versione: 'v7.7',
+      data: '13 novembre 2026',
+      voci: [
+        { icona: '🛠️', titolo: 'Salvare e cancellare: corretto un errore grave',
+          testo: 'Dopo aver cancellato un tone, MazzRig poteva salvare, copiare o cancellare nel posto sbagliato. Ora legge i posti come li tiene davvero il Mini.' },
+        { icona: '⚠️', titolo: 'Fai un backup',
+          testo: 'MazzRig è in beta: prima di salvare o cancellare preset fai un backup completo da ☰ → Backup….' },
+        { icona: '🔢', titolo: 'La versione si vede',
+          testo: 'Sotto «Collega il Pulze Mini» e in fondo al menu ☰: così sai se hai l\'ultima.' },
+        { icona: '🩺', titolo: 'Copia diagnosi',
+          testo: 'In Backup…, un tasto copia lo stato dei posti del Mini da mandare se qualcosa non torna.' },
+      ],
+    },
     {
       versione: 'v7',
       data: '13 novembre 2026',
