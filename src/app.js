@@ -1312,7 +1312,9 @@
     $('#dialogo-salva').close();
     try {
       await leggiOrdine();
-      if (dest !== t.numero && nomiTone && nomiTone[dest]) {
+      // sempre, anche sopra il tone che suona: nel posto c'è la versione salvata, che altrimenti si perde
+      // (il 13 novembre «Europa» è stato sovrascritto senza copia)
+      if (nomiTone && nomiTone[dest]) {
         scriviStato('Copia di sicurezza di «' + nomiTone[dest] + '»…');
         await sicurezzaTone([dest], 'prima di salvare «' + nome + '» sopra «' + nomiTone[dest] + '» (posto ' + (dest + 1) + ')');
       }

@@ -6,9 +6,11 @@
 (function () {
   const NOVITA = [
     {
-      versione: 'v8.1',
+      versione: 'v8.2',
       data: '13 novembre 2026',
       voci: [
+        { icona: '🧯', titolo: 'Copia di sicurezza anche sullo stesso posto',
+          testo: 'Ora anche quando sovrascrivi il tone che suona, la versione di prima resta in Backup… → Copie di sicurezza.' },
         { icona: '🛡️', titolo: 'Un suono nuovo va in un posto vuoto',
           testo: 'Per un suono importato o creato con l\'AI, Salva… propone il primo posto vuoto. Sopra un tone pieno il tasto dice quale si perde: «Sovrascrivi «Europa»».' },
       ],
