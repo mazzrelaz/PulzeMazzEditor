@@ -1,7 +1,7 @@
 {
-  "name": "Pulze Mazz Editor",
-  "short_name": "Pulze Mazz",
-  "description": "Editor per l'Hotone Pulze Mini, via Bluetooth / Editor for the Hotone Pulze Mini, over Bluetooth",
+  "name": "MazzRig",
+  "short_name": "MazzRig",
+  "description": "Editor non ufficiale per l'Hotone Pulze Mini, via Bluetooth / Unofficial editor for the Hotone Pulze Mini, over Bluetooth",
   "lang": "it",
   "dir": "ltr",
   "id": "./",
@@ -13,8 +13,8 @@
   "theme_color": "#262d37",
   "categories": ["music", "utilities"],
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "icons/icon-192.png?v=7", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png?v=7", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png?v=7", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

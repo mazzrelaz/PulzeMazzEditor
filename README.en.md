@@ -1,4 +1,4 @@
-# Pulze Mazz Editor
+# MazzRig
 
 *[Italiano](README.md) · English*
 
@@ -8,7 +8,9 @@ account.
 **→ [mazzrelaz.github.io/PulzeMazzEditor](https://mazzrelaz.github.io/PulzeMazzEditor/)**
 (the guide is inside the editor: ☰ menu → Guide)
 
-> **Independent project**, not affiliated with Hotone Audio in any way. Tested on a single Pulze Mini, firmware 1.1.2:
+> **Unofficial third-party app**, not affiliated with Hotone Audio in any way: it is not made, approved, sponsored or
+> supported by Hotone. “Hotone” and “Pulze” are trademarks of Hotone Audio, mentioned only to say what it works with.
+> Provided “as is”, without warranty (MIT license): the author is not liable for any damage or data loss. Tested on a single Pulze Mini, firmware 1.1.2:
 > the protocol was reconstructed by observing the device, it does not come from official documentation. Use it at
 > your own risk: before big jobs, make a full backup (it's in the editor).
 
@@ -19,8 +21,8 @@ account.
 - **Saves** to any slot; copies, swaps, renames and deletes tones.
 - **Songlists** on a screen of boxes you rearrange with the mouse.
 - **.prst files**: import and export, compatible with the Pulze Editor phone app.
-- **Create AI preset**: describe the sound in words and OpenAI or Claude builds it with the Mini's real models (with
-  your own API key, which goes only to the provider you choose and stays in your browser).
+- **Create AI preset**: describe the sound in words, copy the question into the chat you use (ChatGPT, Claude,
+  Gemini…) and paste back the answer: the tone is built with the Mini's real models. No API keys, no costs.
 - **Jam** (the Mini's drum machine), general **Settings** and **Global EQ** with a draggable curve.
 - **Full backup** to your PC or to your **Dropbox**, restoring tones after comparing them with the Mini, and automatic
   safety copies before any job that overwrites something.

@@ -10,7 +10,7 @@
  */
 'use strict';
 
-const VERSIONE = 'v5';
+const VERSIONE = 'v7';
 const CACHE = 'pulzemazz-' + VERSIONE;
 
 // l'elenco delle immagini dei modelli (window.PulzeImmagini): va caricato qui in cima, Chrome non lo
@@ -36,6 +36,9 @@ const GUSCIO = [
   './src/pulze-dropbox.js',
   './src/pulze-pwa.js',
   './src/app.js',
+  './src/pulze-live.js',
+  './src/pulze-novita.js',
+  './src/pulze-benvenuto.js',
   './fonts/inter-latin.woff2',
   './fonts/space-grotesk-latin.woff2',
   './img/logo.png',

@@ -1,10 +1,10 @@
-<!-- guida.html - La guida del Pulze Mazz Editor. La pagina la carica nella finestra «Guida» (menu ☰ e i
+<!-- guida.html - La guida del MazzRig. La pagina la carica nella finestra «Guida» (menu ☰ e i
      tasti «?»): ogni <section id="g-…"> è una voce dell'indice, col suo <h2>. I link «#g-…» portano alle
      altre sezioni. Testo per chi usa l'editor: niente protocollo, niente codice. -->
 
 <section id="g-inizio">
   <h2>Per cominciare</h2>
-  <p><b>Pulze Mazz Editor</b> comanda un <b>Hotone Pulze Mini</b> dal PC, via Bluetooth: modifichi i tone, li salvi,
+  <p><b>MazzRig</b> comanda un <b>Hotone Pulze Mini</b> dal PC, via Bluetooth: modifichi i tone, li salvi,
     li organizzi in Songlist, fai i backup e puoi farti comporre un suono dall'AI.</p>
   <h3>Cosa serve</h3>
   <ul>
@@ -28,7 +28,7 @@
     <a href="#g-salva">Salvare, Annulla e A/B</a>.</div>
   <h3>Installarlo come app</h3>
   <p>Dal sito (<b>mazzrelaz.github.io/PulzeMazzEditor</b>) l'editor si può installare sul PC: compare da sola, in basso
-    a sinistra, la striscia <b>«Installa il Pulze Mazz Editor sul PC»</b>; premi <span class="tasto">Installa</span> e
+    a sinistra, la striscia <b>«Installa il MazzRig sul PC»</b>; premi <span class="tasto">Installa</span> e
     conferma. Se l'hai chiusa, c'è <span class="tasto" data-icona="menu" aria-label="Menu"></span> → <b>Installa sul PC</b>
     (o l'icona «Installa» nella barra dell'indirizzo di Chrome ed Edge).</p>
   <p>Installato, si apre dal <b>Desktop</b> o dal menu Start, in una finestra sua senza la barra del browser, e
@@ -45,7 +45,7 @@
   <ul>
     <li><b>Barra in alto</b>: <span class="tasto" data-icona="ricarica" aria-label="Rileggi"></span> rileggi (rilegge tutto dal Mini), <b>Vol</b> (il volume del
       tone), <b>BPM</b> (il tempo del tone, quello che usano i delay col Sync), la <a href="#g-jam">Jam</a>,
-      <span class="tasto">Collega</span> e il menu <span class="tasto" data-icona="menu" aria-label="Menu"></span> (Backup, Impostazioni, Guida, Crediti).</li>
+      il <a href="#g-live">Live</a>, <span class="tasto">Collega</span> e il menu <span class="tasto" data-icona="menu" aria-label="Menu"></span> (Backup, Impostazioni, Guida, Crediti).</li>
     <li><b>Sotto la barra</b>: a sinistra <span class="tasto">Salva…</span>, Annulla / Ripeti, <span class="tasto">A/B</span>
       e i file .prst; al centro il <b>nome del tone</b> con le frecce per passare al tone prima o dopo (accanto, in
       ambra, «modificato · non salvato» quando hai cambiato qualcosa); a destra
@@ -154,62 +154,25 @@
     li mette in ordine, decide chi è acceso e regola le manopole. Il risultato lo vedi prima di metterlo sul Mini, e
     arriva nel tone che suona come un file .prst: <b>niente viene salvato da solo</b>.</p>
 
-  <h3 id="g-ai-chiave">Cosa serve: una chiave API</h3>
-  <p>L'editor non ha un'AI sua: usa quella di <b>OpenAI</b> (ChatGPT) o di <b>Anthropic</b> (Claude), con <b>la tua
-    chiave API</b>. La chiave è una specie di password che permette all'editor di fare richieste a nome tuo.</p>
-  <div class="attenzione"><b>La chiave API si paga a consumo</b>, a parte: l'abbonamento a ChatGPT Plus o a Claude Pro
-    <b>non</b> la comprende. Ogni preset creato costa qualche centesimo (dipende dal modello scelto). Sul sito del
-    fornitore puoi caricare un piccolo credito e mettere un limite di spesa.</div>
-  <div class="sicuro">
-    <p><b>La tua chiave è al sicuro</b></p>
-    <ul>
-      <li>Va <b>direttamente</b> dal tuo PC a OpenAI o ad Anthropic, e a nessun altro. Non c'è un server dell'editor in
-        mezzo: l'editor è una pagina che gira sul tuo computer.</li>
-      <li>L'autore dell'editor <b>non la vede e non la riceve</b>, e non c'è nessun account dell'editor dove finisca.</li>
-      <li>Resta solo <b>nel tuo browser, su questo PC</b>, così non devi riscriverla ogni volta. Non va sul Mini, non va
-        su Dropbox, non finisce nei backup né nei file .prst.</li>
-      <li>Puoi sempre <b>cancellarla dal sito del fornitore</b> (nella pagina API keys): da quel momento non vale più,
-        per nessuno. E col <b>limite di spesa</b> sai sempre quanto puoi spendere al massimo.</li>
-    </ul>
-  </div>
-  <h4>Prendere la chiave di OpenAI</h4>
-  <ol>
-    <li>Vai su <b>platform.openai.com</b> e accedi (o crea un account).</li>
-    <li>In <b>Billing</b> carica un credito (bastano pochi euro).</li>
-    <li>In <b>API keys</b> premi <b>Create new secret key</b>, dagli un nome (per esempio «Pulze») e copia la chiave:
-      comincia con <code>sk-</code>. <b>Si vede una volta sola</b>: copiala subito.</li>
-  </ol>
-  <h4>Prendere la chiave di Anthropic (Claude)</h4>
-  <ol>
-    <li>Vai su <b>console.anthropic.com</b> e accedi (o crea un account).</li>
-    <li>In <b>Billing</b> carica un credito.</li>
-    <li>In <b>API Keys</b> premi <b>Create Key</b>, dagli un nome e copia la chiave: comincia con <code>sk-ant-</code>.</li>
-  </ol>
-
-  <h3>La prima volta</h3>
-  <ol>
-    <li>Premi <span class="tasto">Crea preset AI…</span> (viola, in alto a destra).</li>
-    <li>Nel riquadro <b>L'AI</b> scegli <b>OpenAI</b> o <b>Claude (Anthropic)</b>.</li>
-    <li>Incolla la chiave nel campo <b>Chiave</b>. L'editor la prova subito: se va, nella tendina <b>Modello</b>
-      compaiono i modelli del tuo account. Se non va, sotto c'è scritto perché (chiave sbagliata, credito finito…).</li>
-    <li>Scegli il <b>modello</b>. Il primo della lista è il più nuovo e di solito il migliore; quelli «mini» o «nano»
-      costano meno ma sbagliano di più. Con Claude il predefinito è <b>Claude Opus 5.5</b>.</li>
-  </ol>
-  <p>Chiave e modello restano <b>in questo browser</b>: le volte dopo non devi rimetterli. Per cambiarla c'è
-    <span class="tasto">Chiave…</span> accanto al modello. Puoi tenere sia la chiave OpenAI sia quella Claude e passare
-    dall'una all'altra.</p>
+  <h3 id="g-ai-chat">Cosa serve: una chat AI qualsiasi</h3>
+  <p>L'editor non ha un'AI sua e <b>non chiede chiavi né abbonamenti</b>: usi la chat che hai già, anche gratuita
+    (<b>ChatGPT</b>, <b>Claude</b>, <b>Gemini</b>…), con un semplice copia e incolla. L'editor prepara la domanda
+    completa, con l'elenco dei modelli del Mini; tu la incolli nella chat e riporti indietro la risposta.</p>
 
   <h3>Creare un suono</h3>
   <ol>
+    <li>Premi <span class="tasto">Crea preset AI…</span> (viola, in alto a destra).</li>
     <li>Nel riquadro <b>Il suono</b> scrivi cosa vuoi. In italiano va benissimo.</li>
     <li>Se vuoi <b>migliorare il tone che sta suonando</b> invece di partire da zero, spunta
       <b>Parti dal tone che suona</b>: l'AI riceve anche il tone attuale e lo modifica («più gain», «togli il chorus e
       metti un riverbero a molla»).</li>
-    <li>Premi <span class="tasto">Crea</span>. Sotto compare «…sta componendo il suono» coi secondi che passano: di
-      solito servono <b>da 10 secondi a un paio di minuti</b>, secondo il modello. <span class="tasto">Annulla</span>
-      la ferma.</li>
-    <li>Arriva la finestra <b>Prova «nome»</b>: la catena proposta, blocco per blocco, e sotto la <b>spiegazione</b>
-      dell'AI (perché ha scelto quei modelli). Se qualcosa non torna, è scritto lì.</li>
+    <li>Premi <span class="tasto">Copia la domanda</span>: la domanda finisce negli appunti. È lunga, perché contiene
+      tutto il catalogo: è normale.</li>
+    <li>Apri la tua chat, <b>incolla</b> (Ctrl+V) e invia. Aspetta che finisca di rispondere.</li>
+    <li>Copia <b>tutta la risposta</b> (di solito c'è un tasto «copia» sotto) e incollala nel riquadro
+      <b>La risposta</b>.</li>
+    <li>Premi <span class="tasto">Crea</span>. Arriva la finestra <b>Prova «nome»</b>: la catena proposta, blocco per
+      blocco, e sotto la <b>spiegazione</b> dell'AI (perché ha scelto quei modelli).</li>
     <li>Premi <span class="tasto">Importa</span>: il suono va <b>nel tone che suona</b> (quello di prima viene sostituito,
       ma non sul Mini: non è salvato).</li>
     <li><b>Suona e ascolta.</b> Ritocca le manopole a orecchio: l'AI non sente la tua chitarra né il tuo ampli.</li>
@@ -241,16 +204,16 @@
     <li>Ogni richiesta è indipendente: se il risultato non va, riformula invece di ripetere uguale.</li>
     <li>Se l'AI mette un modello in uno slot dove il Mini non lo accetta, nell'anteprima vedi «resta quello del tone»:
       quel blocco non cambia.</li>
-    <li><b>Cosa esce dal PC</b>: la descrizione che scrivi, il catalogo dei modelli e, con «Parti dal tone che suona», il
-      tone attuale. Va al fornitore scelto (OpenAI o Anthropic) con la tua chiave, e a nessun altro. La chiave resta
-      solo nel tuo browser (vedi <a href="#g-ai-chiave">La tua chiave è al sicuro</a>).</li>
+    <li><b>Cosa esce dal PC</b>: l'editor non manda niente a nessuno. La domanda (la descrizione, il catalogo e, con
+      «Parti dal tone che suona», il tone attuale) la incolli tu nella chat che scegli.</li>
+    <li>Le chat migliori danno risultati migliori: se una risposta è povera, prova con un'altra chat o un modello
+      più potente.</li>
   </ul>
   <h3>Se non va</h3>
   <ul>
-    <li><b>«La chiave non va»</b>: ricopia la chiave intera, senza spazi; controlla che sul sito ci sia credito.</li>
-    <li><b>«Non è andata: …»</b> con un messaggio del fornitore (troppe richieste, credito esaurito, modello non
-      disponibile): prova un altro modello o riprova fra poco.</li>
-    <li><b>«Claude ha rifiutato la richiesta»</b>: capita di rado; riformula la descrizione.</li>
+    <li><b>«La risposta non si legge»</b>: hai incollato solo un pezzo, o la chat ha risposto a parole. Ricopia la
+      risposta intera; se serve, chiedi alla chat «rispondi solo col JSON».</li>
+    <li><b>La chat dice che la domanda è troppo lunga</b>: alcune chat gratuite hanno un limite; prova con un'altra.</li>
     <li><b>Il tasto è grigio</b>: l'editor sta ancora leggendo i blocchi dal Mini, o un import è in corso. Aspetta un
       attimo.</li>
   </ul>
@@ -289,6 +252,52 @@
       <span class="tasto">Sync</span> è lo stesso Sync della batteria che c'è nell'app.</li>
     <li>Il cursore è il <b>volume</b> della batteria.</li>
   </ul>
+</section>
+
+<section id="g-live">
+  <h2>Live</h2>
+  <p>Il tasto rosso <span class="tasto">Live</span> in alto apre una schermata fatta per suonare: riquadri grandi, uno
+    per tone, da toccare col dito o da comandare con una pedaliera MIDI. Dal Live non si salva niente sul Mini.
+    <span class="tasto">✕</span> o <b>Esc</b> lo chiudono.</p>
+  <h3>Preset</h3>
+  <ul>
+    <li>In alto c'è la <b>Songlist</b> che vedi (o «Tutti i tone»): <b>clic sul nome</b> per sceglierne un'altra.</li>
+    <li>I tone si vedono <b>8 alla volta</b>. Se la Songlist ne ha di più, accanto al nome c'è la pagina (es. «2/3»)
+      e le frecce ◀ ▶ cambiano pagina. Dopo l'ultima pagina si passa alla Songlist successiva.</li>
+    <li>Il numero in alto a sinistra nel riquadro è la <b>posizione nella Songlist</b>.</li>
+    <li>Tocca un riquadro e il tone suona. Il riquadro del tone che suona ha il bordo che pulsa.</li>
+  </ul>
+  <h3>Stomp</h3>
+  <ul>
+    <li>Con <span class="tasto">Stomp</span> i riquadri diventano i blocchi del <b>tone che suona</b>, nell'ordine della
+      sua catena: PRE, DYN, EQ/MOD, FX1 e FX2. Ampli e cabinet restano fuori.</li>
+    <li>Tocca un blocco per accenderlo o spegnerlo: la luce ambra vuol dire acceso.</li>
+    <li>Accendere e spegnere dal Live non conta come modifica: cambiando tone non ti chiede di salvare.</li>
+  </ul>
+  <h3 id="g-live-pedaliera">La pedaliera</h3>
+  <p>Funziona con le pedaliere MIDI in commercio, via <b>Bluetooth</b> (BLE MIDI) o col cavo <b>USB</b>. Apri la scheda
+    <span class="tasto">Pedaliera</span>:</p>
+  <ol>
+    <li>Premi <span class="tasto">Collega un pedale Bluetooth</span> e scegli la pedaliera, oppure
+      <span class="tasto">Usa i pedali USB</span> se è collegata col cavo.</li>
+    <li>Premi <span class="tasto">＋ Impara uno switch</span>, poi lo switch sulla pedaliera. Rifallo per ogni switch.</li>
+    <li>Per ogni switch scegli cosa fa nelle tre colonne.</li>
+  </ol>
+  <ul>
+    <li><b>Premuto, in Preset</b>: <b>Suona il riquadro 1…8</b> (i riquadri della pagina contati da sinistra a destra,
+      dall'alto in basso), <b>Tone successivo / precedente</b>, <b>Pagina successiva / precedente</b>, oppure
+      <b>Passa da Preset a Stomp e ritorno</b>.</li>
+    <li><b>Premuto, in Stomp</b>: <b>Accendi/spegni</b> PRE, DYN, EQ/MOD, FX1 o FX2, più le stesse azioni di sopra. Lo
+      switch è legato al <b>tipo</b> di blocco: trova lo stesso effetto dovunque stia nella catena del tone.</li>
+    <li><b>Tenuto premuto</b>: un'azione in più quando tieni giù lo switch (il tempo si sceglie in basso, «Pressione
+      lunga»). Serve una pedaliera che mandi un CC a 127 quando premi e a 0 quando lasci; con un Program Change c'è
+      solo la pressione normale.</li>
+    <li>Sui riquadri, l'etichetta blu in alto a destra dice <b>quale switch</b> li comanda. Clic sul nome dello switch
+      nella tabella per rinominarlo; <span class="tasto">Togli</span> lo cancella.</li>
+  </ul>
+  <div class="consiglio">Uno switch appena imparato ha già un'azione: il primo suona il riquadro 1 e in Stomp
+    accende/spegne PRE, il secondo il riquadro 2 e DYN, e così via. Cambiale come vuoi. La pedaliera resta salvata
+    nel browser.</div>
 </section>
 
 <section id="g-impostazioni">
@@ -356,7 +365,7 @@
     <li>Premi <b>Create app</b>.</li>
     <li>Scegli <b>Scoped access</b>, poi <b>App folder</b> (l'app vede solo la sua cartella, non il resto del tuo
       Dropbox).</li>
-    <li>Dagli un nome qualsiasi, per esempio «Pulze Mazz Editor» con qualcosa di tuo (il nome dev'essere unico su
+    <li>Dagli un nome qualsiasi, per esempio «MazzRig» con qualcosa di tuo (il nome dev'essere unico su
       tutto Dropbox), e premi <b>Create app</b>.</li>
     <li>Apri la scheda <b>Permissions</b>, spunta <b>files.content.write</b> e <b>files.content.read</b> e premi
       <b>Submit</b> in fondo alla pagina.</li>
@@ -411,5 +420,5 @@
     <li><b>Ho rovinato un tone</b>: se non l'hai salvato, cambia tone o premi Annulla. Se l'hai salvato, guarda nelle
       <a href="#g-sicurezza">copie di sicurezza</a> o <a href="#g-rimetti">rimettilo da un backup</a>.</li>
   </ul>
-  <p>L'editor è un progetto indipendente, senza rapporto con Hotone. Leggi <b>☰ → Crediti e responsabilità</b>.</p>
+  <p>L'editor è un'app non ufficiale di terze parti, senza rapporto con Hotone, e la usi a tuo rischio. Leggi <b>☰ → Crediti e responsabilità</b>.</p>
 </section>

@@ -58,7 +58,7 @@
     invito = e;
     if (voceMenu()) voceMenu().hidden = false;
     if (memo(NO) === '1') return;
-    striscia('Installa il Pulze Mazz Editor sul PC: si apre dal Desktop, in una finestra sua, anche senza internet.',
+    striscia('Installa il MazzRig sul PC: si apre dal Desktop, in una finestra sua, anche senza internet.',
       'Installa', installa, () => { try { localStorage.setItem(NO, '1'); } catch (x) { /* niente */ } });
   });
 

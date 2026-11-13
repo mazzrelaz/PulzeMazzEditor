@@ -1,9 +1,9 @@
-<!-- guida.en.html - The Pulze Mazz Editor guide in English (the Italian one is guida.html: same sections, same
+<!-- guida.en.html - The MazzRig guide in English (the Italian one is guida.html: same sections, same
      ids). The page loads it into the "Guide" window when the language is English. -->
 
 <section id="g-inizio">
   <h2>Getting started</h2>
-  <p><b>Pulze Mazz Editor</b> controls a <b>Hotone Pulze Mini</b> from your PC over Bluetooth: you edit tones, save
+  <p><b>MazzRig</b> controls a <b>Hotone Pulze Mini</b> from your PC over Bluetooth: you edit tones, save
     them, organize them into Songlists, make backups, and you can have an AI put a sound together for you.</p>
   <h3>What you need</h3>
   <ul>
@@ -27,7 +27,7 @@
     <a href="#g-salva">Saving, Undo and A/B</a>.</div>
   <h3>Installing it as an app</h3>
   <p>From the website (<b>mazzrelaz.github.io/PulzeMazzEditor</b>) the editor can be installed on your PC: the strip
-    <b>“Install Pulze Mazz Editor on this PC”</b> appears by itself at the bottom left; press
+    <b>“Install MazzRig on this PC”</b> appears by itself at the bottom left; press
     <span class="tasto">Install</span> and confirm. If you closed it, there is <span class="tasto" data-icona="menu"
     aria-label="Menu"></span> → <b>Install on this PC</b> (or the “Install” icon in Chrome's and Edge's address bar).</p>
   <p>Once installed, it opens from the <b>Desktop</b> or the Start menu, in its own window without the browser bar, and
@@ -44,7 +44,7 @@
   <ul>
     <li><b>Top bar</b>: <span class="tasto" data-icona="ricarica" aria-label="Reload"></span> reload (re-reads everything
       from the Mini), <b>Vol</b> (the tone's volume), <b>BPM</b> (the tone's tempo, used by delays with Sync on), the
-      <a href="#g-jam">Jam</a>, <span class="tasto">Connect</span> and the <span class="tasto" data-icona="menu"
+      <a href="#g-jam">Jam</a>, <a href="#g-live">Live</a>, <span class="tasto">Connect</span> and the <span class="tasto" data-icona="menu"
       aria-label="Menu"></span> menu (Backup, Settings, Guide, Language, Credits).</li>
     <li><b>Below the bar</b>: on the left <span class="tasto">Save…</span>, Undo / Redo, <span class="tasto">A/B</span>
       and the .prst files; in the middle the <b>tone name</b> with the arrows to the previous or next tone (next to it, in
@@ -155,63 +155,25 @@
     decides what is on and sets the knobs. You see the result before it goes on the Mini, and it arrives in the current
     tone like a .prst file: <b>nothing is saved by itself</b>.</p>
 
-  <h3 id="g-ai-chiave">What you need: an API key</h3>
-  <p>The editor has no AI of its own: it uses <b>OpenAI</b>'s (ChatGPT) or <b>Anthropic</b>'s (Claude), with <b>your own
-    API key</b>. The key is a kind of password that lets the editor send requests on your behalf.</p>
-  <div class="attenzione"><b>API keys are pay-as-you-go</b>, billed separately: a ChatGPT Plus or Claude Pro subscription
-    does <b>not</b> include them. Each preset costs a few cents (it depends on the model you choose). On the provider's
-    site you can add a small amount of credit and set a spending limit.</div>
-  <div class="sicuro">
-    <p><b>Your key is safe</b></p>
-    <ul>
-      <li>It goes <b>directly</b> from your PC to OpenAI or Anthropic, and to nobody else. There is no editor server in
-        between: the editor is a page running on your computer.</li>
-      <li>The author of the editor <b>never sees or receives it</b>, and there is no editor account it could end up in.</li>
-      <li>It stays only <b>in your browser, on this PC</b>, so you don't have to type it every time. It doesn't go to the
-        Mini, to Dropbox, into backups or into .prst files.</li>
-      <li>You can always <b>delete it on the provider's site</b> (on the API keys page): from then on it no longer works,
-        for anyone. And with the <b>spending limit</b> you always know the most you can spend.</li>
-    </ul>
-  </div>
-  <h4>Getting an OpenAI key</h4>
-  <ol>
-    <li>Go to <b>platform.openai.com</b> and sign in (or create an account).</li>
-    <li>Under <b>Billing</b>, add some credit (a few dollars is enough).</li>
-    <li>Under <b>API keys</b> press <b>Create new secret key</b>, give it a name (for example “Pulze”) and copy the key:
-      it starts with <code>sk-</code>. <b>It is shown only once</b>: copy it right away.</li>
-  </ol>
-  <h4>Getting an Anthropic (Claude) key</h4>
-  <ol>
-    <li>Go to <b>console.anthropic.com</b> and sign in (or create an account).</li>
-    <li>Under <b>Billing</b>, add some credit.</li>
-    <li>Under <b>API Keys</b> press <b>Create Key</b>, give it a name and copy the key: it starts with <code>sk-ant-</code>.</li>
-  </ol>
-
-  <h3>The first time</h3>
-  <ol>
-    <li>Press <span class="tasto">Create AI preset…</span> (purple, top right).</li>
-    <li>In the <b>The AI</b> box choose <b>OpenAI</b> or <b>Claude (Anthropic)</b>.</li>
-    <li>Paste the key into the <b>key</b> field. The editor tries it straight away: if it works, the <b>Model</b>
-      drop-down fills with the models on your account. If it doesn't, the reason is written underneath (wrong key, no
-      credit left…).</li>
-    <li>Choose the <b>model</b>. The first in the list is the newest and usually the best; “mini” or “nano” models cost
-      less but make more mistakes. With Claude the default is <b>Claude Opus 5.5</b>.</li>
-  </ol>
-  <p>Key and model stay <b>in this browser</b>: next time you don't need to enter them again. To change the key there is
-    <span class="tasto">Key…</span> next to the model. You can keep both the OpenAI and the Claude key and switch between
-    them.</p>
+  <h3 id="g-ai-chat">What you need: any AI chat</h3>
+  <p>The editor has no AI of its own and <b>asks for no keys or subscriptions</b>: you use the chat you already have,
+    even a free one (<b>ChatGPT</b>, <b>Claude</b>, <b>Gemini</b>…), with a simple copy and paste. The editor prepares
+    the complete question, with the list of the Mini's models; you paste it into the chat and bring the answer back.</p>
 
   <h3>Creating a sound</h3>
   <ol>
+    <li>Press <span class="tasto">Create AI preset…</span> (purple, top right).</li>
     <li>In the <b>The sound</b> box, write what you want. Any language works.</li>
     <li>If you want to <b>improve the tone that is playing</b> rather than start from scratch, tick
       <b>Start from the current tone</b>: the AI also receives the current tone and modifies it (“more gain”, “remove the
       chorus and add a spring reverb”).</li>
-    <li>Press <span class="tasto">Create</span>. Underneath you see “…is composing the sound” with the seconds ticking:
-      it usually takes <b>from 10 seconds to a couple of minutes</b>, depending on the model.
-      <span class="tasto">Cancel</span> stops it.</li>
-    <li>The <b>Try “name”</b> window appears: the proposed chain, block by block, and underneath the AI's
-      <b>explanation</b> (why it chose those models). If something doesn't fit, it's written there.</li>
+    <li>Press <span class="tasto">Copy the question</span>: the question goes to the clipboard. It is long, because it
+      contains the whole catalog: that's normal.</li>
+    <li>Open your chat, <b>paste</b> (Ctrl+V) and send. Wait until it finishes answering.</li>
+    <li>Copy <b>the whole answer</b> (there is usually a “copy” button under it) and paste it into the
+      <b>The answer</b> box.</li>
+    <li>Press <span class="tasto">Create</span>. The <b>Try “name”</b> window appears: the proposed chain, block by block,
+      and underneath the AI's <b>explanation</b> (why it chose those models).</li>
     <li>Press <span class="tasto">Import</span>: the sound goes <b>into the current tone</b> (the previous one is
       replaced, but not on the Mini: it isn't saved).</li>
     <li><b>Play and listen.</b> Adjust the knobs by ear: the AI can't hear your guitar or your amp.</li>
@@ -243,16 +205,15 @@
     <li>Each request is independent: if the result isn't right, rephrase rather than repeat the same words.</li>
     <li>If the AI puts a model in a slot where the Mini doesn't accept it, the preview says “the tone's own block stays”:
       that block doesn't change.</li>
-    <li><b>What leaves your PC</b>: the description you write, the model catalog and, with “Start from the current
-      tone”, the current tone. It goes to the provider you chose (OpenAI or Anthropic) with your key, and to nobody else.
-      The key stays only in your browser (see <a href="#g-ai-chiave">Your key is safe</a>).</li>
+    <li><b>What leaves your PC</b>: the editor sends nothing to anyone. You paste the question (the description, the
+      catalog and, with “Start from the current tone”, the current tone) into the chat you choose.</li>
+    <li>Better chats give better results: if an answer is poor, try another chat or a more powerful model.</li>
   </ul>
   <h3>If it doesn't work</h3>
   <ul>
-    <li><b>“The key does not work”</b>: copy the whole key again, without spaces; check that there is credit on the site.</li>
-    <li><b>“It did not work: …”</b> with a message from the provider (too many requests, credit used up, model not
-      available): try another model or try again in a moment.</li>
-    <li><b>“Claude refused the request”</b>: it rarely happens; rephrase the description.</li>
+    <li><b>“The answer cannot be read”</b>: you pasted only part of it, or the chat answered in words. Copy the whole
+      answer again; if needed, ask the chat “reply with the JSON only”.</li>
+    <li><b>The chat says the question is too long</b>: some free chats have a limit; try another one.</li>
     <li><b>The button is grey</b>: the editor is still reading the blocks from the Mini, or an import is in progress. Wait a
       moment.</li>
   </ul>
@@ -291,6 +252,50 @@
       <span class="tasto">Sync</span> is the same drum Sync as in the app.</li>
     <li>The slider is the drums' <b>volume</b>.</li>
   </ul>
+</section>
+
+<section id="g-live">
+  <h2>Live</h2>
+  <p>The red <span class="tasto">Live</span> button at the top opens a screen made for playing: big tiles, one per
+    tone, to tap with your finger or to drive with a MIDI pedalboard. Nothing is saved to the Mini from Live.
+    <span class="tasto">✕</span> or <b>Esc</b> closes it.</p>
+  <h3>Preset</h3>
+  <ul>
+    <li>At the top is the <b>Songlist</b> you are looking at (or “All tones”): <b>click its name</b> to pick another.</li>
+    <li>Tones are shown <b>8 at a time</b>. If the Songlist has more, the page appears next to the name (e.g. “2/3”)
+      and the ◀ ▶ arrows change page. After the last page you move on to the next Songlist.</li>
+    <li>The number in the top left of a tile is its <b>position in the Songlist</b>.</li>
+    <li>Tap a tile and the tone plays. The tile of the tone that is playing has a pulsing border.</li>
+  </ul>
+  <h3>Stomp</h3>
+  <ul>
+    <li>With <span class="tasto">Stomp</span> the tiles become the blocks of the <b>tone that is playing</b>, in its
+      chain order: PRE, DYN, EQ/MOD, FX1 and FX2. Amp and cabinet stay out.</li>
+    <li>Tap a block to turn it on or off: the amber light means on.</li>
+    <li>Turning blocks on and off from Live does not count as a change: switching tone does not ask you to save.</li>
+  </ul>
+  <h3 id="g-live-pedaliera">The pedalboard</h3>
+  <p>It works with off-the-shelf MIDI pedalboards, over <b>Bluetooth</b> (BLE MIDI) or a <b>USB</b> cable. Open the
+    <span class="tasto">Pedalboard</span> tab:</p>
+  <ol>
+    <li>Press <span class="tasto">Connect a Bluetooth pedal</span> and pick the pedalboard, or
+      <span class="tasto">Use USB pedals</span> if it is connected with a cable.</li>
+    <li>Press <span class="tasto">＋ Learn a switch</span>, then the switch on the pedalboard. Repeat for every switch.</li>
+    <li>For each switch, choose what it does in the three columns.</li>
+  </ol>
+  <ul>
+    <li><b>Pressed, in Preset</b>: <b>Play tile 1…8</b> (the page's tiles counted left to right, top to bottom),
+      <b>Next / Previous tone</b>, <b>Next / Previous page</b>, or <b>Switch between Preset and Stomp</b>.</li>
+    <li><b>Pressed, in Stomp</b>: <b>Turn on/off</b> PRE, DYN, EQ/MOD, FX1 or FX2, plus the same actions as above. The
+      switch is tied to the block <b>type</b>: it finds the same effect wherever it sits in the tone's chain.</li>
+    <li><b>Held down</b>: an extra action when you hold the switch (pick the time at the bottom, “Long press”). It needs
+      a pedalboard that sends a CC at 127 when pressed and 0 when released; with a Program Change there is only the
+      normal press.</li>
+    <li>On the tiles, the blue label in the top right tells <b>which switch</b> drives them. Click a switch's name in the
+      table to rename it; <span class="tasto">Remove</span> deletes it.</li>
+  </ul>
+  <div class="consiglio">A freshly learned switch already has an action: the first plays tile 1 and in Stomp turns PRE
+    on/off, the second tile 2 and DYN, and so on. Change them as you like. The pedalboard stays saved in the browser.</div>
 </section>
 
 <section id="g-impostazioni">
@@ -357,7 +362,7 @@
     <li>Press <b>Create app</b>.</li>
     <li>Choose <b>Scoped access</b>, then <b>App folder</b> (the app only sees its own folder, not the rest of your
       Dropbox).</li>
-    <li>Give it any name, for example “Pulze Mazz Editor” plus something of yours (the name must be unique across all of
+    <li>Give it any name, for example “MazzRig” plus something of yours (the name must be unique across all of
       Dropbox), and press <b>Create app</b>.</li>
     <li>Open the <b>Permissions</b> tab, tick <b>files.content.write</b> and <b>files.content.read</b> and press
       <b>Submit</b> at the bottom of the page.</li>
@@ -410,6 +415,6 @@
     <li><b>I ruined a tone</b>: if you haven't saved it, switch tone or press Undo. If you have saved it, look in the
       <a href="#g-sicurezza">safety copies</a> or <a href="#g-rimetti">restore it from a backup</a>.</li>
   </ul>
-  <p>The editor is an independent project, not affiliated with Hotone. Read <span class="tasto" data-icona="menu"
+  <p>The editor is an unofficial third-party app, not affiliated with Hotone, and you use it at your own risk. Read <span class="tasto" data-icona="menu"
     aria-label="Menu"></span> → <b>Credits and disclaimer</b>.</p>
 </section>

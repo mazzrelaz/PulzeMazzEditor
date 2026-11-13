@@ -1,13 +1,13 @@
 """icone.py - Le icone dell'app installabile (icons/), dal disegno a sinistra del logo (img/logo.png):
-il Mini con la scritta EDITOR, chiaro su un quadrato ardesia. Uso: python tools/icone.py
+la paletta della chitarra, chiaro su un quadrato ardesia. Uso: python tools/icone.py
 """
 from pathlib import Path
 from PIL import Image, ImageDraw
 
 radice = Path(__file__).resolve().parent.parent
 logo = Image.open(radice / 'img' / 'logo.png').convert('RGBA')
-# il disegno sta nei primi ~600 px del logo (poi c'è la scritta PULZE MAZZ)
-segno = logo.crop((0, 0, 610, logo.height))
+# il disegno sta nei primi ~640 px del logo (poi c'è la scritta MAZZRIG)
+segno = logo.crop((0, 0, 640, logo.height))
 segno = segno.crop(segno.getbbox())
 ARDESIA = (42, 49, 60, 255)      # --panel dell'editor
 BLU = (47, 127, 232, 255)        # --accent

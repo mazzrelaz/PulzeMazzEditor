@@ -1975,185 +1975,76 @@
     scriviStato('Esempio: «' + p.nome + '» importato nella pagina, niente va al Mini.', 'esempio');
   }
 
-  // ---------------------------------------------------------------- «Crea preset…» con OpenAI o Claude
+  // ---------------------------------------------------------------- «Crea preset AI», copia e incolla
 
-  // Come lo skill di Reniori: l'AI legge il catalogo e compone la ricetta, pulze-ricetta.js la fa
-  // diventare un tone, e il tone passa dall'anteprima e dall'import come un file .prst.
-  // Due fornitori, ognuno con la sua chiave (dell'utente, in localStorage) e il suo modello.
+  // Come in SparklingTones: niente API né chiavi. La pagina prepara la domanda intera (istruzioni,
+  // catalogo, descrizione) e la copia negli appunti; l'utente la incolla nella chat che usa e
+  // incolla qui la risposta, che pulze-ricetta.js fa diventare un tone. Il tone passa poi
+  // dall'anteprima e dall'import come un file .prst.
   const R = window.PulzeRicetta;
-  const leggiMemo = k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } };
-  const scriviMemo = (k, v) => { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) { /* niente */ } };
-  let creazione = null;             // { ferma: AbortController } mentre l'AI risponde
-
-  /** La risposta di un'API: il JSON, o un errore col messaggio del fornitore. */
-  async function rispostaJson(r) {
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error((j.error && j.error.message) || 'risposta ' + r.status);
-    return j;
-  }
-
-  const FORNITORI = {
-    openai: {
-      nome: 'OpenAI', segnaposto: 'sk-…',
-      /** I modelli di testo dell'account, i più nuovi prima. */
-      async modelli(chiave) {
-        const j = await rispostaJson(await fetch('https://api.openai.com/v1/models', { headers: { Authorization: 'Bearer ' + chiave } }));
-        const scarta = /image|audio|realtime|tts|transcri|search|embed|moderation|instruct|dall-e|whisper|codex|computer|deep-research|\d{4}-\d{2}-\d{2}/;
-        const versione = id => { const m = /^gpt-(\d+(\.\d+)?)/.exec(id) || /^o(\d+)/.exec(id); return m ? parseFloat(m[1]) : 0; };
-        const piccolo = id => (/nano/.test(id) ? 2 : /mini/.test(id) ? 1 : 0);
-        return j.data.map(m => m.id).filter(id => /^(gpt-|o\d)/.test(id) && !scarta.test(id))
-          .sort((a, b) => versione(b) - versione(a) || piccolo(a) - piccolo(b) || a.length - b.length || a.localeCompare(b));
-      },
-      async chiedi(chiave, modello, sistema, richiesta, signal) {
-        const j = await rispostaJson(await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST', signal,
-          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + chiave },
-          body: JSON.stringify({ model: modello, response_format: { type: 'json_object' },
-            messages: [{ role: 'system', content: sistema }, { role: 'user', content: richiesta }] }),
-        }));
-        return j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
-      },
-    },
-    claude: {
-      nome: 'Claude', segnaposto: 'sk-ant-…',
-      // l'API di Anthropic chiamata dalla pagina: serve l'intestazione per il browser
-      testa(chiave) {
-        return { 'x-api-key': chiave, 'anthropic-version': '2026-10-21', 'anthropic-dangerous-direct-browser-access': 'true' };
-      },
-      /** I modelli dell'account; Claude Opus 5.5 per primo (il predefinito), poi come li dà l'API. */
-      async modelli(chiave) {
-        const j = await rispostaJson(await fetch('https://api.anthropic.com/v1/models?limit=100', { headers: this.testa(chiave) }));
-        const ids = j.data.map(m => m.id).filter(id => /^claude-/.test(id));
-        const primo = 'claude-opus-5-5';
-        return ids.includes(primo) ? [primo, ...ids.filter(id => id !== primo)] : ids;
-      },
-      async chiedi(chiave, modello, sistema, richiesta, signal) {
-        const testa = Object.assign({ 'Content-Type': 'application/json' }, this.testa(chiave));
-        const corpo = { model: modello, max_tokens: 16000, system: sistema, messages: [{ role: 'user', content: richiesta }] };
-        // se un filtro di sicurezza rifiuta, l'API riprova da sola con un altro modello (solo coi modelli che lo accettano)
-        if (/^claude-(fable-5-1|opus-5-5|opus-5|sonnet-5-5)$/.test(modello)) {
-          testa['anthropic-beta'] = 'server-side-fallback-2026-07-01';
-          corpo.fallbacks = 'default';
-        }
-        const j = await rispostaJson(await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST', signal, headers: testa, body: JSON.stringify(corpo) }));
-        if (j.stop_reason === 'refusal') throw new Error('Claude ha rifiutato la richiesta' + (j.stop_details && j.stop_details.explanation ? ': ' + j.stop_details.explanation : ''));
-        if (j.stop_reason === 'max_tokens') throw new Error('la risposta è stata tagliata (troppo lunga)');
-        return (j.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
-      },
-    },
-  };
-  const chiaveMemo = f => 'pulzemax.' + f + '.chiave';
-  const modelloMemo = f => 'pulzemax.' + f + '.modello';
-  const fornitore = () => ($('#crea-ai').value in FORNITORI ? $('#crea-ai').value : 'openai');
-
-  /** Mostra chiave e modelli del fornitore scelto. */
-  function mostraFornitore() {
-    const f = fornitore();
-    const memo = leggiMemo(chiaveMemo(f));
-    scriviMemo('pulzemax.ai', f);
-    $('#crea-chiave-nome').textContent = 'Chiave ' + FORNITORI[f].nome;
-    $('#crea-chiave').placeholder = FORNITORI[f].segnaposto;
-    $('#crea-chiave').value = memo;
-    $('#crea-chiave-riga').hidden = !!memo;
-    $('#crea-cambia-chiave').hidden = !memo;
-    $('#crea-errore').textContent = '';
-    const sel = $('#crea-modello');
-    delete sel.dataset.chiave;
-    sel.textContent = '';
-    sel.appendChild(el('option', '', '—'));
-    if (memo) caricaModelliAI();
-  }
 
   function apriCrea() {
-    const f = leggiMemo('pulzemax.ai');
-    $('#crea-ai').value = f in FORNITORI ? f : 'openai';
+    // le chiavi API della versione di prima non servono più: via dal browser
+    for (const k of ['openai.chiave', 'openai.modello', 'claude.chiave', 'claude.modello', 'ai']) {
+      try { localStorage.removeItem('pulzemax.' + k); } catch (e) { /* niente */ }
+    }
     $('#crea-parti').disabled = !stato.testa || stato.blocchi.some(b => !b);
-    $('#crea-attesa').textContent = '';
-    mostraFornitore();
+    $('#crea-errore').textContent = '';
+    $('#crea-risposta').value = '';
     $('#dialogo-crea').showModal();
     $('#crea-testo').focus();
   }
 
-  /** I modelli del fornitore con la chiave scritta; ricorda l'ultimo scelto. */
-  async function caricaModelliAI() {
-    const f = fornitore();
-    const chiave = $('#crea-chiave').value.trim();
-    const sel = $('#crea-modello');
-    const segno = f + ' ' + chiave;
-    if (!chiave || sel.dataset.chiave === segno) return;
-    sel.textContent = '';
-    sel.appendChild(el('option', '', 'leggo i modelli…'));
-    try {
-      const ids = await FORNITORI[f].modelli(chiave);
-      if (fornitore() !== f) return;                  // cambiato fornitore nel frattempo
-      if (!ids.length) throw new Error('nessun modello di testo su questo account');
-      sel.textContent = '';
-      for (const id of ids) { const o = el('option', '', id); o.value = id; sel.appendChild(o); }
-      const prima = leggiMemo(modelloMemo(f));
-      sel.value = ids.includes(prima) ? prima : ids[0];
-      sel.dataset.chiave = segno;
-      scriviMemo(chiaveMemo(f), chiave);
-      $('#crea-errore').textContent = '';
-    } catch (e) {
-      if (fornitore() !== f) return;
-      delete sel.dataset.chiave;
-      sel.textContent = '';
-      sel.appendChild(el('option', '', '—'));
-      $('#crea-errore').textContent = 'La chiave non va: ' + e.message;
-      $('#crea-chiave-riga').hidden = false;
-    }
+  /** La domanda intera da incollare nella chat. */
+  function domandaAI() {
+    const testo = $('#crea-testo').value.trim();
+    const parti = $('#crea-parti').checked && !$('#crea-parti').disabled;
+    let richiesta = 'Request: ' + testo;
+    if (parti) richiesta = 'Current preset on the device:\n' + R.descriviTone(C, {
+      nome: stato.testa.nome, volume: stato.testa.volume, tempo: stato.testa.tempo, catena: stato.testa.catena,
+      blocchi: stato.blocchi }, nomeModello) + '\n\n' + richiesta;
+    return R.istruzioni(C, { utente: stato.nomiUtente, parti, lingua: LINGUA }) + '\n\n' + richiesta;
   }
 
-  /** Il JSON dentro la risposta (anche se l'AI ci mette del testo intorno). */
+  async function copiaDomanda() {
+    const errore = m => { $('#crea-errore').textContent = m; };
+    if (!$('#crea-testo').value.trim()) { errore('Scrivi che suono vuoi.'); $('#crea-testo').focus(); return; }
+    const domanda = domandaAI();
+    try {
+      await navigator.clipboard.writeText(domanda);
+    } catch (e) {
+      // senza permesso per gli appunti: la vecchia strada, da un campo nascosto
+      const t = el('textarea'); t.value = domanda; document.body.appendChild(t); t.select();
+      const ok = document.execCommand('copy'); t.remove();
+      if (!ok) { errore('Non riesco a copiare negli appunti.'); return; }
+    }
+    errore('');
+    const b = $('#crea-copia'), prima = b.textContent;
+    b.textContent = 'Copiata: incollala nella chat';
+    setTimeout(() => { b.textContent = prima; }, 2500);
+    $('#crea-risposta').focus();
+  }
+
+  /** Il JSON dentro la risposta (anche se l'AI ci mette del testo o un blocco di codice intorno). */
   function soloJson(t) {
     const i = t.indexOf('{'), j = t.lastIndexOf('}');
     return i >= 0 && j > i ? t.slice(i, j + 1) : t;
   }
 
-  /** Manda la descrizione, aspetta la ricetta e apre l'anteprima. */
-  async function creaPreset() {
-    if (creazione) return;
-    const f = fornitore();
-    const chiave = $('#crea-chiave').value.trim();
-    const testo = $('#crea-testo').value.trim();
+  /** La risposta incollata diventa un tone e apre l'anteprima. */
+  function creaPreset() {
     const errore = m => { $('#crea-errore').textContent = m; };
-    if (!chiave) { $('#crea-chiave-riga').hidden = false; errore('Serve la chiave ' + FORNITORI[f].nome + '.'); return; }
-    if ($('#crea-modello').dataset.chiave !== f + ' ' + chiave) { await caricaModelliAI(); if (!$('#crea-modello').dataset.chiave) return; }
-    if (!testo) { errore('Scrivi che suono vuoi.'); return; }
-    const modello = $('#crea-modello').value;
-    scriviMemo(modelloMemo(f), modello);
-    const parti = $('#crea-parti').checked && !$('#crea-parti').disabled;
-    let richiesta = testo;
-    if (parti) richiesta = 'Current preset on the device:\n' + R.descriviTone(C, {
-      nome: stato.testa.nome, volume: stato.testa.volume, tempo: stato.testa.tempo, catena: stato.testa.catena,
-      blocchi: stato.blocchi }, nomeModello) + '\n\nRequest: ' + testo;
-    const ferma = new AbortController();
-    creazione = { ferma };
-    const inizio = Date.now();
-    const conta = () => { $('#crea-attesa').textContent = FORNITORI[f].nome + ' sta componendo il suono… ' + Math.round((Date.now() - inizio) / 1000) + ' s'; };
-    conta();
-    const orologio = setInterval(conta, 500);
-    $('#crea-conferma').disabled = true;
-    $('#crea-ai').disabled = true;
-    errore('');
+    const contenuto = $('#crea-risposta').value.trim();
+    if (!contenuto) { errore('Incolla prima la risposta della chat.'); $('#crea-risposta').focus(); return; }
+    if (!/\{[\s\S]*\}/.test(contenuto)) { errore('Nella risposta non c\'è il preset: copiala intera, o chiedi alla chat di rispondere solo col JSON.'); return; }
     try {
-      const sistema = R.istruzioni(C, { utente: stato.nomiUtente, parti, lingua: LINGUA });
-      const contenuto = await FORNITORI[f].chiedi(chiave, modello, sistema, richiesta, ferma.signal);
-      if (!contenuto) throw new Error('l\'AI non ha risposto niente');
-      salvaRegistro('crea preset (' + modello + '): «' + testo + '» → ' + contenuto);
+      salvaRegistro('crea preset (copia e incolla): «' + $('#crea-testo').value.trim() + '» → ' + contenuto);
       const tone = R.aTone(soloJson(contenuto), C, { utente: stato.nomiUtente, tone: { blocchi: stato.blocchi } });
       $('#dialogo-crea').close();
       daImportare = tone;
       mostraAnteprima(tone, tone.nome);
     } catch (e) {
-      errore(e.name === 'AbortError' ? 'Fermato.' : 'Non è andata: ' + e.message);
-    } finally {
-      clearInterval(orologio);
-      $('#crea-attesa').textContent = '';
-      $('#crea-conferma').disabled = false;
-      $('#crea-ai').disabled = false;
-      creazione = null;
+      errore('La risposta non si legge: ' + e.message);
     }
   }
 
@@ -2849,7 +2740,7 @@
 
   function songlistPerFile(sl, nomi) {
     return {
-      formato: 'Pulze Mazz Editor - Songlist', versione: 1, data: new Date().toISOString(),
+      formato: 'MazzRig - Songlist', versione: 1, data: new Date().toISOString(),
       liste: sl.liste.map(l => ({ nome: l.nome, toni: l.toni.map(n => ({ posto: n + 1, nome: (nomi && nomi[n]) || '' })) })),
     };
   }
@@ -4273,11 +4164,9 @@
     $('#importa-conferma').addEventListener('click', importa);
     $('#crea').addEventListener('click', apriCrea);
     $('#crea-conferma').addEventListener('click', creaPreset);
-    $('#crea-annulla').addEventListener('click', () => { if (creazione) creazione.ferma.abort(); $('#dialogo-crea').close(); });
-    $('#crea-chiave').addEventListener('change', caricaModelliAI);
-    $('#crea-ai').addEventListener('change', mostraFornitore);
-    $('#crea-cambia-chiave').addEventListener('click', () => { $('#crea-chiave-riga').hidden = false; $('#crea-chiave').focus(); });
-    $('#crea-testo').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) creaPreset(); });
+    $('#crea-annulla').addEventListener('click', () => $('#dialogo-crea').close());
+    $('#crea-copia').addEventListener('click', copiaDomanda);
+    $('#crea-testo').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) copiaDomanda(); });
     $('#salva-conferma').addEventListener('click', salvaOra);
     $('#tone-prima').addEventListener('click', sfoglia(P.CC.TONE_PRIMA));
     $('#tone-dopo').addEventListener('click', sfoglia(P.CC.TONE_DOPO));
@@ -4338,5 +4227,31 @@
       scriviStato('Questo browser non ha il Bluetooth per le pagine web: apri la pagina con Chrome o Edge.', 'errore');
     }
     window.pulzeDebug = () => ble && ble.registro.join('\n');
+    // Quello che serve alla vista Live (src/pulze-live.js), che sta in un file suo.
+    window.MazzRigApp = {
+      get testa() { return stato.testa; },
+      get blocchi() { return stato.blocchi; },
+      get songlist() { return songlist; },
+      get nomiTone() { return nomiTone; },
+      collegato: () => !!(ble && ble.collegato()),
+      nomeMini: () => (ble && ble.dispositivo ? ble.dispositivo.name : ''),
+      accesoDi: slot => (stato.testa ? accesoDi(slot) : false),
+      immagineDi, nomeModello, scriviStato, apriGuida, icona,
+      /** On/off dal Live: suonare, non lavoro da salvare (cambiando tone non si chiede niente). */
+      accendiLive(slot) {
+        const prima = stato.modificato;
+        accendi(slot);
+        stato.modificato = prima;
+        disegnaTesta();
+      },
+      /** Suona un tone dal Live, senza la domanda sulle modifiche. */
+      suona(lista, pos, numero) {
+        const prima = stato.modificato;
+        stato.modificato = false;
+        if (!ble || !ble.collegato()) { stato.modificato = prima; return Promise.resolve(); }
+        return ble.manda((num, max) => P.salta(num, lista, pos, max))
+          .catch(e => { stato.modificato = prima; scriviStato('Il Mini non ha preso il cambio di tone: ' + e.message, 'errore'); });
+      },
+    };
   });
 })();
