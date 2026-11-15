@@ -13,6 +13,23 @@
   document.documentElement.lang = lingua;
 
   const ESATTI = [
+    // ---- v8.4: cancellare un tone ripetuto, copia di sicurezza non riuscita
+    ['I doppioni non fanno danni: conviene lasciarli. Cancello lo stesso? Ne resta una copia di sicurezza in Backup….',
+      'Duplicates do no harm: better leave them. Delete anyway? A safety copy stays in Backup….'],
+    ['Se vai avanti, quello che c\'è ora sul Mini si perde senza copia. Vado avanti lo stesso?',
+      'If you go on, what is on the Mini now is lost with no copy. Go on anyway?'],
+    ['Fermato: niente è stato salvato.', 'Stopped: nothing was saved.'], ['Fermato: niente è stato cancellato.', 'Stopped: nothing was deleted.'],
+    ['Fermato: niente è stato rimesso.', 'Stopped: nothing was restored.'],
+    ['fermato: la copia di sicurezza non è riuscita, niente è cambiato', 'stopped: the safety copy failed, nothing changed'],
+    ['Attenzione ai tone ripetuti', 'Careful with repeated tones'],
+    ['Prima di cancellare un tone che nell\'elenco del Mini compare più volte, MazzRig avvisa: la cancellazione toglierebbe tutte le voci e il tone sparirebbe.',
+      'Before deleting a tone that appears more than once in the Mini\'s list, MazzRig warns you: deleting would remove all its entries and the tone would disappear.'],
+    ['Senza copia di sicurezza ci si ferma', 'No safety copy, no going on'],
+    ['Se la copia di sicurezza prima di salvare, copiare, scambiare, cancellare o ripristinare non riesce, MazzRig si ferma e chiede se andare avanti.',
+      'If the safety copy before saving, copying, swapping, deleting or restoring fails, MazzRig stops and asks whether to go on.'],
+    ['Scambio interrotto: si sa dove sono i tone', 'Swap interrupted: you know where the tones are'],
+    ['Se uno scambio si ferma a metà, il messaggio dice in quale posto è rimasto ciascun tone.',
+      'If a swap stops halfway, the message says which slot each tone was left in.'],
     // ---- v8.3: avvertenza e tone ripetuti
     ['Lo usi a tuo rischio', 'Use it at your own risk'], ['Controllo dei tone ripetuti', 'Check for repeated tones'],
     ['Al primo uso e a ogni aggiornamento MazzRig ricorda che è un progetto indipendente, senza garanzie. Il testo intero è in ☰ → Crediti e responsabilità.',
@@ -278,6 +295,20 @@
   ];
 
   const MODELLI = [
+    // ---- v8.4: cancellare un tone ripetuto, copia di sicurezza non riuscita, scambio fermato a metà
+    ['Il tone «{0}» (posto {1}) compare {2} volte nell\'elenco del Mini: cancellandolo spariscono tutte le sue voci, e il posto resta vuoto finché non ci salvi di nuovo un tone.',
+      'The tone “{0}” (slot {1}) appears {2} times in the Mini\'s list: deleting it removes all its entries, and the slot stays empty until you save a tone there again.'],
+    ['La copia di sicurezza non è riuscita ({0}).', 'The safety copy failed ({0}).'],
+    ['il Mini non ha mandato il tone del posto {0}', 'the Mini did not send the tone in slot {0}'],
+    ['prima di salvare «{0}» nel posto {1}', 'before saving “{0}” to slot {1}'],
+    ['Copia di sicurezza del posto {0}…', 'Safety copy of slot {0}…'],
+    ['«{0}» è al sicuro nel posto di appoggio {1}. Guarda l\'elenco prima di riprovare: le copie di sicurezza sono in Backup… → Copie di sicurezza.',
+      '“{0}” is safe in spare slot {1}. Check the list before trying again: the safety copies are in Backup… → Safety copies.'],
+    ['«{0}» è al sicuro nel posto di appoggio {1}, «{2}» ora è nel posto {3}. Guarda l\'elenco prima di riprovare: le copie di sicurezza sono in Backup… → Copie di sicurezza.',
+      '“{0}” is safe in spare slot {1}, “{2}” is now in slot {3}. Check the list before trying again: the safety copies are in Backup… → Safety copies.'],
+    ['«{0}» ora è nel posto {1} e «{2}» nel posto {3}; il posto di appoggio {4} forse non si è liberato. Guarda l\'elenco prima di riprovare: le copie di sicurezza sono in Backup… → Copie di sicurezza.',
+      '“{0}” is now in slot {1} and “{2}” in slot {3}; spare slot {4} may not have been freed. Check the list before trying again: the safety copies are in Backup… → Safety copies.'],
+    ['{0}: non riuscito ({1}). {2}', '{0}: failed ({1}). {2}'],
     ["Nell'elenco del Mini ci sono tone ripetuti: {0}. Sono resti di una versione vecchia di MazzRig: l'app originale li mostra doppi, ma non fanno danni.",
       "The Mini's list has repeated tones: {0}. They are leftovers from an old MazzRig version: the original app shows them twice, but they do no harm."],
     ["Attenzione: dopo quest'ultimo lavoro il Mini ha un tone ripetuto in più nell'elenco ({0}). Manda il registro a chi segue MazzRig.",

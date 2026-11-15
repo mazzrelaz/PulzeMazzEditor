@@ -12,7 +12,8 @@ account.
 > supported by Hotone. “Hotone” and “Pulze” are trademarks of Hotone Audio, mentioned only to say what it works with.
 > Provided “as is”, without warranty (MIT license): the author is not liable for any damage or data loss. Tested on a single Pulze Mini, firmware 1.1.2:
 > the protocol was reconstructed by observing the device, it does not come from official documentation. Use it at
-> your own risk: before big jobs, make a full backup (it's in the editor).
+> your own risk: before big jobs, make a full backup (it's in the editor). The editor reminds you with a screen on
+> first use and after every update.
 
 ## What it does
 

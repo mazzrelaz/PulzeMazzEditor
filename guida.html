@@ -127,6 +127,12 @@
   <div class="attenzione">Il Mini non sa copiare un tone direttamente: l'editor <b>lo fa suonare e lo salva nel posto
     nuovo</b>. Lo scambio sono tre copie passando da un posto vuoto. Le Songlist puntano ai <b>posti</b>: dopo uno scambio
     una Songlist che conteneva il posto 5 suonerà il tone che ora sta al 5. L'editor te lo ricorda prima.</div>
+  <div class="attenzione"><b>Tone ripetuti.</b> Dentro il Mini i tone sono un elenco, e le versioni vecchie di MazzRig
+    (prima della v7.6) potevano lasciarci lo stesso posto due volte: l'app originale allora mostra quel tone doppio o
+    triplo. Al collegamento MazzRig ti dice quali sono; non fanno danni. Se un salvataggio, una copia o una
+    cancellazione ne creassero uno nuovo, MazzRig ti avvisa subito: manda il registro.<br>
+    <b>Non cancellarli per togliere il doppione:</b> la cancellazione toglie tutte le voci di quel posto, e il tone
+    sparisce dal Mini finché non ci salvi di nuovo un tone. MazzRig te lo ricorda prima di cancellare.</div>
 </section>
 
 <section id="g-prst">
@@ -398,8 +404,10 @@
 <section id="g-sicurezza">
   <h2>Copie di sicurezza</h2>
   <p>Prima di ogni lavoro che sovrascrive qualcosa sul Mini, l'editor tiene <b>da solo</b> una copia di com'era:
-    salvare sopra un tone in un altro posto, copiare o scambiare tone, cancellare un tone, importare settaggi, salvare
-    le Songlist, rimettere tone da un backup.</p>
+    salvare sopra un tone (anche sopra quello che suona), copiare o scambiare tone, cancellare un tone, importare
+    settaggi, salvare le Songlist, rimettere tone da un backup.</p>
+  <p>Se la copia <b>non riesce</b> (il Mini non risponde, il browser non ha spazio), l'editor si ferma e ti chiede se
+    andare avanti lo stesso: rispondendo <b>Annulla</b> non cambia niente.</p>
   <p>Le trovi in <b>Backup… → Copie di sicurezza</b> (clicca per aprire l'elenco): quando, cosa e perché. Per ognuna
     <span class="tasto">Ripristina</span> la rimette e <b>Scarica</b> la salva sul PC.</p>
   <div class="attenzione">Le copie di sicurezza stanno <b>in questo browser</b> (le ultime 40), non sul Mini e non su
@@ -420,5 +428,6 @@
     <li><b>Ho rovinato un tone</b>: se non l'hai salvato, cambia tone o premi Annulla. Se l'hai salvato, guarda nelle
       <a href="#g-sicurezza">copie di sicurezza</a> o <a href="#g-rimetti">rimettilo da un backup</a>.</li>
   </ul>
-  <p>L'editor è un'app non ufficiale di terze parti, senza rapporto con Hotone, e la usi a tuo rischio. Leggi <b>☰ → Crediti e responsabilità</b>.</p>
+  <p>L'editor è un'app non ufficiale di terze parti, senza rapporto con Hotone, e la usi a tuo rischio. Te lo ricorda
+    una schermata al primo uso e dopo ogni aggiornamento; il testo intero è in <b>☰ → Crediti e responsabilità</b>.</p>
 </section>

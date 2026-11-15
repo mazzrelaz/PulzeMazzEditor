@@ -12,7 +12,8 @@ account.
 > né supportata da Hotone. «Hotone» e «Pulze» sono marchi di Hotone Audio, citati solo per dire con cosa funziona.
 > Fornita «così com'è», senza garanzie (licenza MIT): l'autore non risponde di danni o perdite di dati. Provato su un solo Pulze Mini, firmware 1.1.2: il
 > protocollo è stato ricostruito osservando l'apparecchio, non viene da documentazione ufficiale. Lo usi a tuo
-> rischio: prima di lavori grossi fai un backup completo (c'è nell'editor).
+> rischio: prima di lavori grossi fai un backup completo (c'è nell'editor). L'editor lo ricorda con una schermata al
+> primo uso e dopo ogni aggiornamento.
 
 ## Cosa fa
 

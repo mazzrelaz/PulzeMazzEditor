@@ -1314,9 +1314,15 @@
       await leggiOrdine();
       // sempre, anche sopra il tone che suona: nel posto c'è la versione salvata, che altrimenti si perde
       // (il 13 novembre «Europa» è stato sovrascritto senza copia)
-      if (nomiTone && nomiTone[dest]) {
-        scriviStato('Copia di sicurezza di «' + nomiTone[dest] + '»…');
-        await sicurezzaTone([dest], 'prima di salvare «' + nome + '» sopra «' + nomiTone[dest] + '» (posto ' + (dest + 1) + ')');
+      // senza i nomi (lettura non riuscita) non si sa se il posto è pieno: si prova a copiarlo lo stesso
+      if (!nomiTone || nomiTone[dest]) {
+        const perche = nomiTone ? 'prima di salvare «' + nome + '» sopra «' + nomiTone[dest] + '» (posto ' + (dest + 1) + ')'
+          : 'prima di salvare «' + nome + '» nel posto ' + (dest + 1);
+        scriviStato(nomiTone ? 'Copia di sicurezza di «' + nomiTone[dest] + '»…' : 'Copia di sicurezza del posto ' + (dest + 1) + '…');
+        if (!await sicurezzaOppureChiedi([dest], perche)) {
+          scriviStato('Fermato: niente è stato salvato.');
+          return;
+        }
       }
       scriviStato('Salvo «' + nome + '» nel posto ' + (dest + 1) + '…');
       // che le ultime manopole siano partite e il Mini abbia finito di rispondere alla lettura per la copia
@@ -1509,7 +1515,11 @@
         '(conviene prima «Esporta settaggi»).')) { scriviBackup('Importazione annullata.'); return; }
       scriviBackup('Leggo i settaggi di adesso…');
       const attuale = await ble.chiediSettaggi();
-      await copiaSicurezza('settaggi', 'prima di importare «' + f.name + '»', 'Global' + quando() + '.glb', window.PulzePrst.glbDaMini(attuale));
+      const perche = 'prima di importare «' + f.name + '»';
+      if (!avantiSenzaCopia(await copiaSicurezza('settaggi', perche, 'Global' + quando() + '.glb', window.PulzePrst.glbDaMini(attuale)), perche)) {
+        scriviBackup('Importazione annullata.');
+        return;
+      }
       const batteria = (await ble.chiedi(6, 1, [], m => m.tipo === 6 && m.gruppo === 1 && m.comando === 0x12)).corpo;
       const nuovo = window.PulzePrst.glbAlMini(testo, attuale, batteria);
       scriviBackup('Mando i settaggi…');
@@ -1531,7 +1541,9 @@
   // Prima di un lavoro che sovrascrive qualcosa sul Mini (importare settaggi o Songlist, ripristinare preset,
   // salvare o copiare su un posto pieno, cancellare un tone) la pagina tiene una copia di com'era, da sola, nel
   // browser (IndexedDB): la finestra Backup le elenca e le rimette con gli stessi comandi del backup. Le ultime 40.
-  // Una copia non riuscita non ferma il lavoro: lo dice e basta.
+  // Una copia non riuscita ferma i lavori sui tone e sui settaggi finché chi usa l'editor non dice di andare
+  // avanti lo stesso (sicurezzaOppureChiedi, audit del 15 novembre); per le Songlist lo dice e basta (ce n'è
+  // una copia anche in localStorage).
   const SICUREZZA_MAX = 40;
   let dbSicurezza = null;
 
@@ -1552,7 +1564,8 @@
   }
   const richiesta = r => new Promise((ok, no) => { r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); });
 
-  /** Tiene una copia: tipo 'settaggi' | 'songlist' | 'tone', perché (a parole), nome del file, dati (testo o byte). */
+  /** Tiene una copia: tipo 'settaggi' | 'songlist' | 'tone', perché (a parole), nome del file, dati (testo o byte).
+   *  Dà '' se la copia c'è, sennò il motivo. */
   async function copiaSicurezza(tipo, perche, nome, dati) {
     try {
       await richiesta((await negozioSicurezza('readwrite')).add({ quando: Date.now(), tipo, perche, nome, dati }));
@@ -1562,11 +1575,22 @@
         for (const k of chiavi.slice(0, chiavi.length - SICUREZZA_MAX)) st.delete(k);
       }
       if ($('#dialogo-backup').open) elencoSicurezza();
-      return true;
+      return '';
     } catch (e) {
-      scriviStato('Copia di sicurezza non riuscita (' + (e && e.message) + '): il lavoro va avanti lo stesso.', 'errore');
-      return false;
+      return (e && e.message) || 'IndexedDB';
     }
+  }
+
+  /** Se la copia di sicurezza non è riuscita (motivo non vuoto), chiede se andare avanti lo stesso: true = avanti. */
+  function avantiSenzaCopia(motivo, perche) {
+    if (!motivo) return true;
+    salvaRegistro('copia di sicurezza non riuscita (' + motivo + ') ' + perche);
+    return confirm('La copia di sicurezza non è riuscita (' + motivo + ').\n\n' +
+      'Se vai avanti, quello che c\'è ora sul Mini si perde senza copia. Vado avanti lo stesso?');
+  }
+  /** La copia dei tone nei posti dati, e se non riesce la domanda: true = si va avanti. */
+  async function sicurezzaOppureChiedi(posti, perche, letti) {
+    return avantiSenzaCopia(await sicurezzaTone(posti, perche, letti), perche);
   }
 
   /** Un tone letto dal Mini (0/0) come file «NNN Nome.prst», come nel backup completo. */
@@ -1577,22 +1601,24 @@
   }
 
   /** Copia dei tone nei posti dati (quelli pieni), in uno .zip che «Ripristina preset» sa rimettere.
-   *  letti: { posto: corpo 0/0 } già in mano, per non rileggerli. */
+   *  letti: { posto: corpo 0/0 } già in mano, per non rileggerli. Dà '' se è andata (o non c'era niente da
+   *  copiare), sennò il motivo. */
   async function sicurezzaTone(posti, perche, letti) {
     const file = [];
     try {
       for (const n of [...new Set(posti)]) {
-        if (!nomiTone || !nomiTone[n]) continue;
+        // vuoto di sicuro: niente da copiare. Senza i nomi si prova a leggerlo lo stesso.
+        if (nomiTone && !nomiTone[n]) continue;
         const c = (letti && letti[n]) || await ble.chiediToneIntero(n);
         if (c) file.push(fileTone(n, c));
+        else if (nomiTone) return 'il Mini non ha mandato il tone del posto ' + (n + 1);
       }
     } catch (e) {
-      scriviStato('Copia di sicurezza non riuscita (' + e.message + '): il lavoro va avanti lo stesso.', 'errore');
-      return;
+      return e.message;
     }
-    if (!file.length) return;
+    if (!file.length) return '';
     const ora = new Date();
-    await copiaSicurezza('tone', perche, 'Copia di sicurezza ' + quando(ora) + '.zip', window.PulzePrst.zip(file, ora));
+    return copiaSicurezza('tone', perche, 'Copia di sicurezza ' + quando(ora) + '.zip', window.PulzePrst.zip(file, ora));
   }
 
   const quandoUmano = ms => {
@@ -2186,9 +2212,20 @@
       scriviStato('«' + nome + '» sta suonando: passa a un altro tone prima di cancellarlo.', 'errore');
       return;
     }
-    if (!confirm('Cancello il tone «' + nome + '» (posto ' + (tone + 1) + ') dal Mini? Ne resta una copia di sicurezza in Backup….')) return;
+    // un posto ripetuto nell'elenco del Mini: cancellarlo toglie TUTTE le sue voci, e il posto non si suona
+    // più finché non ci si salva sopra da un altro tone (prova del 15 novembre). Va detto prima.
+    const rip = ripetutiOra.find(x => x.posto === tone);
+    const domanda = rip
+      ? 'Il tone «' + nome + '» (posto ' + (tone + 1) + ') compare ' + rip.volte + ' volte nell\'elenco del Mini: cancellandolo ' +
+        'spariscono tutte le sue voci, e il posto resta vuoto finché non ci salvi di nuovo un tone.\n\n' +
+        'I doppioni non fanno danni: conviene lasciarli. Cancello lo stesso? Ne resta una copia di sicurezza in Backup….'
+      : 'Cancello il tone «' + nome + '» (posto ' + (tone + 1) + ') dal Mini? Ne resta una copia di sicurezza in Backup….';
+    if (!confirm(domanda)) return;
     scriviStato('Copia di sicurezza di «' + nome + '»…');
-    await sicurezzaTone([tone], 'prima di cancellare «' + nome + '» (posto ' + (tone + 1) + ')');
+    if (!await sicurezzaOppureChiedi([tone], 'prima di cancellare «' + nome + '» (posto ' + (tone + 1) + ')')) {
+      scriviStato('Fermato: niente è stato cancellato.');
+      return;
+    }
     // due tentativi: dopo la lettura per la copia il Mini può rispondere «fatto» senza cancellare
     for (let giro = 0; giro < 2; giro++) {
       await new Promise(r => setTimeout(r, 1000));
@@ -2304,7 +2341,9 @@
       await lavoraTone('Copio «' + nomiTone[n] + '» nel posto ' + (a + 1), async dire => {
         if (nomiTone[a]) {
           dire('copia di sicurezza di «' + nomiTone[a] + '»');
-          await sicurezzaTone([a], 'prima di copiare «' + nomiTone[n] + '» sopra «' + nomiTone[a] + '» (posto ' + (a + 1) + ')');
+          if (!await sicurezzaOppureChiedi([a], 'prima di copiare «' + nomiTone[n] + '» sopra «' + nomiTone[a] + '» (posto ' + (a + 1) + ')')) {
+            throw new Error('fermato: la copia di sicurezza non è riuscita, niente è cambiato');
+          }
         }
         await copiaPosto(n, a, nome);
         return 'Copiato: «' + nome + '» nel posto ' + (a + 1) + '.';
@@ -2318,18 +2357,37 @@
         for (let i = nomiTone.length - 1; i >= 0; i--) if (!nomiTone[i] && i !== n && i !== a) { tmp = i; break; }
         if (tmp < 0) throw new Error('serve un posto vuoto di appoggio, e sono tutti pieni');
         dire('copia di sicurezza dei due tone');
-        await sicurezzaTone([n, a], 'prima di scambiare «' + nomeN + '» e «' + nomeA + '»');
-        dire('1 di 4: «' + nomeN + '» nel posto di appoggio ' + (tmp + 1));
-        await copiaPosto(n, tmp, nomeN);
-        dire('2 di 4: «' + nomeA + '» nel posto ' + (n + 1));
-        await copiaPosto(a, n, nomeA);
-        dire('3 di 4: «' + nomeN + '» nel posto ' + (a + 1));
-        await copiaPosto(tmp, a, nomeN);
-        dire('4 di 4: libero il posto di appoggio');
-        await suonaEAspetta(a);                   // il posto di appoggio non deve suonare per cancellarlo
-        const risposta = ble.aspetta(m => m.comando === 0x12 && m.tipo === P.TIPO.SALVATO && m.gruppo === 2, 6000);
-        await ble.manda((num, max) => P.cancellaTone(num, [tmp], max));
-        await risposta;
+        if (!await sicurezzaOppureChiedi([n, a], 'prima di scambiare «' + nomeN + '» e «' + nomeA + '»')) {
+          throw new Error('fermato: la copia di sicurezza non è riuscita, niente è cambiato');
+        }
+        // le copie fatte e controllate: se una non riesce, l'errore dice dove sono di sicuro i due tone
+        let passo = 0;
+        const SICURE = ' Guarda l\'elenco prima di riprovare: le copie di sicurezza sono in Backup… → Copie di sicurezza.';
+        try {
+          dire('1 di 4: «' + nomeN + '» nel posto di appoggio ' + (tmp + 1));
+          await copiaPosto(n, tmp, nomeN);
+          passo = 1;
+          dire('2 di 4: «' + nomeA + '» nel posto ' + (n + 1));
+          await copiaPosto(a, n, nomeA);
+          passo = 2;
+          dire('3 di 4: «' + nomeN + '» nel posto ' + (a + 1));
+          await copiaPosto(tmp, a, nomeN);
+          passo = 3;
+          dire('4 di 4: libero il posto di appoggio');
+          await suonaEAspetta(a);                   // il posto di appoggio non deve suonare per cancellarlo
+          const risposta = ble.aspetta(m => m.comando === 0x12 && m.tipo === P.TIPO.SALVATO && m.gruppo === 2, 6000);
+          await ble.manda((num, max) => P.cancellaTone(num, [tmp], max));
+          await risposta;
+        } catch (e) {
+          // dopo la prima copia il posto di partenza può essere già sovrascritto (salvato ma non confermato):
+          // si dice solo quello che è certo
+          if (passo === 1) e.dove = '«' + nomeN + '» è al sicuro nel posto di appoggio ' + (tmp + 1) + '.' + SICURE;
+          if (passo === 2) e.dove = '«' + nomeN + '» è al sicuro nel posto di appoggio ' + (tmp + 1) + ', «' + nomeA +
+            '» ora è nel posto ' + (n + 1) + '.' + SICURE;
+          if (passo === 3) e.dove = '«' + nomeA + '» ora è nel posto ' + (n + 1) + ' e «' + nomeN + '» nel posto ' + (a + 1) +
+            '; il posto di appoggio ' + (tmp + 1) + ' forse non si è liberato.' + SICURE;
+          throw e;
+        }
         nomiTone = (await ble.chiediNomi()).nomi;
         if (nomiTone[n] !== nomeA || nomiTone[a] !== nomeN) throw new Error('riletti: posto ' + (n + 1) + ' «' + nomiTone[n] +
           '», posto ' + (a + 1) + ' «' + nomiTone[a] + '»');
@@ -2364,8 +2422,9 @@
     disegna();
     disegnaSonglist();
     if (errore) {
-      scriviStato(testo + ': non riuscito (' + errore.message + ').', 'errore');
-      salvaRegistro(testo + ' non riuscito: ' + errore.message);
+      // e.dove: dove sono rimasti i tone, se il lavoro si è fermato a metà (lo scambio)
+      scriviStato(testo + ': non riuscito (' + errore.message + ').' + (errore.dove ? ' ' + errore.dove : ''), 'errore');
+      salvaRegistro(testo + ' non riuscito: ' + errore.message + (errore.dove ? ' — ' + errore.dove : ''));
     } else scriviStato(fine, 'ok');
   }
 
@@ -2793,8 +2852,9 @@
     const volute = copiaListe();
     if (modifica(volute) === false) return false;
     try { localStorage.setItem('pulzemazz.songlist.prima', JSON.stringify(songlistPerFile(songlist, nomiTone))); } catch (e) { /* niente */ }
-    await copiaSicurezza('songlist', 'prima di: ' + testo.charAt(0).toLowerCase() + testo.slice(1), 'Songlist' + quando() + '.json',
+    const noCopia = await copiaSicurezza('songlist', 'prima di: ' + testo.charAt(0).toLowerCase() + testo.slice(1), 'Songlist' + quando() + '.json',
       JSON.stringify(songlistPerFile(songlist, nomiTone), null, 2));
+    if (noCopia) scriviStato('Copia di sicurezza non riuscita (' + noCopia + '): il lavoro va avanti lo stesso.', 'errore');
     const totale = volute.reduce((n, v) => n + v.toni.length, 0);
     let fatti = 0;
     const ok = await lavoraListe(id, testo, () => applicaListe(volute, () => {
@@ -3069,7 +3129,12 @@
       scriviRipristino('Copia di sicurezza dei preset che vengono sostituiti…');
       const letti = {};
       for (const v of scelte) if (v.attuale) letti[v.posto] = v.attuale;
-      await sicurezzaTone(scelte.map(v => v.posto), 'prima di ripristinare ' + scelte.length + ' preset', letti);
+      if (!await sicurezzaOppureChiedi(scelte.map(v => v.posto), 'prima di ripristinare ' + scelte.length + ' preset', letti)) {
+        scriviRipristino('Fermato: niente è stato rimesso.');
+        r.lavoro = false;
+        bottoniRipristino();
+        return;
+      }
     }
     importando = true;
     disegnaTesta();
@@ -4089,9 +4154,13 @@
   /** Le voci ripetute nell'elenco del Mini (lo stesso posto due o più volte: l'app originale lo mostra doppio).
    *  Al collegamento lo dice una volta; dopo, se dopo un lavoro ce n'è una in più, lo dice subito (15 novembre). */
   let ripetutiPrima = null;
+  let ripetutiOra = [];             // [{ posto, volte }] dall'ultima lettura dei nomi: cancellaTone li avvisa
   function controllaRipetuti(r) {
+    ripetutiOra = r.ripetuti || [];
     const conta = (r.ripetuti || []).reduce((t, x) => t + x.volte - 1, 0);
-    const elenco = (r.ripetuti || []).map(x => '«' + (r.nomi[x.posto] || '?') + '» (posto ' + (x.posto + 1) + ') ×' + x.volte).join(', ');
+    // i pezzi variabili non passano dal dizionario: «posto» si scrive già nella lingua scelta
+    const posto = document.documentElement.lang === 'en' ? 'slot' : 'posto';
+    const elenco = (r.ripetuti || []).map(x => '«' + (r.nomi[x.posto] || '?') + '» (' + posto + ' ' + (x.posto + 1) + ') ×' + x.volte).join(', ');
     if (ripetutiPrima === null) {
       if (conta) scriviStato("Nell'elenco del Mini ci sono tone ripetuti: " + elenco + '. Sono resti di una versione vecchia di MazzRig: ' +
         "l'app originale li mostra doppi, ma non fanno danni.", 'errore');

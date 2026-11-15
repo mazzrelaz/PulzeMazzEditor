@@ -6,6 +6,18 @@
 (function () {
   const NOVITA = [
     {
+      versione: 'v8.4',
+      data: '15 novembre 2026',
+      voci: [
+        { icona: '🗑️', titolo: 'Attenzione ai tone ripetuti',
+          testo: 'Prima di cancellare un tone che nell\'elenco del Mini compare più volte, MazzRig avvisa: la cancellazione toglierebbe tutte le voci e il tone sparirebbe.' },
+        { icona: '🛑', titolo: 'Senza copia di sicurezza ci si ferma',
+          testo: 'Se la copia di sicurezza prima di salvare, copiare, scambiare, cancellare o ripristinare non riesce, MazzRig si ferma e chiede se andare avanti.' },
+        { icona: '🔁', titolo: 'Scambio interrotto: si sa dove sono i tone',
+          testo: 'Se uno scambio si ferma a metà, il messaggio dice in quale posto è rimasto ciascun tone.' },
+      ],
+    },
+    {
       versione: 'v8.3',
       data: '15 novembre 2026',
       voci: [

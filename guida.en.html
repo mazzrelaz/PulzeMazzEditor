@@ -129,6 +129,12 @@
   <div class="attenzione">The Mini can't copy a tone directly: the editor <b>plays it and saves it to the new slot</b>. A
     swap is three copies through an empty spare slot. Songlists point to <b>slots</b>: after a swap, a Songlist that
     contained slot 5 will play the tone that is now in slot 5. The editor reminds you before doing it.</div>
+  <div class="attenzione"><b>Repeated tones.</b> Inside the Mini the tones are a list, and old MazzRig versions (before v7.6)
+    could leave the same slot in it twice: the original app then shows that tone two or three times. When connecting,
+    MazzRig tells you which ones; they do no harm. If a save, copy or delete ever creates a new one, MazzRig warns you
+    right away: send the log.<br>
+    <b>Don't delete them to remove the duplicate:</b> deleting removes all the entries of that slot, and the tone
+    disappears from the Mini until you save a tone there again. MazzRig reminds you before deleting.</div>
 </section>
 
 <section id="g-prst">
@@ -394,8 +400,10 @@
 <section id="g-sicurezza">
   <h2>Safety copies</h2>
   <p>Before any job that overwrites something on the Mini, the editor keeps <b>by itself</b> a copy of how it was: saving
-    over a tone in another slot, copying or swapping tones, deleting a tone, importing settings, saving Songlists,
-    restoring tones from a backup.</p>
+    over a tone (even over the one that is playing), copying or swapping tones, deleting a tone, importing settings,
+    saving Songlists, restoring tones from a backup.</p>
+  <p>If the copy <b>fails</b> (the Mini doesn't answer, the browser has no room), the editor stops and asks whether to
+    go on anyway: answering <b>Cancel</b> changes nothing.</p>
   <p>You'll find them in <b>Backup… → Safety copies</b> (click to open the list): when, what and why. For each one,
     <span class="tasto">Restore</span> puts it back and <b>Download</b> saves it to your PC.</p>
   <div class="attenzione">Safety copies live <b>in this browser</b> (the last 40), not on the Mini and not on Dropbox: if
@@ -415,6 +423,7 @@
     <li><b>I ruined a tone</b>: if you haven't saved it, switch tone or press Undo. If you have saved it, look in the
       <a href="#g-sicurezza">safety copies</a> or <a href="#g-rimetti">restore it from a backup</a>.</li>
   </ul>
-  <p>The editor is an unofficial third-party app, not affiliated with Hotone, and you use it at your own risk. Read <span class="tasto" data-icona="menu"
+  <p>The editor is an unofficial third-party app, not affiliated with Hotone, and you use it at your own risk. A screen
+    reminds you on first use and after every update; the full text is in <span class="tasto" data-icona="menu"
     aria-label="Menu"></span> → <b>Credits and disclaimer</b>.</p>
 </section>
