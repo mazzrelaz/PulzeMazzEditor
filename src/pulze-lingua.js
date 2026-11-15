@@ -13,6 +13,12 @@
   document.documentElement.lang = lingua;
 
   const ESATTI = [
+    // ---- v8.3: avvertenza e tone ripetuti
+    ['Lo usi a tuo rischio', 'Use it at your own risk'], ['Controllo dei tone ripetuti', 'Check for repeated tones'],
+    ['Al primo uso e a ogni aggiornamento MazzRig ricorda che è un progetto indipendente, senza garanzie. Il testo intero è in ☰ → Crediti e responsabilità.',
+      'On first use and after every update MazzRig reminds you that it is an independent project, with no warranty. The full text is in ☰ → Credits and disclaimer.'],
+    ['Se l\'elenco interno del Mini ha lo stesso tone due volte (l\'app originale lo mostra doppio), MazzRig lo dice al collegamento, e subito se succede dopo un salvataggio.',
+      'If the Mini\'s internal list has the same tone twice (the original app shows it twice), MazzRig tells you when connecting, and right away if it happens after a save.'],
     // ---- la vista Live
     ['Live', 'Live'], ['Pedaliera MIDI', 'MIDI pedalboard'],
     ['Il tasto rosso Live apre una schermata per suonare: le Songlist a pagine da 8 e lo Stomp per accendere e spegnere i blocchi del tone.',
@@ -272,6 +278,10 @@
   ];
 
   const MODELLI = [
+    ["Nell'elenco del Mini ci sono tone ripetuti: {0}. Sono resti di una versione vecchia di MazzRig: l'app originale li mostra doppi, ma non fanno danni.",
+      "The Mini's list has repeated tones: {0}. They are leftovers from an old MazzRig version: the original app shows them twice, but they do no harm."],
+    ["Attenzione: dopo quest'ultimo lavoro il Mini ha un tone ripetuto in più nell'elenco ({0}). Manda il registro a chi segue MazzRig.",
+      'Warning: after this last operation the Mini has one more repeated tone in its list ({0}). Send the log to whoever looks after MazzRig.'],
     ['Suona il riquadro {0}', 'Play tile {0}'], ['Accendi/spegni {0}', 'Turn {0} on/off'],
     ['Stacca {0}', 'Disconnect {0}'],
     ['Posto {0} della pagina', 'Slot {0} of the page'],

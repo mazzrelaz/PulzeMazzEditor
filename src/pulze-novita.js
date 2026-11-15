@@ -6,6 +6,16 @@
 (function () {
   const NOVITA = [
     {
+      versione: 'v8.3',
+      data: '15 novembre 2026',
+      voci: [
+        { icona: '⚠️', titolo: 'Lo usi a tuo rischio',
+          testo: 'Al primo uso e a ogni aggiornamento MazzRig ricorda che è un progetto indipendente, senza garanzie. Il testo intero è in ☰ → Crediti e responsabilità.' },
+        { icona: '🔎', titolo: 'Controllo dei tone ripetuti',
+          testo: 'Se l\'elenco interno del Mini ha lo stesso tone due volte (l\'app originale lo mostra doppio), MazzRig lo dice al collegamento, e subito se succede dopo un salvataggio.' },
+      ],
+    },
+    {
       versione: 'v8.2',
       data: '13 novembre 2026',
       voci: [

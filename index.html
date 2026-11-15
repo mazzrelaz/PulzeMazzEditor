@@ -887,6 +887,15 @@
   .novita-voci strong { display:flex; align-items:center; gap:6px; }
   .novita-voci .novita-guida { width:22px; height:22px; }
   .novita-voci .novita-guida > svg.ico { width:16px; height:16px; }
+  /* lo scarico di responsabilità (src/pulze-avvertenza.js): sopra a tutto, rosso; lo stesso riquadro in cima ai crediti */
+  .velo-novita.velo-avvertenza { z-index:10000; background:rgba(8,10,14,0.82); }
+  .avvertenza { border-color:rgba(225,29,46,0.6); background:linear-gradient(160deg, rgba(225,29,46,0.22), transparent 70%), var(--panel); }
+  .avvertenza .novita-sopra { color:#ff5a67; }
+  .avvertenza .novita-titolo { margin-bottom:10px; }
+  .avvertenza-corpo p { color:var(--text); font-size:0.92rem; line-height:1.5; margin:0 0 10px; }
+  .avvertenza-corpo strong { color:#fff; }
+  .avvertenza .novita-ok { background:#e11d2e; border-color:#e11d2e; color:#fff; margin-top:6px; }
+  .avvertenza.in-crediti { width:auto; margin:0 0 16px; padding:16px 18px 6px; }
   /* le finestre di benvenuto (src/pulze-benvenuto.js), come in SparklingTones */
   .benvenuto-velo { position:fixed; inset:0; z-index:900; background:rgba(8,10,14,0.72); display:flex; align-items:center; justify-content:center; padding:16px; }
   .bv-carta { width:min(460px,100%); background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:36px 34px 26px;
@@ -1053,7 +1062,7 @@
     d="M10 9v5M10 6.2h.01"/></svg>Crediti e responsabilità</button>
   <button id="caffe" type="button" class="voce-caffe"><svg viewBox="0 0 20 20" aria-hidden="true"><path
     d="M3 8h11v4a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5zM14 9h1.5a2 2 0 0 1 0 4H14M6 2.5v2.5M9 2.5v2.5"/></svg>Offrimi un caffè</button>
-  <p class="versione-menu" style="opacity:.55;font-size:.75rem;text-align:center;margin:8px 0 2px">MazzRig v8.2</p>
+  <p class="versione-menu" style="opacity:.55;font-size:.75rem;text-align:center;margin:8px 0 2px">MazzRig v8.3</p>
 </div>
 <div class="sotto-barra">
   <div class="sb-lato">
@@ -1096,7 +1105,7 @@
         <button id="collega-grande" type="button" class="primario" data-icona="bluetooth"><span id="collega-grande-testo">Collega il Pulze Mini</span></button>
         <p id="benvenuto-nota">Chiudi prima l'app Pulze Editor sul telefono: il Mini accetta un collegamento alla volta.</p>
         <p id="benvenuto-legale">App non ufficiale di terze parti, senza alcun rapporto con Hotone Audio. La usi a tuo rischio: ☰ → Crediti e responsabilità.</p>
-        <p id="versione-app" style="opacity:.6;font-size:.8rem;margin-top:6px">MazzRig v8.2</p>
+        <p id="versione-app" style="opacity:.6;font-size:.8rem;margin-top:6px">MazzRig v8.3</p>
       </div>
     </div>
     <div id="palco-corpo" hidden>
@@ -1473,5 +1482,6 @@
 <script src="src/pulze-live.js"></script>
 <script src="src/pulze-novita.js"></script>
 <script src="src/pulze-benvenuto.js"></script>
+<script src="src/pulze-avvertenza.js"></script>
 </body>
 </html>

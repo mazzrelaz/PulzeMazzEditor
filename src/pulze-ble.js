@@ -186,7 +186,10 @@
   /** I nomi dei 200 tone (4400 byte). */
   PulzeBle.prototype.chiediNomi = async function () {
     const m = await this.chiedi(P.TIPO.NOMI, 0, [], m => m.tipo === P.TIPO.NOMI && m.gruppo === 0);
-    return P.leggiNomi(m.corpo);
+    const r = P.leggiNomi(m.corpo);
+    // chi ascolta (app.js) controlla le voci ripetute dopo ogni lettura dei nomi
+    if (r && typeof this.suNomi === 'function') { try { this.suNomi(r); } catch (e) { /* solo un avviso */ } }
+    return r;
   };
 
   /** Le impostazioni generali (7/1): dentro c'è l'Auto CAB. */

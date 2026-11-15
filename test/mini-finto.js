@@ -111,6 +111,13 @@
             for (let j = 0; j < n.length; j++) c[400 + 20 * k + j] = n.charCodeAt(j);
             k++;
           });
+          // window.miniFintoRipeti = [posti]: voci ripetute in fondo, come i doppioni visti il 15 novembre
+          for (const i of (window.miniFintoRipeti || [])) {
+            if (!nomi[i] || k >= 200) continue;
+            c[k] = i;
+            for (let j = 0; j < nomi[i].length; j++) c[400 + 20 * k + j] = nomi[i].charCodeAt(j);
+            k++;
+          }
           rispondi(3, 0, c);
         }
         if (m.tipo === 0 && m.gruppo === 3) rispondi(0, 3, songlist);   // 40 d'ordine e 40 da 70 byte

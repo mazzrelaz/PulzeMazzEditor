@@ -199,7 +199,11 @@
     const nomi = new Array(200).fill('');
     for (let k = 0; k < 200; k++) if (ordine[k] < 200 && elenco[k]) nomi[ordine[k]] = elenco[k];
     ultimoOrdine = ordine;
-    return { ordine, altro: c.slice(200, 400), elenco, nomi };
+    // i posti che compaiono in più voci (15 novembre: resti del bug di prima della v7.6; l'app originale li mostra doppi)
+    const conta = {};
+    for (let k = 0; k < 200 && ordine[k] < 200; k++) conta[ordine[k]] = (conta[ordine[k]] || 0) + 1;
+    const ripetuti = Object.keys(conta).filter(n => conta[n] > 1).map(n => ({ posto: +n, volte: conta[n] }));
+    return { ordine, altro: c.slice(200, 400), elenco, nomi, ripetuti };
   }
 
   /** Le Songlist (tipo 0, gruppo 3; 2840 byte): 40 byte d'ordine (gli id nell'ordine dell'app, ff =

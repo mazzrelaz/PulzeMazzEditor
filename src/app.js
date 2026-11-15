@@ -4071,6 +4071,8 @@
     }
     esempio = false;
     ble = new window.PulzeBle({ alMessaggio, alloStato });
+    ripetutiPrima = null;
+    ble.suNomi = controllaRipetuti;
     try {
       await ble.collega();
       await leggiTutto();
@@ -4082,6 +4084,23 @@
       // finestra del browser chiusa senza scegliere: il Mini non è mai stato collegato, nessuno lo dice
       if (!(ble && ble.collegato())) alloStato('pronto');
     }
+  }
+
+  /** Le voci ripetute nell'elenco del Mini (lo stesso posto due o più volte: l'app originale lo mostra doppio).
+   *  Al collegamento lo dice una volta; dopo, se dopo un lavoro ce n'è una in più, lo dice subito (15 novembre). */
+  let ripetutiPrima = null;
+  function controllaRipetuti(r) {
+    const conta = (r.ripetuti || []).reduce((t, x) => t + x.volte - 1, 0);
+    const elenco = (r.ripetuti || []).map(x => '«' + (r.nomi[x.posto] || '?') + '» (posto ' + (x.posto + 1) + ') ×' + x.volte).join(', ');
+    if (ripetutiPrima === null) {
+      if (conta) scriviStato("Nell'elenco del Mini ci sono tone ripetuti: " + elenco + '. Sono resti di una versione vecchia di MazzRig: ' +
+        "l'app originale li mostra doppi, ma non fanno danni.", 'errore');
+    } else if (conta > ripetutiPrima) {
+      scriviStato("Attenzione: dopo quest'ultimo lavoro il Mini ha un tone ripetuto in più nell'elenco (" + elenco + '). ' +
+        'Manda il registro a chi segue MazzRig.', 'errore');
+      salvaRegistro("voci ripetute nell'elenco del Mini: da " + ripetutiPrima + ' a ' + conta + ': ' + elenco);
+    }
+    ripetutiPrima = conta;
   }
 
   function alloStato(s, nome) {
