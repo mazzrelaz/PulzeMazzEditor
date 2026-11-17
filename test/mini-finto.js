@@ -168,7 +168,8 @@
           generali[4][0] = m.corpo[0];
           if (m.corpo[1] !== 255) for (let k = 0; k < 4; k++) generali[4][4 + 4 * m.corpo[1] + k] = m.corpo[4 + k];
         }
-        if (m.tipo === 1 && (m.gruppo === 5 || m.gruppo === 4)) {   // rinomina: posto, 0, 1, 0, 0×4, nome 16
+        // rinomina (1) o caricamento di un Sound Clone / IR (0): posto, …, nome 16 dal byte 8
+        if ((m.tipo === 1 || (m.tipo === 0 && m.corpo.length > 1000)) && (m.gruppo === 5 || m.gruppo === 4)) {
           nomiUtente[m.gruppo][m.corpo[0]] = String.fromCharCode(...m.corpo.slice(8, 24)).replace(/\0.*$/, '');
         }
         if (m.tipo === 1 && m.gruppo === 0) {

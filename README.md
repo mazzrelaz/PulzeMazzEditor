@@ -23,7 +23,10 @@ account.
 - **Songlist** in una schermata a blocchi, da riordinare col mouse.
 - **File .prst**: importa ed esporta, compatibili con l'app Pulze Editor del telefono.
 - **Crea preset AI**: descrivi il suono a parole, copi la domanda nella chat che usi (ChatGPT, Claude, Gemini…) e
-  incolli la risposta: il tone si compone coi modelli veri del Mini. Niente chiavi API, niente costi.
+  incolli la risposta: il tone si compone coi modelli veri del Mini, anche coi tuoi NAM e IR, e ti consiglia quale
+  NAM cercare. Niente chiavi API, niente costi.
+- **Carica NAM & IR**: modelli NAM (.nam) come Sound Clone e IR di cabinet (.wav) come User IR, dal PC, senza l’app
+  Hotone; col segnale di prova preso dall’APK dell’app il Sound Clone viene identico.
 - **Jam** (la batteria del Mini), **Impostazioni** generali e **Global EQ** con la curva da trascinare.
 - **Backup** completo sul PC o sul tuo **Dropbox**, ripristino dei tone confrontandoli col Mini, e copie di sicurezza
   automatiche prima di ogni lavoro che sovrascrive qualcosa.

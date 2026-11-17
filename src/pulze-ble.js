@@ -103,7 +103,8 @@
   PulzeBle.prototype._invia = async function () {
     this.inviando = true;
     while (this.coda.length && this.caratt) {
-      const p = Uint8Array.from(this.coda.shift());
+      const voce = this.coda.shift();
+      const p = Uint8Array.from(voce.p || voce);
       try {
         await this.caratt.writeValueWithoutResponse(p);
         this._annota('->', p);
@@ -112,7 +113,8 @@
         if (this.max > 20 && p.length > 20) { this.max = 20; this._annota('!!', [p.length]); }
         else this._annota('!!', []);
       }
-      await new Promise(r => setTimeout(r, PAUSA_MS));
+      if (voce.dopo) voce.dopo();
+      await new Promise(r => setTimeout(r, voce.pausa || PAUSA_MS));
     }
     this.inviando = false;
   };
@@ -139,7 +141,11 @@
 
   /** Manda dati (comando 12) e aspetta la conferma 14 del Mini, che ripete il nostro num.
    *  crea(num, max) dà i pacchetti. */
-  PulzeBle.prototype.manda = function (crea) {
+  /** Manda dati (comando 12) e aspetta la conferma 14. opz.pausa: ms fra un pacchetto e l'altro (i
+   *  messaggi lunghi, come un Sound Clone da 102 pezzi, vanno più piano: l'app ne manda uno ogni 110 ms);
+   *  opz.attesa: ms per la conferma dopo l'ultimo pacchetto. opz.avanza(fatti, tutti) a ogni pacchetto. */
+  PulzeBle.prototype.manda = function (crea, opz) {
+    opz = opz || {};
     if (!this.collegato()) return Promise.reject(new Error('il Mini non è collegato'));
     this.num = (this.num + 1) & 0x7f || 1;
     const num = this.num;
@@ -148,10 +154,21 @@
       a.timer = setTimeout(() => {
         this.attese.splice(this.attese.indexOf(a), 1);
         rifiuta(new Error('il Mini non ha confermato'));
-      }, ATTESA_MS);
+      }, opz.attesa || ATTESA_MS);
       this.attese.push(a);
     });
-    this._accoda(crea(num, this.max));
+    const pk = crea(num, this.max);
+    if (!opz.pausa && !opz.avanza) { this._accoda(pk); return attesa; }
+    // lento: il timer della conferma parte quando è uscito l'ultimo pacchetto
+    const a = this.attese[this.attese.length - 1];
+    clearTimeout(a.timer);
+    this._accoda(pk.map((p, i) => ({ p, pausa: opz.pausa, dopo: () => {
+      if (opz.avanza) opz.avanza(i + 1, pk.length);
+      if (i === pk.length - 1) a.timer = setTimeout(() => {
+        const j = this.attese.indexOf(a); if (j >= 0) this.attese.splice(j, 1);
+        a.rifiuta(new Error('il Mini non ha confermato'));
+      }, opz.attesa || ATTESA_MS);
+    } })));
     return attesa;
   };
 

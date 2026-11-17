@@ -365,6 +365,12 @@
   #crea:hover:not(:disabled) { background:linear-gradient(135deg, #8d72f5, #4c95f0); border-color:#a58df7;
                                box-shadow:0 0 16px rgba(123,92,240,0.65); }
   #crea:disabled { box-shadow:none; }
+  #dialogo-nam { width:520px; max-width:calc(100vw - 32px); }
+  #nam-avanza, #ir-avanza { display:flex; align-items:center; gap:10px; margin:4px 0 8px; font-size:0.85rem; color:var(--dim); }
+  .nam-schede { display:flex; gap:6px; margin:0 0 10px; }
+  .nam-schede button { flex:1; }
+  .nam-schede button[aria-selected="true"] { background:#7b5cf0; color:#fff; border-color:#7b5cf0; }
+  #nam-barra, #ir-barra { flex:1; min-width:0; height:8px; accent-color:#7b5cf0; }
   #crea .scintille { width:16px; height:16px; fill:currentColor; flex:none; }
   #crea-risposta { width:100%; min-height:6em; resize:vertical; font:0.82rem/1.4 ui-monospace, Consolas, monospace; color:var(--text);
     background:var(--incavo); border:1px solid var(--line); border-radius:8px; padding:8px 10px; box-sizing:border-box; }
@@ -669,7 +675,7 @@
   /* il nome del tone in centro (anche in verticale); «modificato» accanto, fuori dal conto del centro */
   .sb-centro { justify-content:center; align-self:stretch; }
   .tone-riga { position:relative; }
-  .tone-riga #modificato { position:absolute; left:calc(100% + 10px); top:50%; transform:translateY(-50%); white-space:nowrap; }
+  .tone-riga #modificato { position:absolute; left:calc(100% + 10px); top:50%; transform:translate(-50%,-50%); white-space:normal; width:max-content; max-width:9.5em; text-align:center; line-height:1.2; padding:3px 10px; border-radius:10px; }
   @media (max-width:1279px) {
     /* poco posto: solo un pallino ambra (il titolo dice cosa) */
     .tone-riga #modificato { width:11px; height:11px; padding:0; font-size:0; border-radius:50%; background:var(--ambra); }
@@ -712,6 +718,7 @@
   #dialogo-salva, #dialogo-tone { width:480px; max-width:calc(100vw - 32px); }
   #dialogo-importa { width:560px; max-width:calc(100vw - 32px); }
   .bk-carta .campo { margin-bottom:10px; }
+  .posto-rinomina { flex:none; white-space:nowrap; }
   .bk-carta > :last-child, .bk-carta .campo:last-child { margin-bottom:0; }
   .bk-carta .campo select, .bk-carta .campo input, .bk-carta textarea { background:var(--panel); }
   .campo .bk-nome { width:6.5em; }
@@ -1062,7 +1069,7 @@
     d="M10 9v5M10 6.2h.01"/></svg>Crediti e responsabilità</button>
   <button id="caffe" type="button" class="voce-caffe"><svg viewBox="0 0 20 20" aria-hidden="true"><path
     d="M3 8h11v4a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5zM14 9h1.5a2 2 0 0 1 0 4H14M6 2.5v2.5M9 2.5v2.5"/></svg>Offrimi un caffè</button>
-  <p class="versione-menu" style="opacity:.55;font-size:.75rem;text-align:center;margin:8px 0 2px">MazzRig v8.4</p>
+  <p class="versione-menu" style="opacity:.55;font-size:.75rem;text-align:center;margin:8px 0 2px">MazzRig v8.5</p>
 </div>
 <div class="sotto-barra">
   <div class="sb-lato">
@@ -1086,13 +1093,17 @@
       <button id="tone-prima" class="freccia" disabled title="Tone precedente" aria-label="Tone precedente" data-icona="sinistra"></button>
       <h1 id="tone-nome">—</h1>
       <button id="tone-dopo" class="freccia" disabled title="Tone successivo" aria-label="Tone successivo" data-icona="destra"></button>
-      <span id="modificato" hidden>modificato · non salvato</span>
+      <span id="modificato" hidden>modificato non salvato</span>
     </div>
   </div>
   <div class="sb-lato destra">
   <button id="crea" disabled><svg
     class="scintille" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2.5l1.9 5.6 5.6 1.9-5.6 1.9L10 17.5l-1.9-5.6L2.5 10l5.6-1.9z"/><path
     d="M18.5 13.5l.95 2.55 2.55.95-2.55.95-.95 2.55-.95-2.55L15 17l2.55-.95z"/></svg><span><span class="lungo">Crea preset </span>AI…</span></button>
+  <button id="nam" data-icona="onda" disabled title="Carica sul Mini un NAM (Sound Clone) o un IR di cabinet (User IR)"><span><span class="lungo">Carica </span>NAM &amp; IR…</span></button>
+  <input id="ir-file" type="file" accept=".wav,audio/wav" hidden>
+  <input id="nam-file" type="file" accept=".nam" hidden>
+  <input id="nam-app-file" type="file" accept=".apk,.wav,.xapk,.zip" hidden>
   <button id="songlist" data-icona="lista" disabled title="Songlist"><span class="lungo-stretto">Songlist</span></button>
   </div>
 </div>
@@ -1105,7 +1116,7 @@
         <button id="collega-grande" type="button" class="primario" data-icona="bluetooth"><span id="collega-grande-testo">Collega il Pulze Mini</span></button>
         <p id="benvenuto-nota">Chiudi prima l'app Pulze Editor sul telefono: il Mini accetta un collegamento alla volta.</p>
         <p id="benvenuto-legale">App non ufficiale di terze parti, senza alcun rapporto con Hotone Audio. La usi a tuo rischio: ☰ → Crediti e responsabilità.</p>
-        <p id="versione-app" style="opacity:.6;font-size:.8rem;margin-top:6px">MazzRig v8.4</p>
+        <p id="versione-app" style="opacity:.6;font-size:.8rem;margin-top:6px">MazzRig v8.5</p>
       </div>
     </div>
     <div id="palco-corpo" hidden>
@@ -1176,6 +1187,71 @@
     <button id="crea-conferma" type="button" class="primario">Crea</button>
   </div>
 </dialog>
+<dialog id="dialogo-nam">
+  <div class="bk-cima">
+    <h2>Carica NAM &amp; IR</h2>
+    <button type="button" class="aiuto" id="nam-guida" data-guida="g-nam" title="Guida: Carica NAM &amp; IR" aria-label="Guida: Carica NAM &amp; IR"></button>
+    <button type="button" class="icona" aria-label="Chiudi" title="Chiudi" data-icona="chiudi" data-chiudi="#nam-annulla"></button>
+  </div>
+  <div class="nam-schede" role="tablist">
+    <button id="scheda-nam" type="button" role="tab" aria-selected="true">NAM · Sound Clone</button>
+    <button id="scheda-ir" type="button" role="tab" aria-selected="false">IR · cabinet</button>
+  </div>
+  <div id="parte-nam">
+  <section class="bk-carta">
+    <div class="bk-testa" data-icona="apri">
+      <div><h3>Il file</h3><p>Un modello NAM (.nam), per esempio da TONE3000. Va convertito come fa l’app Hotone: ci vuole circa un minuto.</p></div>
+    </div>
+    <button id="nam-scegli" type="button">Scegli il file .nam</button>
+    <p id="nam-file-nome" class="nota"></p>
+  </section>
+  <section class="bk-carta">
+    <div class="bk-testa" data-icona="scintille">
+      <div><h3>Segnale di prova</h3><p>MazzRig usa un segnale suo, molto vicino a quello dell’app. Per un Sound Clone identico a quello dell’app indica una volta l’APK Hotone (o il suo nam_input_file.wav): resta solo nel tuo browser.</p></div>
+    </div>
+    <button id="nam-app-scegli" type="button">Usa quello dell’app Hotone…</button>
+    <button id="nam-app-togli" type="button" hidden>Torna a quello di MazzRig</button>
+    <p id="nam-app-stato" class="nota"></p>
+  </section>
+  <section class="bk-carta">
+    <div class="bk-testa" data-icona="onda">
+      <div><h3>Dove</h3><p>Il posto Sound Clone sul Mini: quello che c’era si sovrascrive.</p></div>
+    </div>
+    <div class="campo"><label class="bk-nome" for="nam-posto">Posto</label> <select id="nam-posto"></select>
+      <button id="nam-rinomina" type="button" class="posto-rinomina" title="Rinomina il posto scelto">Rinomina…</button></div>
+    <label class="campo"><span class="bk-nome">Nome</span> <input id="nam-nome" maxlength="15" autocomplete="off"></label>
+  </section>
+  <div id="nam-avanza" hidden><progress id="nam-barra" max="100" value="0"></progress> <span id="nam-fase"></span></div>
+  <p id="nam-errore" class="errore"></p>
+  <div class="azioni">
+    <button id="nam-annulla" type="button">Annulla</button>
+    <button id="nam-conferma" type="button" class="primario" disabled>Carica sul Mini</button>
+  </div>
+  </div>
+  <div id="parte-ir" hidden>
+  <section class="bk-carta">
+    <div class="bk-testa" data-icona="apri">
+      <div><h3>Il file</h3><p>Una risposta all’impulso di un cabinet (.wav, qualsiasi frequenza). Il Mini ne tiene i primi 1024 campioni a 48 kHz (21 ms), come con l’app Hotone.</p></div>
+    </div>
+    <button id="ir-scegli" type="button">Scegli il file .wav</button>
+    <p id="ir-file-nome" class="nota"></p>
+  </section>
+  <section class="bk-carta">
+    <div class="bk-testa" data-icona="onda">
+      <div><h3>Dove</h3><p>Il posto User IR sul Mini: quello che c’era si sovrascrive.</p></div>
+    </div>
+    <div class="campo"><label class="bk-nome" for="ir-posto">Posto</label> <select id="ir-posto"></select>
+      <button id="ir-rinomina" type="button" class="posto-rinomina" title="Rinomina il posto scelto">Rinomina…</button></div>
+    <label class="campo"><span class="bk-nome">Nome</span> <input id="ir-nome" maxlength="15" autocomplete="off"></label>
+  </section>
+  <div id="ir-avanza" hidden><progress id="ir-barra" max="100" value="0"></progress> <span id="ir-fase"></span></div>
+  <p id="ir-errore" class="errore"></p>
+  <div class="azioni">
+    <button id="ir-annulla" type="button">Annulla</button>
+    <button id="ir-conferma" type="button" class="primario" disabled>Carica sul Mini</button>
+  </div>
+  </div>
+</dialog>
 <dialog id="dialogo-importa">
   <div class="bk-cima">
     <h2 id="importa-titolo">Importa</h2>
@@ -1188,6 +1264,11 @@
     </div>
     <ol id="importa-blocchi"></ol>
     <p class="nota" id="importa-note"></p>
+  </section>
+  <section class="bk-carta" id="importa-nam" hidden>
+    <div class="bk-testa" data-icona="onda">
+      <div><h3>NAM consigliato</h3><p id="importa-nam-testo"></p></div>
+    </div>
   </section>
   <div class="azioni">
     <button id="importa-annulla" type="button">Annulla</button>
@@ -1219,7 +1300,7 @@
   </div>
   <section class="bk-carta">
     <div class="bk-testa" data-icona="salva">
-      <div><h3>Il tone che suona</h3><p>Nel suo posto o in un altro: quello che c'era si sovrascrive.</p></div>
+      <div><h3>Il tone che suona</h3><p>Nel suo posto o in un altro: quello che c’era si sovrascrive.</p></div>
     </div>
     <label class="campo"><span class="bk-nome">Posto</span> <select id="salva-posto"><option>leggo i nomi…</option></select></label>
     <label class="campo"><span class="bk-nome">Nome</span> <input id="salva-nome" maxlength="16" autocomplete="off"></label>
@@ -1476,6 +1557,7 @@
 <script src="src/pulze-immagini.js"></script>
 <script src="src/pulze-prst.js"></script>
 <script src="src/pulze-ricetta.js"></script>
+<script src="src/pulze-nam.js"></script>
 <script src="src/pulze-ble.js"></script>
 <script src="src/pulze-dropbox.js"></script>
 <script src="src/app.js"></script>

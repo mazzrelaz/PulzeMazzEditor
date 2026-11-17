@@ -6,6 +6,20 @@
 (function () {
   const NOVITA = [
     {
+      versione: 'v8.5',
+      data: '17 novembre 2026',
+      voci: [
+        { icona: '🎛️', titolo: 'Carica NAM & IR',
+          testo: 'Un nuovo tasto carica sul Mini i modelli NAM (.nam) come Sound Clone e le risposte all’impulso dei cabinet (.wav) come User IR, senza l’app Hotone.' },
+        { icona: '🎯', titolo: 'Sound Clone identico a quello dell’app',
+          testo: 'Indicando una volta l’APK dell’app Hotone, MazzRig ne usa il segnale di prova e il Sound Clone viene identico. Resta solo nel tuo browser.' },
+        { icona: '✏️', titolo: 'Rinomina NAM e IR',
+          testo: 'Nella finestra Carica NAM & IR il tasto Rinomina… cambia il nome del posto scelto.' },
+        { icona: '✨', titolo: 'L’AI usa i tuoi NAM',
+          testo: 'Crea preset AI sceglie i tuoi Sound Clone e User IR quando la richiesta corrisponde, spegne il cab se il nome del NAM contiene FR (full rig) e ti consiglia quale NAM cercare.' },
+      ],
+    },
+    {
       versione: 'v8.4',
       data: '15 novembre 2026',
       voci: [
@@ -42,7 +56,7 @@
       data: '13 novembre 2026',
       voci: [
         { icona: '💾', titolo: 'Salvato in un altro posto: si passa lì',
-          testo: 'Quando salvi un tone in un altro posto, il Mini passa al tone appena salvato e la scritta «modificato · non salvato» sparisce.' },
+          testo: 'Quando salvi un tone in un altro posto, il Mini passa al tone appena salvato e la scritta «modificato non salvato» sparisce.' },
       ],
     },
     {

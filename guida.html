@@ -48,7 +48,7 @@
       il <a href="#g-live">Live</a>, <span class="tasto">Collega</span> e il menu <span class="tasto" data-icona="menu" aria-label="Menu"></span> (Backup, Impostazioni, Guida, Crediti).</li>
     <li><b>Sotto la barra</b>: a sinistra <span class="tasto">Salva…</span>, Annulla / Ripeti, <span class="tasto">A/B</span>
       e i file .prst; al centro il <b>nome del tone</b> con le frecce per passare al tone prima o dopo (accanto, in
-      ambra, «modificato · non salvato» quando hai cambiato qualcosa); a destra
+      ambra, «modificato non salvato» quando hai cambiato qualcosa); a destra
       <span class="tasto">Crea preset AI…</span> e <span class="tasto">Songlist</span>.</li>
     <li><b>Al centro, il palco</b>: il blocco che hai scelto, grande, con le sue manopole e l'elenco dei modelli.</li>
     <li><b>A destra, l'elenco dei tone</b>: vedi <a href="#g-tone">I tone</a>.</li>
@@ -160,6 +160,15 @@
     li mette in ordine, decide chi è acceso e regola le manopole. Il risultato lo vedi prima di metterlo sul Mini, e
     arriva nel tone che suona come un file .prst: <b>niente viene salvato da solo</b>.</p>
 
+  <h3 id="g-ai-nam">I tuoi NAM e IR, e il NAM consigliato</h3>
+  <p>L'AI conosce anche i <b>Sound Clone</b> e gli <b>User IR</b> caricati sul Mini, col loro nome: se la richiesta
+    corrisponde («col mio Mesa»), usa quelli al posto dei modelli di fabbrica. Se il nome di un NAM contiene <b>FR</b>
+    (full rig: ampli e cabinet insieme), spegne il blocco CAB; altrimenti tiene acceso un cab, meglio se uno dei tuoi IR.
+    Se più NAM corrispondono, sceglie quello dal nome più vicino alle tue parole e nomina gli altri nella spiegazione.</p>
+  <p>Quando il preset non usa un tuo NAM, nella finestra <b>Prova</b> compare il riquadro <b>NAM consigliato</b>:
+    quale cattura cercare (per esempio su TONE3000) per avvicinarti ancora di più al suono, solo ampli o full rig.
+    La carichi con <span class="tasto">Carica NAM &amp; IR…</span>.</p>
+
   <h3 id="g-ai-chat">Cosa serve: una chat AI qualsiasi</h3>
   <p>L'editor non ha un'AI sua e <b>non chiede chiavi né abbonamenti</b>: usi la chat che hai già, anche gratuita
     (<b>ChatGPT</b>, <b>Claude</b>, <b>Gemini</b>…), con un semplice copia e incolla. L'editor prepara la domanda
@@ -223,6 +232,46 @@
     <li><b>Il tasto è grigio</b>: l'editor sta ancora leggendo i blocchi dal Mini, o un import è in corso. Aspetta un
       attimo.</li>
   </ul>
+</section>
+
+<section id="g-nam">
+  <h2>Carica NAM</h2>
+  <p>Carica un modello <b>NAM</b> (file <b>.nam</b>) in uno dei 10 posti <b>Sound Clone</b> del Mini, senza l'app
+    Hotone. Il tasto <b>Carica NAM &amp; IR…</b> è accanto a Crea preset AI e si accende col Mini collegato.</p>
+  <ol>
+    <li><b>Scegli il file .nam</b>: vanno i modelli «A2» (NAM 0.7), come quelli che si caricano con l'app.</li>
+    <li>Scegli il <b>posto</b> (viene proposto il primo vuoto) e il <b>nome</b>, al massimo 15 caratteri senza accenti.</li>
+    <li>Premi <b>Carica sul Mini</b>: MazzRig converte il NAM <b>come fa l'app</b> (circa un minuto, la prima volta
+      scarica anche un segnale di prova da 10 MB), poi lo manda al Mini (una decina di secondi).</li>
+  </ol>
+  <p>Il Mini non suona il NAM vero ma una sua versione semplificata: rispetto al plugin Neural Amp Modeler un po' di
+    differenza è normale, e c'è anche caricandolo con l'app. Se il NAM ha già il cabinet dentro, nel tone <b>spegni il
+    blocco CAB</b>. Un posto già occupato si sovrascrive (MazzRig chiede prima).</p>
+  <p><b>Full rig e Crea preset AI.</b> Se il .nam dice di contenere anche il cabinet, MazzRig propone il nome con
+    <b>« FR»</b> in fondo. L'AI di Crea preset legge i Sound Clone e gli User IR caricati: usa quelli che
+    corrispondono alla richiesta e, se il nome contiene <b>FR</b> (o «full rig», «cab»), spegne il blocco CAB.
+    Per i NAM caricati con l'app, aggiungi tu <b>FR</b> al nome con Rinomina. Se chiedi un ampli che non c'è,
+    nella spiegazione l'AI consiglia il NAM da cercare.</p>
+  <p><b>Segnale di prova.</b> Per convertire, MazzRig fa suonare il NAM con un segnale di prova suo, fatto sul modello
+    di quello dell'app: il Sound Clone viene molto simile a quello dell'app, ma non identico (si sente di più sui NAM
+    molto distorti). Per averlo <b>identico</b>, nella finestra premi <b>Usa quello dell'app Hotone…</b> e scegli
+    l'<b>APK dell'app Pulze</b> (anche XAPK) o il file <b>nam_input_file.wav</b> che c'è dentro
+    (nella cartella clone_config). MazzRig ne prende solo il segnale di prova, lo porta a 48 kHz come fa l'app e lo tiene
+    <b>nel tuo browser</b>: non lo manda a nessuno e non è dentro MazzRig. Va fatto una volta; <b>Torna a quello di
+    MazzRig</b> lo toglie.</p>
+</section>
+
+<section id="g-ir">
+  <h2>Carica IR</h2>
+  <p>Carica la risposta all'impulso di un cabinet (file <b>.wav</b>) in uno dei 20 posti <b>User IR</b> del Mini,
+    senza l'app Hotone. Si usa lo stesso tasto <b>Carica NAM &amp; IR…</b>, scheda <b>IR · cabinet</b>.</p>
+  <ol>
+    <li><b>Scegli il file .wav</b>: va bene qualsiasi frequenza e numero di bit, MazzRig lo porta a 48 kHz.</li>
+    <li>Scegli il <b>posto</b> (viene proposto il primo vuoto) e il <b>nome</b>, al massimo 15 caratteri senza accenti.</li>
+    <li>Premi <b>Carica sul Mini</b>: ci vogliono pochi secondi.</li>
+  </ol>
+  <p>Il Mini tiene i primi <b>1024 campioni</b> (21 ms) e porta il volume al massimo, esattamente come fa l'app:
+    il messaggio è identico al suo. Per usarlo, nel blocco <b>CAB</b> del tone scegli lo User IR.</p>
 </section>
 
 <section id="g-songlist">

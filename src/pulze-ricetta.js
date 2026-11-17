@@ -40,6 +40,12 @@
     return nome + ' ' + cifra(min) + '..' + cifra(max) + (u || '') + (f != null ? ' =' + cifra(f) : '');
   }
 
+  /** Un Sound Clone col cabinet dentro: «FR», «full rig», «cab» nel nome (MazzRig aggiunge « FR»
+   *  da solo quando il .nam lo dice nei metadata). */
+  function fullRig(nome) {
+    return /(^|[^a-z0-9])(fr|full ?rig|fullrig|cab|amp ?[+] ?cab|w ?cab)([^a-z0-9]|$)/i.test(String(nome || ''));
+  }
+
   /** Il catalogo come testo: un modello per riga, con gli slot dove va. Sound Clone e IR utente solo se
    *  caricati sul Mini (opz.utente: uid → { nome, vuoto }), col nome dato dall'utente. */
   function catalogoTesto(C, utente) {
@@ -53,8 +59,11 @@
       if (m.f === 'Sound Clone' || m.f === 'User IR') {
         const x = utente && utente.get(uid);
         if (!x || x.vuoto) continue;
-        info = (m.f === 'Sound Clone' ? 'user NAM capture' : 'user impulse response') +
-          (x.nome ? ' named "' + x.nome + '"' : '');
+        info = m.f === 'Sound Clone'
+          ? 'user NAM capture named "' + x.nome + '", ' + (fullRig(x.nome)
+            ? 'FULL RIG (amp and cabinet captured: set CAB "on": false)'
+            : 'amp only (keep a CAB on)')
+          : 'user impulse response named "' + x.nome + '" (a cabinet)';
       }
       if (!slotDi[uid]) continue;
       righe.push(nome + ' | ' + slotDi[uid].join(',') + ' | ' + m.f + ' | ' + info + ' | ' +
@@ -92,6 +101,16 @@
       '- The name: at most 16 plain ASCII characters.',
       '- When the user describes the guitar, the room or the band context, voice the preset for it ' +
       '(bedroom: lusher wet and full lows; band mix: carved mids, tighter low cut, drier tails).',
+      '- User NAM captures (family "Sound Clone") and user IRs are the player’s own gear, loaded on the device: ' +
+      'when the request names or matches one of them (by amp, brand or name), use it instead of a stock model. ' +
+      'If several captures match, prefer the one whose name is closest to the words the user wrote ("my Mesa" → a capture named "Mesa …" before an abbreviation like "MES …"), and name the other matching captures in the explanation so the user can switch. ' +
+      'A capture marked FULL RIG already contains the cabinet: keep the CAB block but set it "on": false. ' +
+      'An "amp only" capture needs a CAB on (a matching user IR if there is one, else a stock cab).',
+      '- "nam_tip": unless the preset already uses one of the user captures, ALWAYS suggest the NAM capture that ' +
+      'would get closest to the requested sound: the exact real amp (and mods or channel, e.g. "Marshall 1959 Super Lead modded, ' +
+      'EVH style"), amp only or full rig with which cab, and what to search for on TONE3000 ("A2" models). One or two short ' +
+      'sentences in ' + (opz.lingua === 'en' ? 'English' : 'Italian') + '. Load it with MazzRig’s "Load NAM & IR". ' +
+      'If the preset already uses a user capture, set "nam_tip" to "".',
       opz.parti ? '- The user message includes the preset currently loaded: change it as asked, keep the rest.' : '',
       '',
       'Answer with ONE JSON object only, no other text:',
@@ -99,7 +118,8 @@
       ' "chain": ["DYN","PRE","AMP","CAB","EQ/MOD","FX1","FX2"],',
       ' "blocks": {"PRE": {"model": "...", "on": true, "knobs": {"Knob": value}}, "AMP": {...}, "DYN": {...},',
       '            "CAB": {...}, "EQ/MOD": {...}, "FX1": {...}, "FX2": {...}},',
-      ' "explanation": "two or three short sentences in ' + (opz.lingua === 'en' ? 'English' : 'Italian') + ' on the choices"}',
+      ' "explanation": "two or three short sentences in ' + (opz.lingua === 'en' ? 'English' : 'Italian') + ' on the choices",',
+      ' "nam_tip": "…"}',
       'All seven blocks must be present.',
       '',
       'Catalog (model | slots | family | description | knobs: name range =factory):',
@@ -236,10 +256,11 @@
       blocchi,
       dispositivo: 'AP-10',
       spiegazione: String(ricetta.explanation || '').trim(),
+      namConsigliato: String(ricetta.nam_tip || '').trim(),
       avvisi,
     };
   }
 
-  const X = { SLOT, istruzioni, catalogoTesto, descriviTone, aTone, codifica, trovaModello };
+  const X = { SLOT, istruzioni, catalogoTesto, fullRig, descriviTone, aTone, codifica, trovaModello };
   if (typeof module !== 'undefined' && module.exports) module.exports = X; else g.PulzeRicetta = X;
 })(this);

@@ -157,9 +157,11 @@
     $('#esporta').disabled = !t || stato.blocchi.some(b => !b);
     $('#importa').disabled = !t || stato.blocchi.some(b => !b) || importando;
     $('#crea').disabled = !t || stato.blocchi.some(b => !b) || importando;
+    $('#nam').disabled = !ble || !ble.collegato();
     disegnaElenco();
     $('#modificato').hidden = !stato.modificato;
-    $('#modificato').textContent = confronto ? 'ascolti il tone salvato' : 'modificato · non salvato';
+    $('#modificato').textContent = confronto ? 'ascolti il tone salvato' : 'modificato non salvato';
+    centraModificato();
     $('#modificato').classList.toggle('confronto', Boolean(confronto));
     $('#modificato').title = $('#modificato').textContent;
     disegnaStoria();
@@ -1887,6 +1889,9 @@
     const box = $('#importa-note');
     box.textContent = '';
     note.forEach((n, i) => box.appendChild(el('span', '', (i ? ' ' : '') + n)));
+    // il NAM da cercare (solo dai preset dell'AI): il testo è già nella lingua scelta
+    $('#importa-nam').hidden = !p.namConsigliato;
+    $('#importa-nam-testo').textContent = p.namConsigliato || '';
     $('#dialogo-importa').showModal();
   }
 
@@ -2065,6 +2070,307 @@
     segnaModificato();
     disegna();
     scriviStato('Esempio: «' + p.nome + '» importato nella pagina, niente va al Mini.', 'esempio');
+  }
+
+  /** La pillola «modificato» a metà fra la freccia del tone e il tasto «Crea preset AI». */
+  function centraModificato() {
+    const m = $('#modificato'), riga = m.parentElement;
+    if (m.hidden || getComputedStyle(m).fontSize === '0px') { m.style.left = ''; return; }
+    const da = $('#tone-dopo').getBoundingClientRect().right, a = $('#crea').getBoundingClientRect().left;
+    if (!(a > da)) { m.style.left = ''; return; }
+    m.style.left = ((da + a) / 2 - riga.getBoundingClientRect().left) + 'px';
+  }
+  window.addEventListener('resize', centraModificato);
+
+  // ---------------------------------------------------------------- «Carica NAM»
+
+  // Un file .nam diventa un Sound Clone sul Mini senza l'app Hotone: pulze-nam.js lo converte nel CLO
+  // come fa l'app (in un Worker, ~1 minuto) e il messaggio 0/5 lo porta nel posto scelto
+  // (ricerca-pulze-mini.md, «NAM dal PC»; provato col Mini il 17 novembre).
+  const nam = { testo: null, file: '', mini: null, chiave: '', lavoro: null, app: null, appNoto: false };
+  const UID_CLONE = posto => (0x0f000000 + posto) >>> 0;
+
+  function apriNam() {
+    if (!ble || !ble.collegato() || nam.lavoro || ir.lavoro) { if (nam.lavoro || ir.lavoro) $('#dialogo-nam').showModal(); return; }
+    preparaIr();
+    riempiPosti('nam', true);
+    $('#nam-errore').textContent = '';
+    $('#nam-avanza').hidden = true;
+    aggiornaNam();
+    $('#dialogo-nam').showModal();
+  }
+
+  /** L'elenco dei posti (Sound Clone o User IR) coi nomi letti dal Mini; primoVuoto: sceglie il primo
+   *  posto vuoto, se no tiene quello scelto. */
+  function riempiPosti(k, primoVuoto) {
+    const [n, uid, nome] = k === 'nam' ? [10, UID_CLONE, 'Sound Clone '] : [20, UID_IR, 'User IR '];
+    const sel = $('#' + k + '-posto'), prima = sel.value;
+    sel.textContent = '';
+    for (let p = 0; p < n; p++) {
+      const v = stato.nomiUtente.get(uid(p));
+      const o = el('option'); o.value = String(p);
+      o.textContent = nome + (p + 1) + ' · ' + (!v ? '?' : v.vuoto ? '(vuoto)' : v.nome);
+      sel.appendChild(o);
+    }
+    if (primoVuoto) {
+      for (let p = 0; p < n; p++) { const v = stato.nomiUtente.get(uid(p)); if (v && v.vuoto) { sel.value = String(p); break; } }
+    } else if (prima) sel.value = prima;
+    aggiornaRinomina(k);
+  }
+
+  /** «Rinomina il posto…»: solo se il posto scelto è occupato. */
+  function aggiornaRinomina(k) {
+    const uid = (k === 'nam' ? UID_CLONE : UID_IR)(Number($('#' + k + '-posto').value));
+    const v = stato.nomiUtente.get(uid);
+    $('#' + k + '-rinomina').disabled = !v || v.vuoto || Boolean(nam.lavoro || ir.lavoro);
+  }
+
+  async function rinominaPosto(k) {
+    const uid = (k === 'nam' ? UID_CLONE : UID_IR)(Number($('#' + k + '-posto').value));
+    await rinominaUtente(uid);
+    riempiPosti(k, false);
+  }
+
+  function aggiornaNam() {
+    $('#nam-file-nome').textContent = nam.file || 'Nessun file scelto.';
+    $('#nam-conferma').disabled = !nam.testo || Boolean(nam.lavoro);
+    $('#nam-scegli').disabled = Boolean(nam.lavoro);
+    $('#nam-app-scegli').hidden = Boolean(nam.app);
+    $('#nam-app-togli').hidden = !nam.app;
+    $('#nam-app-scegli').disabled = $('#nam-app-togli').disabled = Boolean(nam.lavoro);
+    $('#nam-app-stato').textContent = !nam.app ? 'Ora: il segnale di MazzRig.'
+      : nam.appNoto ? 'Ora: il segnale dell’app Hotone (2.1.3). Il Sound Clone sarà identico a quello dell’app.'
+        : 'Ora: il segnale dell’app Hotone (non è quello della versione 2.1.3, l’unica provata).';
+  }
+
+  // «Porta il tuo file»: il segnale di prova dell'app, preso dall'APK Hotone dell'utente (pulze-nam.js,
+  // ingressoDaApp) e tenuto solo nel suo browser (IndexedDB 'pulzemazz-nam'). MazzRig non lo distribuisce.
+  let dbNam = null;
+  function negozioNam(modo) {
+    if (!dbNam) {
+      dbNam = new Promise((ok, no) => {
+        const r = indexedDB.open('pulzemazz-nam', 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('segnali');
+        r.onsuccess = () => ok(r.result);
+        r.onerror = () => no(r.error);
+      });
+      dbNam.catch(() => { dbNam = null; });
+    }
+    return dbNam.then(db => db.transaction('segnali', modo).objectStore('segnali'));
+  }
+
+  async function caricaSegnaleApp() {
+    try {
+      const v = await richiesta((await negozioNam('readonly')).get('app'));
+      if (v && v.ingresso) { nam.app = v.ingresso; nam.appNoto = Boolean(v.noto); }
+    } catch (e) { /* niente IndexedDB: si usa il segnale di MazzRig */ }
+    if ($('#dialogo-nam').open) aggiornaNam();
+  }
+
+  async function namAppScelto() {
+    const f = $('#nam-app-file').files[0];
+    $('#nam-app-file').value = '';
+    if (!f) return;
+    $('#nam-errore').textContent = '';
+    $('#nam-app-stato').textContent = 'Leggo ' + f.name + '…';
+    $('#nam-app-scegli').disabled = true;
+    try {
+      const r = await fetch('nam/r8b-44-48.bin');
+      if (!r.ok) throw new Error('nucleo');
+      const { ingresso, noto } = await window.PulzeNam.ingressoDaApp(new Uint8Array(await f.arrayBuffer()), new Uint8Array(await r.arrayBuffer()));
+      nam.app = Float32Array.from(ingresso); nam.appNoto = noto; nam.mini = null;
+      try { await richiesta((await negozioNam('readwrite')).put({ ingresso: nam.app, noto, nome: f.name, quando: Date.now() }, 'app')); }
+      catch (e) { $('#nam-errore').textContent = 'Il segnale dell’app vale solo finché la pagina resta aperta: il browser non lo lascia salvare.'; }
+    } catch (e) {
+      $('#nam-errore').textContent = e.message === 'apk'
+        ? 'In questo APK non trovo il segnale di prova (clone_config/nam_input_file.wav): è l’app Pulze di Hotone?'
+        : e.message === 'nucleo' ? 'Non riesco a scaricare il ricampionatore: serve internet la prima volta.'
+          : 'Non è un APK dell’app Hotone né il suo nam_input_file.wav.';
+    }
+    aggiornaNam();
+  }
+
+  async function togliSegnaleApp() {
+    nam.app = null; nam.appNoto = false; nam.mini = null;
+    try { await richiesta((await negozioNam('readwrite')).delete('app')); } catch (e) { /* pazienza */ }
+    aggiornaNam();
+  }
+
+  async function namScelto() {
+    const f = $('#nam-file').files[0];
+    $('#nam-file').value = '';
+    if (!f) return;
+    $('#nam-errore').textContent = '';
+    try {
+      const testo = await f.text();
+      const j = JSON.parse(testo);
+      new window.PulzeNam.A2(window.PulzeNam.sottomodello(j));   // si sa subito se è un formato che va
+      nam.testo = testo; nam.file = f.name; nam.mini = null; nam.chiave = '';
+      // col cabinet dentro (metadata.gear_type del .nam: amp_cab, full_rig…) il nome finisce in « FR»:
+      // l'AI di «Crea preset» lo legge e spegne il CAB (pulze-ricetta.js, fullRig)
+      const gt = String((j.metadata && j.metadata.gear_type) || '').toLowerCase();
+      const base = f.name.replace(/\.nam$/i, '').normalize('NFD').replace(/[^\x20-\x7e]/g, '').trim();
+      $('#nam-nome').value = /cab|full|rig/.test(gt) && !R.fullRig(base) ? base.slice(0, 12).trim() + ' FR' : base.slice(0, 15);
+    } catch (e) {
+      nam.testo = null; nam.file = '';
+      $('#nam-errore').textContent = e.message === 'formato'
+        ? 'Questo NAM ha un’architettura che il Mini non carica: servono i modelli «A2» (NAM 0.7).'
+        : 'Non è un file NAM valido.';
+    }
+    aggiornaNam();
+  }
+
+  /** La conversione nel Worker; ritorna i byte del CLO come vanno al Mini. */
+  function convertiNam(testo) {
+    return new Promise((risolvi, rifiuta) => {
+      const w = new Worker('src/pulze-nam-worker.js');
+      const FASI = { scarico: ['Scarico il segnale di prova…', 0, 5], nam: ['Faccio suonare il NAM…', 5, 75], clone: ['Calcolo il Sound Clone…', 80, 20] };
+      w.onmessage = e => {
+        const d = e.data;
+        if (d.fase) {
+          const [t, da, quanto] = FASI[d.fase];
+          $('#nam-fase').textContent = t;
+          $('#nam-barra').value = da + quanto * d.frazione;
+        } else {
+          w.terminate();
+          if (d.errore) rifiuta(new Error(d.errore)); else risolvi(d.mini);
+        }
+      };
+      w.onerror = e => { w.terminate(); rifiuta(new Error(e.message || 'worker')); };
+      $('#nam-barra').value = 0; $('#nam-fase').textContent = 'Preparo…';
+      w.postMessage(nam.app ? { nam: testo, app: nam.app } : { nam: testo });
+    });
+  }
+
+  async function caricaNam() {
+    if (!nam.testo || nam.lavoro) return;
+    const posto = Number($('#nam-posto').value);
+    const nome = $('#nam-nome').value.normalize('NFD').replace(/[^ -~]/g, '').trim().slice(0, 15);
+    const errore = m => { $('#nam-errore').textContent = m; };
+    if (!nome) { errore('Scrivi un nome.'); $('#nam-nome').focus(); return; }
+    const prima = stato.nomiUtente.get(UID_CLONE(posto));
+    if (prima && !prima.vuoto && !window.confirm('Sound Clone ' + (posto + 1) + ' contiene «' + prima.nome + '»: lo sovrascrivo?')) return;
+    errore('');
+    $('#nam-avanza').hidden = false;
+    nam.lavoro = (async () => {
+      try {
+        const chiave = nam.testo + (nam.app ? '|app' : '|mazzrig');   // cambiando segnale si riconverte
+        if (!nam.mini || nam.chiave !== chiave) {
+          nam.mini = await convertiNam(nam.testo); nam.chiave = chiave;
+        }
+        if (!ble || !ble.collegato()) throw new Error('il Mini non è collegato');
+        $('#nam-fase').textContent = 'Mando al Mini…';
+        await ble.manda((num, max) => P.dati(num, 0, 5, window.PulzeNam.corpoClone(posto, nome, nam.mini), max), {
+          pausa: 110, attesa: 8000,
+          avanza: (i, n) => { $('#nam-barra').value = 100 * i / n; },
+        });
+        await leggiNomiUtente();
+        const ora = stato.nomiUtente.get(UID_CLONE(posto));
+        $('#nam-fase').textContent = '';
+        $('#nam-avanza').hidden = true;
+        $('#dialogo-nam').close();
+        if (ora && !ora.vuoto) scriviStato('NAM caricato: Sound Clone ' + (posto + 1) + ' «' + ora.nome + '». Il Mini conferma.', 'ok');
+        else scriviStato('NAM mandato, ma il Mini non mostra ancora il Sound Clone ' + (posto + 1) + '.', 'errore');
+      } catch (e) {
+        $('#nam-avanza').hidden = true;
+        const m = e.message === 'formato' ? 'Formato NAM non supportato.'
+          : e.message === 'frequenza' ? 'Il NAM non è a 48 kHz: il Mini non lo carica.'
+            : e.message === 'ingresso' ? 'Non riesco a scaricare il segnale di prova: serve internet la prima volta.'
+              : 'Caricamento interrotto: ' + e.message;
+        errore(m);
+        if (!$('#dialogo-nam').open) scriviStato(m, 'errore');
+      } finally {
+        nam.lavoro = null; aggiornaNam();
+      }
+    })();
+    aggiornaNam();
+  }
+
+  // ---------------------------------------------------------------- «Carica IR»
+
+  // Un .wav di cabinet diventa un User IR: il browser lo legge e lo porta a 48 kHz, pulze-nam.js
+  // (corpoIR) ne fa il corpo del messaggio 0/4, identico a quello dell'app (cattura del 6/11).
+  const ir = { campioni: null, file: '', lavoro: null };
+  const UID_IR = posto => (0x0a100000 + posto) >>> 0;
+
+  /** Le due schede della finestra «Carica NAM & IR». */
+  function scheda(quale) {
+    $('#parte-nam').hidden = quale !== 'nam';
+    $('#parte-ir').hidden = quale !== 'ir';
+    $('#scheda-nam').setAttribute('aria-selected', String(quale === 'nam'));
+    $('#scheda-ir').setAttribute('aria-selected', String(quale === 'ir'));
+    $('#nam-guida').dataset.guida = quale === 'nam' ? 'g-nam' : 'g-ir';
+  }
+
+  /** Prepara la scheda IR (la finestra la apre apriNam). */
+  function preparaIr() {
+    if (ir.lavoro) return;
+    riempiPosti('ir', true);
+    $('#ir-errore').textContent = '';
+    $('#ir-avanza').hidden = true;
+    aggiornaIr();
+  }
+
+  function aggiornaIr() {
+    $('#ir-file-nome').textContent = ir.file || 'Nessun file scelto.';
+    $('#ir-conferma').disabled = !ir.campioni || Boolean(ir.lavoro);
+    $('#ir-scegli').disabled = Boolean(ir.lavoro);
+  }
+
+  async function irScelto() {
+    const f = $('#ir-file').files[0];
+    $('#ir-file').value = '';
+    if (!f) return;
+    $('#ir-errore').textContent = '';
+    try {
+      // un OfflineAudioContext a 48 kHz ricampiona da sé quello che decodifica
+      const ctx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, 1, 48000);
+      const buf = await ctx.decodeAudioData(await f.arrayBuffer());
+      ir.campioni = buf.getChannelData(0).slice(0, 1024);
+      window.PulzeNam.corpoIR(0, 'x', ir.campioni);   // muto → errore subito
+      ir.file = f.name + ' · ' + Math.round(buf.duration * 1000) + ' ms';
+      $('#ir-nome').value = f.name.replace(/\.wav$/i, '').normalize('NFD').replace(/[^\x20-\x7e]/g, '').trim().slice(0, 15);
+    } catch (e) {
+      ir.campioni = null; ir.file = '';
+      $('#ir-errore').textContent = e.message === 'muto' ? 'Il file è muto.' : 'Non è un file WAV che il browser sa leggere.';
+    }
+    aggiornaIr();
+  }
+
+  async function caricaIr() {
+    if (!ir.campioni || ir.lavoro) return;
+    const posto = Number($('#ir-posto').value);
+    const nome = $('#ir-nome').value.normalize('NFD').replace(/[^ -~]/g, '').trim().slice(0, 15);
+    const errore = m => { $('#ir-errore').textContent = m; };
+    if (!nome) { errore('Scrivi un nome.'); $('#ir-nome').focus(); return; }
+    const prima = stato.nomiUtente.get(UID_IR(posto));
+    if (prima && !prima.vuoto && !window.confirm('User IR ' + (posto + 1) + ' contiene «' + prima.nome + '»: lo sovrascrivo?')) return;
+    errore('');
+    $('#ir-avanza').hidden = false;
+    $('#ir-fase').textContent = 'Mando al Mini…';
+    ir.lavoro = (async () => {
+      try {
+        const corpo = window.PulzeNam.corpoIR(posto, nome, ir.campioni);
+        await ble.manda((num, max) => P.dati(num, 0, 4, corpo, max), {
+          pausa: 110, attesa: 8000,
+          avanza: (i, n) => { $('#ir-barra').value = 100 * i / n; },
+        });
+        await leggiNomiUtente();
+        const ora = stato.nomiUtente.get(UID_IR(posto));
+        $('#ir-avanza').hidden = true;
+        $('#dialogo-nam').close();
+        if (ora && !ora.vuoto) scriviStato('IR caricato: User IR ' + (posto + 1) + ' «' + ora.nome + '». Il Mini conferma.', 'ok');
+        else scriviStato('IR mandato, ma il Mini non mostra ancora lo User IR ' + (posto + 1) + '.', 'errore');
+      } catch (e) {
+        $('#ir-avanza').hidden = true;
+        const m = 'Caricamento interrotto: ' + e.message;
+        errore(m);
+        if (!$('#dialogo-nam').open) scriviStato(m, 'errore');
+      } finally {
+        ir.lavoro = null; aggiornaIr();
+      }
+    })();
+    aggiornaIr();
   }
 
   // ---------------------------------------------------------------- «Crea preset AI», copia e incolla
@@ -4327,6 +4633,25 @@
     $('#importa-annulla').addEventListener('click', () => $('#dialogo-importa').close());
     $('#importa-conferma').addEventListener('click', importa);
     $('#crea').addEventListener('click', apriCrea);
+    $('#nam').addEventListener('click', apriNam);
+    $('#nam-scegli').addEventListener('click', () => $('#nam-file').click());
+    $('#nam-file').addEventListener('change', namScelto);
+    $('#nam-app-scegli').addEventListener('click', () => $('#nam-app-file').click());
+    $('#nam-app-file').addEventListener('change', namAppScelto);
+    $('#nam-app-togli').addEventListener('click', togliSegnaleApp);
+    caricaSegnaleApp();
+    $('#nam-conferma').addEventListener('click', caricaNam);
+    $('#nam-annulla').addEventListener('click', () => $('#dialogo-nam').close());
+    $('#scheda-nam').addEventListener('click', () => scheda('nam'));
+    $('#scheda-ir').addEventListener('click', () => scheda('ir'));
+    $('#ir-scegli').addEventListener('click', () => $('#ir-file').click());
+    $('#ir-file').addEventListener('change', irScelto);
+    $('#ir-conferma').addEventListener('click', caricaIr);
+    for (const k of ['nam', 'ir']) {
+      $('#' + k + '-posto').addEventListener('change', () => aggiornaRinomina(k));
+      $('#' + k + '-rinomina').addEventListener('click', () => rinominaPosto(k));
+    }
+    $('#ir-annulla').addEventListener('click', () => $('#dialogo-nam').close());
     $('#crea-conferma').addEventListener('click', creaPreset);
     $('#crea-annulla').addEventListener('click', () => $('#dialogo-crea').close());
     $('#crea-copia').addEventListener('click', copiaDomanda);

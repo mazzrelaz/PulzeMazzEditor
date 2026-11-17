@@ -13,6 +13,53 @@
   document.documentElement.lang = lingua;
 
   const ESATTI = [
+    // ---- v8.5: Novità
+    ['Carica NAM & IR', 'Load NAM & IR'],
+    ['Un nuovo tasto carica sul Mini i modelli NAM (.nam) come Sound Clone e le risposte all’impulso dei cabinet (.wav) come User IR, senza l’app Hotone.',
+      'A new button loads NAM models (.nam) to the Mini as Sound Clones and cabinet impulse responses (.wav) as User IRs, without the Hotone app.'],
+    ['Sound Clone identico a quello dell’app', 'Sound Clone identical to the app’s'],
+    ['Indicando una volta l’APK dell’app Hotone, MazzRig ne usa il segnale di prova e il Sound Clone viene identico. Resta solo nel tuo browser.',
+      'Point once to the Hotone app APK and MazzRig uses its test signal, so the Sound Clone comes out identical. It stays in your browser only.'],
+    ['Rinomina NAM e IR', 'Rename NAMs and IRs'],
+    ['Nella finestra Carica NAM & IR il tasto Rinomina… cambia il nome del posto scelto.', 'In the Load NAM & IR window, the Rename… button changes the name of the chosen slot.'],
+    ['L’AI usa i tuoi NAM', 'The AI uses your NAMs'],
+    ['Crea preset AI sceglie i tuoi Sound Clone e User IR quando la richiesta corrisponde, spegne il cab se il nome del NAM contiene FR (full rig) e ti consiglia quale NAM cercare.',
+      'Create AI preset picks your Sound Clones and User IRs when the request matches, turns the cab off if the NAM’s name contains FR (full rig) and suggests which NAM to look for.'],
+    // ---- Carica IR
+    ['NAM & IR…', 'NAM & IR…'], ['Guida: Carica NAM & IR', 'Guide: Load NAM & IR'],
+    ['Carica sul Mini un NAM (Sound Clone) o un IR di cabinet (User IR)', 'Load a NAM (Sound Clone) or a cabinet IR (User IR) to the Mini'],
+    ['Rinomina il posto scelto', 'Rename the chosen slot'], ['NAM · Sound Clone', 'NAM · Sound Clone'], ['IR · cabinet', 'IR · cabinet'], ['NAM consigliato', 'Suggested NAM'],
+    ['Guida: Carica IR', 'Guide: Load IR'], ['Scegli il file .wav', 'Choose the .wav file'],
+    ['Una risposta all’impulso di un cabinet (.wav, qualsiasi frequenza). Il Mini ne tiene i primi 1024 campioni a 48 kHz (21 ms), come con l’app Hotone.',
+      'A cabinet impulse response (.wav, any sample rate). The Mini keeps its first 1024 samples at 48 kHz (21 ms), as with the Hotone app.'],
+    ['Il posto User IR sul Mini: quello che c’era si sovrascrive.', 'The User IR slot on the Mini: what was there gets overwritten.'],
+    ['Il file è muto.', 'The file is silent.'], ['Non è un file WAV che il browser sa leggere.', 'Not a WAV file the browser can read.'],
+    // ---- v8.6: segnale di prova dell'app («porta il tuo file»)
+    ['Segnale di prova', 'Test signal'], ['Usa quello dell’app Hotone…', 'Use the Hotone app’s one…'], ['Torna a quello di MazzRig', 'Back to MazzRig’s'],
+    ['MazzRig usa un segnale suo, molto vicino a quello dell’app. Per un Sound Clone identico a quello dell’app indica una volta l’APK Hotone (o il suo nam_input_file.wav): resta solo nel tuo browser.',
+      'MazzRig uses its own signal, very close to the app’s. For a Sound Clone identical to the app’s, point once to the Hotone APK (or its nam_input_file.wav): it stays in your browser only.'],
+    ['Ora: il segnale di MazzRig.', 'Now: MazzRig’s signal.'],
+    ['Ora: il segnale dell’app Hotone (2.1.3). Il Sound Clone sarà identico a quello dell’app.', 'Now: the Hotone app’s signal (2.1.3). The Sound Clone will be identical to the app’s.'],
+    ['Ora: il segnale dell’app Hotone (non è quello della versione 2.1.3, l’unica provata).', 'Now: the Hotone app’s signal (not the one from version 2.1.3, the only one tested).'],
+    ['Il segnale dell’app vale solo finché la pagina resta aperta: il browser non lo lascia salvare.', 'The app’s signal only lasts while the page stays open: the browser won’t let it be saved.'],
+    ['In questo APK non trovo il segnale di prova (clone_config/nam_input_file.wav): è l’app Pulze di Hotone?', 'This APK has no test signal (clone_config/nam_input_file.wav): is it Hotone’s Pulze app?'],
+    ['Non riesco a scaricare il ricampionatore: serve internet la prima volta.', 'Can’t download the resampler: the first time needs internet.'],
+    ['Non è un APK dell’app Hotone né il suo nam_input_file.wav.', 'Not a Hotone app APK nor its nam_input_file.wav.'],
+    // ---- v8.5: Carica NAM
+    ['Carica NAM', 'Load NAM'], ['Carica ', 'Load '], ['NAM…', 'NAM…'], ['Carica un file NAM sul Mini come Sound Clone', 'Load a NAM file to the Mini as a Sound Clone'],
+    ['Guida: Carica NAM', 'Guide: Load NAM'], ['Il file', 'The file'], ['Dove', 'Where'], ['Posto', 'Slot'], ['Nome', 'Name'],
+    ['Un modello NAM (.nam), per esempio da TONE3000. Va convertito come fa l’app Hotone: ci vuole circa un minuto.',
+      'A NAM model (.nam), for example from TONE3000. It gets converted the way the Hotone app does: it takes about a minute.'],
+    ['Scegli il file .nam', 'Choose the .nam file'], ['Nessun file scelto.', 'No file chosen.'],
+    ['Il posto Sound Clone sul Mini: quello che c’era si sovrascrive.','The Sound Clone slot on the Mini: what was there gets overwritten.'],
+    ['Carica sul Mini', 'Load to the Mini'], ['Annulla', 'Cancel'],
+    ['Scarico il segnale di prova…', 'Downloading the test signal…'], ['Faccio suonare il NAM…', 'Running the NAM…'],
+    ['Calcolo il Sound Clone…', 'Computing the Sound Clone…'], ['Mando al Mini…', 'Sending to the Mini…'], ['Preparo…', 'Preparing…'],
+    ['Scrivi un nome.', 'Type a name.'], ['Non è un file NAM valido.', 'Not a valid NAM file.'],
+    ['Questo NAM ha un’architettura che il Mini non carica: servono i modelli «A2» (NAM 0.7).',
+      'This NAM has an architecture the Mini can’t load: it takes “A2” models (NAM 0.7).'],
+    ['Formato NAM non supportato.', 'NAM format not supported.'], ['Il NAM non è a 48 kHz: il Mini non lo carica.', 'The NAM is not at 48 kHz: the Mini can’t load it.'],
+    ['Non riesco a scaricare il segnale di prova: serve internet la prima volta.', 'Can’t download the test signal: the first time needs internet.'],
     // ---- v8.4: cancellare un tone ripetuto, copia di sicurezza non riuscita
     ['I doppioni non fanno danni: conviene lasciarli. Cancello lo stesso? Ne resta una copia di sicurezza in Backup….',
       'Duplicates do no harm: better leave them. Delete anyway? A safety copy stays in Backup….'],
@@ -53,8 +100,8 @@
     ['Un suono nuovo va in un posto vuoto', 'A new sound goes to an empty slot'],
     ['Per un suono importato o creato con l\'AI, Salva… propone il primo posto vuoto. Sopra un tone pieno il tasto dice quale si perde: «Sovrascrivi «Europa»».',
       'For a sound imported or created with AI, Save… suggests the first empty slot. Over a full slot the button says which tone is lost: “Overwrite “Europa””.'], ['Salvato in un altro posto: si passa lì', 'Saved to another slot: you move there'],
-    ['Quando salvi un tone in un altro posto, il Mini passa al tone appena salvato e la scritta «modificato · non salvato» sparisce.',
-      'When you save a tone to another slot, the Mini switches to the tone you just saved and the “modified · not saved” label goes away.'], ['Tutto anche in inglese', 'Everything in English too'],
+    ['Quando salvi un tone in un altro posto, il Mini passa al tone appena salvato e la scritta «modificato non salvato» sparisce.',
+      'When you save a tone to another slot, the Mini switches to the tone you just saved and the “modified not saved” label goes away.'], ['Tutto anche in inglese', 'Everything in English too'],
     ['Anche i messaggi nuovi (diagnosi, cancellazione) si leggono in inglese.', 'The new messages (diagnostics, deleting) are in English too.'], ['Niente più nomi doppi', 'No more duplicate names'],
     ['Se salvi o copi un tone in un altro posto con un nome che c\'è già, MazzRig aggiunge un numero: «EVH Eruption (2)», «(3)»…',
       'If you save or copy a tone to another slot with a name that already exists, MazzRig adds a number: “EVH Eruption (2)”, “(3)”…'],
@@ -122,7 +169,7 @@
     ['Copia in un altro posto…', 'Copy to another slot…'], ['Scambia con…', 'Swap with…'], ['Cancella…', 'Delete…'],
     ['Impostazioni', 'Settings'], ['Guida', 'Guide'], ['Crediti e responsabilità', 'Credits and disclaimer'],
     ['Offrimi un caffè', 'Buy me a coffee'], ['Salva…', 'Save…'], ['Importa…', 'Import…'], ['Esporta', 'Export'],
-    ['modificato · non salvato', 'modified · not saved'], ['ascolti il tone salvato', 'listening to the saved tone'],
+    ['modificato non salvato', 'modified not saved'], ['ascolti il tone salvato', 'listening to the saved tone'],
     ['Crea preset', 'Create preset'], ['Collega il Pulze Mini', 'Connect the Pulze Mini'],
     ['Chiudi prima l\'app Pulze Editor sul telefono: il Mini accetta un collegamento alla volta.',
       'First close the Pulze Editor app on your phone: the Mini accepts one connection at a time.'],
@@ -130,7 +177,7 @@
       'Unofficial third-party app, not affiliated with Hotone Audio in any way. Use it at your own risk: ☰ → Credits and disclaimer.'],
     // ---- la finestra Novità
     ['Novità', 'News'],
-    ['13 novembre 2026', '13 November 2026'],
+    ['13 novembre 2026', '13 November 2026'], ['15 novembre 2026', '15 November 2026'], ['17 novembre 2026', '17 November 2026'],
     ['Cosa c\'è di nuovo', 'What\'s new'],
     ['Ho capito', 'Got it'],
     ['Nuovo nome: MazzRig', 'New name: MazzRig'],
@@ -295,6 +342,19 @@
   ];
 
   const MODELLI = [
+    ['Leggo {0}…', 'Reading {0}…'],
+    // ---- Carica IR
+    ['User IR {0} · {1}', 'User IR {0} · {1}'],
+    ['User IR {0} contiene «{1}»: lo sovrascrivo?', 'User IR {0} holds “{1}”: overwrite it?'],
+    ['IR caricato: User IR {0} «{1}». Il Mini conferma.', 'IR loaded: User IR {0} “{1}”. The Mini confirms.'],
+    ['IR mandato, ma il Mini non mostra ancora lo User IR {0}.', 'IR sent, but the Mini doesn’t show User IR {0} yet.'],
+    ['{0} · {1} ms', '{0} · {1} ms'],
+    // ---- v8.5: Carica NAM
+    ['Sound Clone {0} · {1}', 'Sound Clone {0} · {1}'],
+    ['Sound Clone {0} contiene «{1}»: lo sovrascrivo?', 'Sound Clone {0} holds “{1}”: overwrite it?'],
+    ['NAM caricato: Sound Clone {0} «{1}». Il Mini conferma.', 'NAM loaded: Sound Clone {0} “{1}”. The Mini confirms.'],
+    ['NAM mandato, ma il Mini non mostra ancora il Sound Clone {0}.', 'NAM sent, but the Mini doesn’t show Sound Clone {0} yet.'],
+    ['Caricamento interrotto: {0}', 'Loading interrupted: {0}'],
     // ---- v8.4: cancellare un tone ripetuto, copia di sicurezza non riuscita, scambio fermato a metà
     ['Il tone «{0}» (posto {1}) compare {2} volte nell\'elenco del Mini: cancellandolo spariscono tutte le sue voci, e il posto resta vuoto finché non ci salvi di nuovo un tone.',
       'The tone “{0}” (slot {1}) appears {2} times in the Mini\'s list: deleting it removes all its entries, and the slot stays empty until you save a tone there again.'],
