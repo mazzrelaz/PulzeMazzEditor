@@ -147,6 +147,7 @@
     // un tone importato o creato con l'AI e non ancora salvato si chiama già col suo nome
     $('#tone-nome').textContent = t ? (stato.modificato && nomeProposto) || t.nome || '(senza nome)' : '—';
     $('#tone-nome').title = t ? 'Posto ' + (t.numero + 1) : '';
+    disegnaPannelloPickup();
     for (const [id, campo] of [['#tone-volume', 'volume'], ['#tone-tempo', 'tempo']]) {
       const i = $(id);
       i.disabled = !t;
@@ -1306,6 +1307,7 @@
     const t = stato.testa;
     const dest = $('#salva-posto').disabled ? t.numero : +$('#salva-posto').value;
     let nome = $('#salva-nome').value.trim();
+    const nomeVistoPrima = nomeVisto();
     if (!/^[\x20-\x7e]{1,16}$/.test(nome)) {
       $('#salva-errore').textContent = 'Da 1 a 16 caratteri, senza accenti.';
       return;
@@ -1339,6 +1341,9 @@
         scriviStato('Il Mini ha risposto, ma nel posto ' + (dest + 1) + ' c\'è «' + nomi[dest] + '».', 'errore');
         return;
       }
+      // i pickup consigliati seguono il nome con cui si è salvato
+      const pkPrima = pickupDi(nomeVistoPrima);
+      if (pkPrima && nomeVistoPrima !== nome) pickupScrivi(nome, pkPrima);
       if (dest === t.numero) { stato.modificato = false; confronto = null; storia.base = istantanea(); }
       nomeProposto = null;
       scriviStato('Salvato sul Mini: «' + nome + '», posto ' + (dest + 1) + '.', 'ok');
@@ -1892,7 +1897,192 @@
     // il NAM da cercare (solo dai preset dell'AI): il testo è già nella lingua scelta
     $('#importa-nam').hidden = !p.namConsigliato;
     $('#importa-nam-testo').textContent = p.namConsigliato || '';
+    mostraPickup(p.pickup);
     $('#dialogo-importa').showModal();
+  }
+
+  // ---------------------------------------------------------------- pickup consigliati
+  // pk = { layout: 'HSS' (come si scrive: dal ponte al manico), attivi: [indici dal manico], split, consiglio }.
+  // Il Mini non li tiene: si ricordano in questo browser, per nome del tone (pulzemazz.pickup).
+
+  const PICKUP = 'pulzemazz.pickup', PICKUP_VEDI = 'pulzemazz.pickup.vedi';
+
+  /** I nomi dei posti dal manico al ponte, per n pickup. */
+  function postiPickup(n) {
+    const en = LINGUA === 'en';
+    return n === 3 ? (en ? ['Neck', 'Middle', 'Bridge'] : ['Manico', 'Centrale', 'Ponte'])
+      : n === 2 ? (en ? ['Neck', 'Bridge'] : ['Manico', 'Ponte']) : (en ? ['Bridge'] : ['Ponte']);
+  }
+
+  /** Il disegno dei pickup dal manico al ponte, accesi quelli da usare. alClic(i): si clicca un pickup. */
+  function disegnoPickup(pk, alClic) {
+    const n = pk.layout.length;
+    const posti = postiPickup(n);
+    const xs = n === 3 ? [110, 210, 310] : n === 2 ? [130, 290] : [290];
+    const NS = 'http://www.w3.org/2000/svg';
+    const nodo = (tag, attr, padre) => {
+      const e = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attr)) e.setAttribute(k, v);
+      if (padre) padre.appendChild(e);
+      return e;
+    };
+    const svg = nodo('svg', { viewBox: '0 0 420 160', role: 'img' });
+    nodo('rect', { x: 10, y: 8, width: 400, height: 122, rx: 22, class: 'pk-corpo' }, svg);
+    const corde = [34, 48, 62, 76, 90, 104];
+    const poli = (g, x, acceso) => {
+      const gp = nodo('g', { class: 'pk-poli' + (acceso ? ' acceso' : '') }, g);
+      corde.forEach(y => nodo('circle', { cx: x, cy: y, r: 3.2, class: 'pk-polo' }, gp));
+    };
+    // il layout si scrive dal ponte al manico (HSS = humbucker al ponte): il disegno va dal manico
+    pk.layout.split('').reverse().forEach((tipo, i) => {
+      const x = xs[i];
+      const acceso = pk.attivi.includes(i);
+      const g = nodo('g', alClic ? { class: 'pk-cliccabile' } : {}, svg);
+      if (tipo === 'H') {
+        // due bobine; con lo split resta accesa solo quella verso il ponte
+        nodo('rect', { x: x - 20, y: 18, width: 40, height: 102, rx: 5, class: 'pk-spento' }, g);
+        [-9, 9].forEach((dx, b) => {
+          const viva = acceso && !(pk.split && b === 0);
+          nodo('rect', { x: x + dx - 8, y: 22, width: 16, height: 94, rx: 8, class: viva ? 'pk-acceso' : 'pk-spento' }, g);
+          poli(g, x + dx, viva);
+        });
+      } else {
+        const largo = tipo === 'P' ? 30 : 18;
+        nodo('rect', { x: x - largo / 2, y: 20, width: largo, height: 98, rx: tipo === 'P' ? 6 : 9,
+          class: acceso ? 'pk-acceso' : 'pk-spento' }, g);
+        poli(g, x, acceso);
+      }
+      const t = nodo('text', { x, y: 150, class: acceso ? 'acceso' : '' }, svg);
+      t.textContent = posti[i];
+      if (alClic) {
+        nodo('rect', { x: x - 34, y: 8, width: 68, height: 150, class: 'pk-zona' }, g);
+        g.addEventListener('click', () => alClic(i));
+      }
+    });
+    corde.forEach(y => nodo('line', { x1: 10, y1: y, x2: 410, y2: y, class: 'pk-corda' }, svg));
+    svg.setAttribute('aria-label', descriviPickup(pk));
+    return svg;
+  }
+
+  /** «HSS (humbucker / single coil) · Ponte · split». */
+  function descriviPickup(pk) {
+    const tipi = { S: 'single coil', H: 'humbucker', P: 'P-90' };
+    const posti = postiPickup(pk.layout.length);
+    const descr = [...new Set(pk.layout.split(''))].map(c => tipi[c]).join(' / ');
+    const accesi = pk.attivi.map(i => posti[i]).join(' + ') || '—';
+    return pk.layout + ' (' + descr + ') · ' + accesi +
+      (pk.split && pk.layout.includes('H') ? (LINGUA === 'en' ? ' · coil split' : ' · split') : '');
+  }
+
+  /** La carta «Configurazione pickup ideale» nella finestra Prova (solo dai preset dell'AI). */
+  function mostraPickup(pk) {
+    $('#importa-pickup').hidden = !pk;
+    if (!pk) return;
+    const box = $('#importa-pickup-disegno');
+    box.textContent = '';
+    box.appendChild(disegnoPickup(pk));
+    $('#importa-pickup-nome').textContent = descriviPickup(pk);
+    $('#importa-pickup-testo').textContent = pk.consiglio || '';
+  }
+
+  function pickupTutti() {
+    try { return JSON.parse(localStorage.getItem(PICKUP) || '{}') || {}; } catch (e) { return {}; }
+  }
+  function pickupDi(nome) { return (nome && pickupTutti()[nome]) || null; }
+  function pickupScrivi(nome, pk) {
+    if (!nome) return;
+    const tutti = pickupTutti();
+    if (pk) tutti[nome] = pk; else delete tutti[nome];
+    try { localStorage.setItem(PICKUP, JSON.stringify(tutti)); } catch (e) { /* niente */ }
+  }
+  function pickupVisibili() {
+    try { return localStorage.getItem(PICKUP_VEDI) !== 'no'; } catch (e) { return true; }
+  }
+
+  /** Il nome con cui si vede il tone (quello proposto, se è importato o creato con l'AI e non salvato). */
+  function nomeVisto() {
+    const t = stato.testa;
+    return t ? ((stato.modificato && nomeProposto) || t.nome || '') : '';
+  }
+
+  let pickupModifica = null;          // { nome, pk } mentre si cambia la configurazione
+
+  /** Il riquadro fisso sul palco, sotto le manopole: i pickup del tone che suona. */
+  function disegnaPannelloPickup() {
+    const pan = $('#pk-pannello');
+    if (!pan) return;
+    const nome = nomeVisto();
+    // un altro tone: la modifica in corso era per quello di prima (un nome vuoto è solo una lettura a metà)
+    if (pickupModifica && nome && pickupModifica.nome !== nome) pickupModifica = null;
+    $('#vedi-pickup-testo').textContent = pickupVisibili() ? 'Nascondi pickup consigliati' : 'Mostra pickup consigliati';
+    pan.hidden = !stato.testa || !pickupVisibili();
+    if (pan.hidden) return;
+    const pk = pickupModifica ? pickupModifica.pk : pickupDi(nome);
+    pan.classList.toggle('modifica', Boolean(pickupModifica));
+    pan.classList.toggle('senza', !pk);
+    const box = $('#pk-disegno');
+    box.textContent = '';
+    if (pk) {
+      box.appendChild(disegnoPickup(pk, pickupModifica ? i => {
+        const a = pk.attivi;
+        pk.attivi = a.includes(i) ? a.filter(x => x !== i) : a.concat(i).sort();
+        disegnaPannelloPickup();
+      } : null));
+    }
+    $('#pk-sotto').textContent = pk ? descriviPickup(pk) : 'Nessuna indicazione per questo tone.';
+    $('#pk-nota').textContent = (!pickupModifica && pk && pk.consiglio) || '';
+    $('#pk-nota').hidden = Boolean(pickupModifica) || !pk || !pk.consiglio;
+    $('#pk-modifica').hidden = Boolean(pickupModifica);
+    $('#pk-editor').hidden = !pickupModifica;
+    if (pickupModifica) {
+      $('#pk-layout').value = pk.layout;
+      $('#pk-split').checked = Boolean(pk.split);
+      $('#pk-split').disabled = !pk.layout.includes('H');
+      if (document.activeElement !== $('#pk-testo')) $('#pk-testo').value = pk.consiglio || '';
+    }
+  }
+
+  function preparaPannelloPickup() {
+    $('#pk-modifica').addEventListener('click', () => {
+      const nome = nomeVisto();
+      if (!nome) return;
+      const pk = pickupDi(nome);
+      pickupModifica = { nome, pk: pk ? JSON.parse(JSON.stringify(pk)) : { layout: 'SSS', attivi: [], split: false, consiglio: '' } };
+      disegnaPannelloPickup();
+    });
+    $('#pk-layout').addEventListener('change', () => {
+      const pk = pickupModifica.pk;
+      const prima = pk.layout.length;
+      pk.layout = $('#pk-layout').value;
+      // con un numero diverso di pickup i posti cambiano: si tengono manico e ponte
+      if (pk.layout.length !== prima) {
+        const n = pk.layout.length;
+        pk.attivi = pk.attivi.map(i => (i === prima - 1 ? n - 1 : i === 0 ? 0 : (n === 3 ? 1 : -1)))
+          .filter((i, k, a) => i >= 0 && i < n && a.indexOf(i) === k).sort();
+      }
+      disegnaPannelloPickup();
+    });
+    $('#pk-split').addEventListener('change', () => { pickupModifica.pk.split = $('#pk-split').checked; disegnaPannelloPickup(); });
+    $('#pk-testo').addEventListener('input', () => { pickupModifica.pk.consiglio = $('#pk-testo').value; });
+    $('#pk-fatto').addEventListener('click', () => {
+      const { nome, pk } = pickupModifica;
+      pk.consiglio = String(pk.consiglio || '').trim();
+      pickupScrivi(nome, pk.attivi.length ? pk : null);
+      pickupModifica = null;
+      disegnaPannelloPickup();
+    });
+    $('#pk-annulla').addEventListener('click', () => { pickupModifica = null; disegnaPannelloPickup(); });
+    $('#pk-togli').addEventListener('click', () => {
+      pickupScrivi(pickupModifica.nome, null);
+      pickupModifica = null;
+      disegnaPannelloPickup();
+    });
+    $('#vedi-pickup').addEventListener('click', () => {
+      try { localStorage.setItem(PICKUP_VEDI, pickupVisibili() ? 'no' : 'si'); } catch (e) { /* niente */ }
+      try { $('#menu-tendina').hidePopover(); } catch (e) { /* niente */ }
+      disegnaPannelloPickup();
+    });
+    disegnaPannelloPickup();
   }
 
   /** Il cuore dell'import: mette il preset p nel tone che suona (catena, volume, tempo, modelli, valori,
@@ -2029,6 +2219,7 @@
     const volume = Math.round(stretto(+p.volume || 0, 0, 100));
     const tempo = Math.round(stretto(+p.tempo || 120, 40, 250));
     nomeProposto = nomeMini(p.nome);
+    if (p.pickup) pickupScrivi(nomeProposto, p.pickup);
     if (!ble || !ble.collegato()) { importaQui(p, piano, catenaFile, volume, tempo); return; }
 
     importando = true;
@@ -4656,6 +4847,7 @@
     $('#importa-file').addEventListener('change', fileScelto);
     $('#importa-annulla').addEventListener('click', () => $('#dialogo-importa').close());
     $('#importa-conferma').addEventListener('click', importa);
+    preparaPannelloPickup();
     $('#crea').addEventListener('click', apriCrea);
     $('#nam').addEventListener('click', apriNam);
     $('#nam-scegli').addEventListener('click', () => $('#nam-file').click());

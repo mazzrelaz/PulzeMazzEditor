@@ -6,6 +6,18 @@
 (function () {
   const NOVITA = [
     {
+      versione: 'v8.8',
+      data: '18 novembre 2026',
+      voci: [
+        { icona: '🏷️', titolo: 'Sigla dell’artista nel nome',
+          testo: 'I preset creati con l’AI su un artista iniziano con le sue iniziali: «BM - Bohemian Ld» per Brian May, «CS -» per Santana, «VH -» per Van Halen.' },
+        { icona: '🎸', titolo: 'Configurazione pickup ideale',
+          testo: 'Crea preset con AI disegna i pickup da usare (single coil, humbucker, P-90) con accesi quelli giusti, più un consiglio su selettore e manopole.' },
+        { icona: '👁️', titolo: 'Pickup sempre in vista',
+          testo: 'Sotto le manopole un riquadro mostra i pickup consigliati del tone che suona: quelli dell’AI, che puoi cambiare con la matita. Si nasconde dal menu ☰.' },
+      ],
+    },
+    {
       versione: 'v8.7.1',
       data: '18 novembre 2026',
       voci: [

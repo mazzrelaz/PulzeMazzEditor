@@ -78,5 +78,16 @@ const t3 = R.aTone(d, C, { utente });
 prova('descrivi e rileggi: stessi modelli', t3.blocchi.every((b, s) => s === 5 || b.uid === t.blocchi[s].uid));
 prova('descrivi e rileggi: stessi valori AMP e CAB', t3.blocchi[1].valori.join() === amp.valori.join() && t3.blocchi[3].valori.join() === cab.valori.join());
 
+// sigla dell'artista e pickup
+prova('sigla davanti al nome', R.nomeConSigla('Bohemian Ld', 'BM') === 'BM - Bohemian Ld');
+prova('sigla non doppia', R.nomeConSigla('bm - Bohemian Ld', 'BM') === 'BM - Bohemian Ld');
+prova('senza artista il nome resta', R.nomeConSigla('Crunch', '') === 'Crunch');
+prova('nome con sigla a 16', R.nomeConSigla('Europa Lead Long', 'CS').length <= 16);
+prova('aTone usa la sigla', R.aTone({ name: 'Eruption', artist: 'VH', blocks: {} }, C).nome === 'VH - Eruption');
+const pk = R.pickupDa({ layout: 'sss', on: ['bridge', 'middle'], tip: 'Pos. 2' });
+prova('pickup SSS ponte+centrale', pk.layout === 'SSS' && pk.attivi.join() === '1,2' && pk.consiglio === 'Pos. 2');
+prova('pickup HH ponte split', R.pickupDa({ layout: 'HH', on: 'bridge', split: true }).attivi.join() === '1');
+prova('pickup senza attivi = niente', R.pickupDa({ layout: 'HH', on: [] }) === null);
+
 console.log(ok + ' prove passate, ' + ko + ' fallite');
 process.exit(ko ? 1 : 0);

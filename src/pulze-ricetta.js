@@ -98,7 +98,16 @@
       '- Default chain order is DYN, PRE, AMP, CAB, EQ/MOD, FX1, FX2. Reorder only when the sound calls ' +
       'for it (e.g. modulation before the amp for vintage throb). Any order of the seven is legal.',
       '- Preset volume 0-100 (around 50-70), bpm 40-250 (matters for synced delays).',
-      '- The name: at most 16 plain ASCII characters.',
+      '- The name: at most 16 plain ASCII characters, WITHOUT the artist prefix (MazzRig adds it).',
+      '- "artist": when the request names or clearly points to an artist, band or famous song, the artist initials in ' +
+      '2-3 capital letters (first name + surname: Brian May / Queen songs "BM", Carlos Santana "CS", David Gilmour / Pink Floyd "DG", ' +
+      'Eddie Van Halen / Van Halen "VH", Jimi Hendrix "JH", Slash "SL", band names by their words: AC/DC "AC", Dire Straits "DS"). ' +
+      'MazzRig names the preset "BM - <name>", so keep "name" short (about 11 characters, e.g. "Bohemian Ld"). "" when no artist.',
+      '- "pickups": the ideal pickup setting for the sound. "layout" = the guitar pickups written the usual way, from bridge to neck (HSS = humbucker at the bridge), ' +
+      'S single coil, H humbucker, P P-90 (e.g. "SSS" Strat, "HH" Les Paul, "HSS", "SS" Tele, "PP"): the artist’s own guitar, ' +
+      'or the user’s guitar when they describe it. "on" = the active positions among "neck", "middle", "bridge" ' +
+      '("middle" only with three pickups). "split": true when a humbucker is coil-split. "tip": one short sentence in ' + (opz.lingua === 'en' ? 'English' : 'Italian') + ' ' +
+      'with selector position, volume/tone knob and the artist’s trick if any (e.g. Brian May: bridge + neck in phase, treble booster).',
       '- When the user describes the guitar, the room or the band context, voice the preset for it ' +
       '(bedroom: lusher wet and full lows; band mix: carved mids, tighter low cut, drier tails).',
       '- User NAM captures (family "Sound Clone") and user IRs are the player’s own gear, loaded on the device: ' +
@@ -119,7 +128,8 @@
       ' "blocks": {"PRE": {"model": "...", "on": true, "knobs": {"Knob": value}}, "AMP": {...}, "DYN": {...},',
       '            "CAB": {...}, "EQ/MOD": {...}, "FX1": {...}, "FX2": {...}},',
       ' "explanation": "two or three short sentences in ' + (opz.lingua === 'en' ? 'English' : 'Italian') + ' on the choices",',
-      ' "nam_tip": "…"}',
+      ' "nam_tip": "…", "artist": "BM",',
+      ' "pickups": {"layout": "SSS", "on": ["bridge", "middle"], "split": false, "tip": "…"}}',
       'All seven blocks must be present.',
       '',
       'Catalog (model | slots | family | description | knobs: name range =factory):',
@@ -201,6 +211,34 @@
     return { [pos]: +aPasso(stretto(numero, min, max), passo).toFixed(2) };
   }
 
+  const ascii = t => String(t || '').normalize('NFD').replace(/[^\x20-\x7e]/g, '').replace(/\s+/g, ' ').trim();
+
+  /** Il nome del preset: «BM - Bohemian Ld» con la sigla dell'artista davanti (se l'AI la dà), 16 caratteri. */
+  function nomeConSigla(nome, artista) {
+    const sigla = ascii(artista).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3);
+    let n = ascii(nome);
+    if (sigla) {
+      n = n.replace(new RegExp('^' + sigla + '\\s*-\\s*', 'i'), '');
+      n = sigla + ' - ' + n;
+    }
+    return n.slice(0, 16).trim().replace(/\s*-$/, '') || 'Nuovo preset';
+  }
+
+  /** I pickup consigliati: { layout: 'HSS' (come si scrive: dal ponte al manico), attivi: [indici dal
+   *  manico], split, consiglio } o null. */
+  function pickupDa(pk) {
+    if (!pk || typeof pk !== 'object') return null;
+    const layout = String(pk.layout || '').toUpperCase().replace(/[^SHP]/g, '').slice(0, 3);
+    if (layout.length < 1) return null;
+    const posti = layout.length === 3 ? ['neck', 'middle', 'bridge'] : layout.length === 2 ? ['neck', 'bridge'] : ['bridge'];
+    const sinonimi = { manico: 'neck', neck: 'neck', centrale: 'middle', middle: 'middle', mid: 'middle', ponte: 'bridge', bridge: 'bridge' };
+    const on = (Array.isArray(pk.on) ? pk.on : String(pk.on || '').split(/[\s,+]+/))
+      .map(x => sinonimi[String(x).toLowerCase().trim()]).filter(Boolean);
+    const attivi = posti.map((p, i) => (on.includes(p) ? i : -1)).filter(i => i >= 0);
+    if (!attivi.length) return null;
+    return { layout, attivi, split: vero(pk.split), consiglio: String(pk.tip || '').trim() };
+  }
+
   /** Il JSON dell'AI → il tone come lo dà PulzePrst.aTone, più per blocco «sopra» (posizione → valore:
    *  fabbrica + ricetta, da mettere sopra i valori che ha il Mini) o «tieni» (resta il blocco del tone).
    *  opz.utente: i nomi di Sound Clone e IR; opz.tone: il tone che suona (per gli slot mancanti). */
@@ -248,7 +286,7 @@
 
     const numero = (v, a, b, d) => (Number.isFinite(+v) ? Math.round(stretto(+v, a, b)) : d);
     return {
-      nome: String(ricetta.name || 'Nuovo preset').normalize('NFD').replace(/[^\x20-\x7e]/g, '').trim().slice(0, 16).trim() || 'Nuovo preset',
+      nome: nomeConSigla(ricetta.name, ricetta.artist),
       volume: numero(ricetta.volume, 0, 100, 60),
       tempo: numero(ricetta.bpm, 40, 250, 120),
       catena,
@@ -257,10 +295,11 @@
       dispositivo: 'AP-10',
       spiegazione: String(ricetta.explanation || '').trim(),
       namConsigliato: String(ricetta.nam_tip || '').trim(),
+      pickup: pickupDa(ricetta.pickups),
       avvisi,
     };
   }
 
-  const X = { SLOT, istruzioni, catalogoTesto, fullRig, descriviTone, aTone, codifica, trovaModello };
+  const X = { SLOT, istruzioni, nomeConSigla, pickupDa, catalogoTesto, fullRig, descriviTone, aTone, codifica, trovaModello };
   if (typeof module !== 'undefined' && module.exports) module.exports = X; else g.PulzeRicetta = X;
 })(this);

@@ -397,6 +397,42 @@
   .bk-testa { display:flex; align-items:center; gap:11px; margin-bottom:12px; }
   .bk-testa svg { width:26px; height:26px; flex:none; fill:none; stroke:var(--accent-chiaro); stroke-width:1.5;
                   stroke-linecap:round; stroke-linejoin:round; }
+  .pickup-disegno svg { display:block; width:100%; max-width:420px; height:auto; margin:0 auto 8px; }
+  .pickup-disegno .pk-corpo { fill:var(--panel); stroke:var(--line); }
+  .pickup-disegno .pk-corda { stroke:var(--faint); stroke-width:1; }
+  .pickup-disegno .pk-spento { fill:var(--rialzo); stroke:var(--traccia); }
+  .pickup-disegno .pk-acceso { fill:var(--accent); stroke:var(--accent-chiaro); filter:drop-shadow(0 0 5px var(--accent)); }
+  .pickup-disegno .pk-polo { fill:var(--incavo); }
+  .pickup-disegno .pk-acceso + .pk-poli .pk-polo, .pickup-disegno .pk-poli.acceso .pk-polo { fill:var(--su-accent); }
+  .pickup-disegno text { font-family:var(--strumento); font-size:11px; fill:var(--dim); text-anchor:middle; }
+  .pickup-disegno .pk-zona { fill:transparent; cursor:pointer; }
+  .pickup-disegno .pk-cliccabile:hover .pk-spento { stroke:var(--accent-chiaro); }
+  /* i pickup consigliati, fissi sul palco sotto le manopole */
+  .pk-pannello { margin-top:auto; padding:12px 14px; background:var(--incavo); border:1px solid var(--line); border-radius:12px; max-width:600px;
+    display:grid; grid-template-columns:minmax(150px,230px) 1fr; gap:2px 16px; align-items:center; }
+  .pk-pannello[hidden] { display:none; }
+  .pk-pannello > .pk-cima { grid-column:1 / -1; }
+  .pk-pannello > #pk-disegno { grid-column:1; }
+  .pk-pannello > #pk-nota, .pk-pannello > #pk-editor { grid-column:2; grid-row:2; }
+  .pk-pannello.senza:not(.modifica) { display:block; }
+  @media (max-width:700px) { .pk-pannello { grid-template-columns:1fr; } .pk-pannello > #pk-nota, .pk-pannello > #pk-editor { grid-column:1; grid-row:auto; } }
+  #manopole { margin-bottom:16px; }
+  .pk-cima { display:flex; align-items:flex-start; gap:10px; }
+  .pk-cima > div { flex:1; min-width:0; }
+  .pk-cima h3 { font-family:var(--strumento); font-size:0.85rem; margin:0; }
+  .pk-cima p { margin:1px 0 0; font-size:0.75rem; color:var(--dim); }
+  .pk-cima .icona { flex:none; }
+  .pk-pannello .pickup-disegno svg { max-width:230px; margin:6px 0 0; }
+  .pk-pannello .pickup-disegno text { font-size:15px; }
+  .pk-pannello.senza:not(.modifica) .pickup-disegno { display:none; }
+  .pk-pannello .nota { margin:4px 0 0; font-size:0.78rem; }
+  .pk-campi { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:6px 0; font-size:0.8rem; }
+  #pk-editor > .nota:first-child { margin-top:0; }
+  .pk-campi select { margin-left:6px; }
+  .pk-spunta { display:flex; align-items:center; gap:6px; }
+  #pk-testo { width:100%; box-sizing:border-box; }
+  .pk-azioni { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+  .pickup-disegno text.acceso { fill:var(--text); font-weight:600; }
   .bk-testa h3 { font-family:var(--strumento); font-size:0.95rem; margin:0; }
   .bk-testa p { margin:1px 0 0; font-size:0.78rem; }
   button.bk-grande { display:flex; flex-direction:column; align-items:flex-start; gap:2px; width:100%; text-align:left;
@@ -1104,6 +1140,7 @@
   <button id="impostazioni" type="button" disabled><svg viewBox="0 0 20 20" aria-hidden="true"><path
     d="M3 5.5h8M15 5.5h2M3 10h2M9 10h8M3 14.5h6M13 14.5h4"/><circle cx="13" cy="5.5" r="2"/><circle cx="7" cy="10" r="2"/><circle
     cx="11" cy="14.5" r="2"/></svg>Impostazioni</button>
+  <button id="vedi-pickup" type="button" data-icona="chitarra"><span id="vedi-pickup-testo">Nascondi pickup consigliati</span></button>
   <button id="guida" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path
     d="M3.5 4.5c2.5-1 4.5-1 6.5.5 2-1.5 4-1.5 6.5-.5v11c-2.5-1-4.5-1-6.5.5-2-1.5-4-1.5-6.5-.5zM10 5v11"/></svg>Guida</button>
   <button id="installa" type="button" data-icona="scarica" hidden>Installa sul PC</button>
@@ -1112,7 +1149,7 @@
     d="M10 9v5M10 6.2h.01"/></svg>Crediti e responsabilità</button>
   <button id="caffe" type="button" class="voce-caffe"><svg viewBox="0 0 20 20" aria-hidden="true"><path
     d="M3 8h11v4a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5zM14 9h1.5a2 2 0 0 1 0 4H14M6 2.5v2.5M9 2.5v2.5"/></svg>Offrimi un caffè</button>
-  <p class="versione-menu" style="opacity:.55;font-size:.75rem;text-align:center;margin:8px 0 2px">MazzRig v8.7.1</p>
+  <p class="versione-menu" style="opacity:.55;font-size:.75rem;text-align:center;margin:8px 0 2px">MazzRig v8.8</p>
 </div>
 <div class="sotto-barra">
   <div class="sb-lato">
@@ -1159,7 +1196,7 @@
         <button id="collega-grande" type="button" class="primario" data-icona="bluetooth"><span id="collega-grande-testo">Collega il Pulze Mini</span></button>
         <p id="benvenuto-nota">Chiudi prima l'app Pulze Editor sul telefono: il Mini accetta un collegamento alla volta.</p>
         <p id="benvenuto-legale">App non ufficiale di terze parti, senza alcun rapporto con Hotone Audio. La usi a tuo rischio: ☰ → Crediti e responsabilità.</p>
-        <p id="versione-app" style="opacity:.6;font-size:.8rem;margin-top:6px">MazzRig v8.7.1</p>
+        <p id="versione-app" style="opacity:.6;font-size:.8rem;margin-top:6px">MazzRig v8.8</p>
       </div>
     </div>
     <div id="palco-corpo" hidden>
@@ -1172,6 +1209,31 @@
         <p id="det-sotto"></p>
         <p id="det-info"></p>
         <ul id="manopole"></ul>
+        <section id="pk-pannello" class="pk-pannello" hidden>
+          <div class="pk-cima">
+            <div><h3>Pickup consigliati</h3><p id="pk-sotto"></p></div>
+            <button id="pk-modifica" type="button" class="icona" data-icona="matita" title="Cambia i pickup consigliati" aria-label="Cambia i pickup consigliati"></button>
+          </div>
+          <div id="pk-disegno" class="pickup-disegno"></div>
+          <p id="pk-nota" class="nota" hidden></p>
+          <div id="pk-editor" hidden>
+            <p class="nota">Clicca un pickup per accenderlo o spegnerlo.</p>
+            <div class="pk-campi">
+              <label>Chitarra <select id="pk-layout">
+                <option value="SSS">SSS (Strat)</option><option value="HSS">HSS</option><option value="HSH">HSH</option>
+                <option value="HH">HH (Les Paul)</option><option value="SS">SS (Tele)</option><option value="PP">PP (P-90)</option>
+                <option value="HS">HS</option><option value="H">H</option><option value="S">S</option><option value="P">P</option>
+              </select></label>
+              <label class="pk-spunta"><input type="checkbox" id="pk-split"> Split</label>
+            </div>
+            <input id="pk-testo" type="text" maxlength="200" placeholder="Nota (selettore, manopole…)" autocomplete="off">
+            <div class="pk-azioni">
+              <button id="pk-togli" type="button">Togli</button>
+              <button id="pk-annulla" type="button">Annulla</button>
+              <button id="pk-fatto" type="button" class="primario">Fatto</button>
+            </div>
+          </div>
+        </section>
       </div>
       <div class="modelli">
         <input id="cerca-modello" type="search" placeholder="Cerca modello…" autocomplete="off">
@@ -1314,6 +1376,13 @@
     <div class="bk-testa" data-icona="onda">
       <div><h3>NAM consigliato</h3><p id="importa-nam-testo"></p></div>
     </div>
+  </section>
+  <section class="bk-carta" id="importa-pickup" hidden>
+    <div class="bk-testa" data-icona="chitarra">
+      <div><h3>Configurazione pickup ideale</h3><p id="importa-pickup-nome"></p></div>
+    </div>
+    <div id="importa-pickup-disegno" class="pickup-disegno"></div>
+    <p class="nota" id="importa-pickup-testo"></p>
   </section>
   <div class="azioni">
     <button id="importa-annulla" type="button">Annulla</button>

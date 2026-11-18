@@ -13,6 +13,19 @@
   document.documentElement.lang = lingua;
 
   const ESATTI = [
+    // ---- Sigla dell'artista e pickup consigliati
+    ['Pickup consigliati', 'Suggested pickups'], ['Cambia i pickup consigliati', 'Change the suggested pickups'],
+    ['Clicca un pickup per accenderlo o spegnerlo.', 'Click a pickup to turn it on or off.'], ['Chitarra', 'Guitar'],
+    ['Nota (selettore, manopole…)', 'Note (selector, knobs…)'], ['Nessuna indicazione per questo tone.', 'No suggestion for this tone.'],
+    ['Nascondi pickup consigliati', 'Hide suggested pickups'], ['Mostra pickup consigliati', 'Show suggested pickups'],
+    ['Pickup sempre in vista', 'Pickups always in view'],
+    ['Sotto le manopole un riquadro mostra i pickup consigliati del tone che suona: quelli dell’AI, che puoi cambiare con la matita. Si nasconde dal menu ☰.',
+      'Under the knobs a box shows the suggested pickups for the current tone: the AI’s ones, which you can change with the pencil. Hide it from the ☰ menu.'],
+    ['Sigla dell’artista nel nome', 'Artist initials in the name'], ['Configurazione pickup ideale', 'Ideal pickup setting'],
+    ['I preset creati con l’AI su un artista iniziano con le sue iniziali: «BM - Bohemian Ld» per Brian May, «CS -» per Santana, «VH -» per Van Halen.',
+      'AI presets about an artist start with their initials: “BM - Bohemian Ld” for Brian May, “CS -” for Santana, “VH -” for Van Halen.'],
+    ['Crea preset con AI disegna i pickup da usare (single coil, humbucker, P-90) con accesi quelli giusti, più un consiglio su selettore e manopole.',
+      'Create AI preset draws the pickups to use (single coil, humbucker, P-90) with the right ones lit, plus a tip on selector and knobs.'],
     // ---- Tuner col microfono
     ['Tuner col microfono', 'Microphone tuner'], ['Il Tuner nella guida', 'The Tuner in the guide'],
     ['La guida spiega il Tuner, e la sua finestra ha il tasto «?».', 'The guide explains the Tuner, and its window has the «?» button.'],
@@ -67,7 +80,7 @@
     ['Non riesco a scaricare il ricampionatore: serve internet la prima volta.', 'Can’t download the resampler: the first time needs internet.'],
     ['Non è un APK dell’app Hotone né il suo nam_input_file.wav.', 'Not a Hotone app APK nor its nam_input_file.wav.'],
     // ---- v8.5: Carica NAM
-    ['Carica NAM', 'Load NAM'], ['Carica ', 'Load '], ['NAM…', 'NAM…'], ['Carica un file NAM sul Mini come Sound Clone', 'Load a NAM file to the Mini as a Sound Clone'],
+    ['Carica NAM', 'Load NAM'], ['Carica ', 'Load '], ['Carica', 'Load'], ['NAM…', 'NAM…'], ['Carica un file NAM sul Mini come Sound Clone', 'Load a NAM file to the Mini as a Sound Clone'],
     ['Guida: Carica NAM', 'Guide: Load NAM'], ['Il file', 'The file'], ['Dove', 'Where'], ['Posto', 'Slot'], ['Nome', 'Name'],
     ['Un modello NAM (.nam), per esempio da TONE3000. Va convertito come fa l’app Hotone: ci vuole circa un minuto.',
       'A NAM model (.nam), for example from TONE3000. It gets converted the way the Hotone app does: it takes about a minute.'],
