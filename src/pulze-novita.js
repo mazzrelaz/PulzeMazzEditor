@@ -6,6 +6,14 @@
 (function () {
   const NOVITA = [
     {
+      versione: 'v8.7.1',
+      data: '18 novembre 2026',
+      voci: [
+        { icona: '📖', titolo: 'Il Tuner nella guida',
+          testo: 'La guida spiega il Tuner, e la sua finestra ha il tasto «?».' },
+      ],
+    },
+    {
       versione: 'v8.7',
       data: '18 novembre 2026',
       voci: [

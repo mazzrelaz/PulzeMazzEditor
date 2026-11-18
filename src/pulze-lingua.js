@@ -14,7 +14,8 @@
 
   const ESATTI = [
     // ---- Tuner col microfono
-    ['Tuner col microfono', 'Microphone tuner'],
+    ['Tuner col microfono', 'Microphone tuner'], ['Il Tuner nella guida', 'The Tuner in the guide'],
+    ['La guida spiega il Tuner, e la sua finestra ha il tasto «?».', 'The guide explains the Tuner, and its window has the «?» button.'],
     ['Il nuovo tasto Tuner accorda la chitarra col microfono del PC, anche col Mini collegato solo in Bluetooth: nota, cent, Hz, La regolabile e scelta del microfono.',
       'The new Tuner button tunes your guitar with the PC microphone, even with the Mini connected over Bluetooth only: note, cents, Hz, adjustable A4 and microphone choice.'],
     ['Accordatore col microfono del PC', 'Tuner using the PC microphone'], ['Microfono', 'Microphone'],
@@ -149,7 +150,7 @@
     ['— Massimo, chitarrista. Con metà del tempo passato sugli effetti, oggi suonerebbe meglio di Hendrix.',
       '— Massimo, guitarist. With half the time spent on effects, he would play better than Hendrix by now.'],
     ['Cominciamo', 'Let\'s start'], ['Ti sta tornando utile?', 'Is it coming in handy?'], ['Magari più avanti', 'Maybe later'],
-    ['Guida: Live', 'Guide: Live'], ['Guida: pedaliera', 'Guide: pedalboard'], ['Guida: Jam', 'Guide: Jam'], ['Guida: Salvare', 'Guide: Saving'],
+    ['Guida: Live', 'Guide: Live'], ['Guida: pedaliera', 'Guide: pedalboard'], ['Guida: Jam', 'Guide: Jam'], ['Guida: Tuner', 'Guide: Tuner'], ['Guida: Salvare', 'Guide: Saving'],
     ['Nessuna azione', 'No action'], ['Tone successivo', 'Next tone'], ['Tone precedente', 'Previous tone'],
     ['Passa da Preset a Stomp e ritorno', 'Switch between Preset and Stomp'], ['Premuto, in Preset', 'Pressed, in Preset'],
     ['Premuto, in Stomp', 'Pressed, in Stomp'],
