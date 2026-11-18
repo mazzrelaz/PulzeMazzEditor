@@ -1015,6 +1015,41 @@
     .lv-griglia.stomp { grid-template-columns:repeat(2, minmax(0, 1fr)); }
     .lv-titolo { display:none; }
   }
+  /* --- l'accordatore col microfono (18/11/2026): la grafica di SparklingTones (16-accordatore.js) */
+  #dialogo-tuner { width:min(560px, calc(100vw - 32px)); background:#0b0d14; }
+  #dialogo-tuner[open] { display:flex; flex-direction:column; gap:10px; }
+  .accordatore { display:flex; flex-direction:column; align-items:center; padding:8px 0 4px; }
+  .piastra-accordatore { position:relative; width:min(88vw, 420px); display:flex; flex-direction:column; align-items:center; }
+  .piastra-accordatore::after { content:''; position:absolute; left:18%; right:18%; top:48%; bottom:-6%; border-radius:50%;
+       pointer-events:none; filter:blur(14px);
+       background:radial-gradient(ellipse at center, rgba(255,43,214,.16), rgba(123,92,255,.08) 45%, rgba(43,228,255,0) 75%);
+       animation:tunerLuce 2.4s ease-in-out infinite; }
+  @keyframes tunerLuce { 0%,100% { opacity:.6; } 50% { opacity:1; } }
+  .piastra-accordatore .quadrante { position:relative; width:100%; height:auto; overflow:visible; }
+  .quadrante .tacca { stroke-width:7; stroke-linecap:round; opacity:.09; transition:opacity .08s linear; }
+  .quadrante .tacca.accesa { opacity:1; stroke-width:8; filter:drop-shadow(0 0 3px currentColor) drop-shadow(0 0 7px currentColor); }
+  .quadrante .segno { fill:#5a5f68; font-size:20px; text-anchor:middle; }
+  .piastra-accordatore .nota-grande { position:relative; z-index:1; font-family:var(--strumento);
+       font-size:min(30vw, 140px); font-weight:700; line-height:1; margin-top:-8px; min-height:1em; color:#cfd2ff;
+       text-shadow:0 0 6px rgba(160,140,255,.5), 0 0 22px rgba(123,92,255,.45); transition:color .15s, text-shadow .15s, opacity .15s; }
+  .nota-grande .diesis { font-size:0.45em; vertical-align:0.9em; margin-left:2px; }
+  .arco-accordatore { position:relative; width:100%; }
+  .cent-accordatore { position:absolute; z-index:1; left:50%; bottom:30%; transform:translate(-50%, 50%); white-space:nowrap;
+       font-family:var(--strumento); font-size:1.5rem; font-weight:700; font-variant-numeric:tabular-nums; color:#cfd2ff;
+       text-shadow:0 0 8px rgba(123,92,255,.6); transition:color .1s; }
+  .cent-accordatore small { font-size:0.55em; font-weight:500; margin-left:4px; opacity:.7; }
+  .cent-accordatore.calante { color:#2be4ff; text-shadow:0 0 8px rgba(43,228,255,.6); }
+  .cent-accordatore.crescente { color:#ff2bd6; text-shadow:0 0 8px rgba(255,43,214,.6); }
+  #dialogo-tuner.intonata .cent-accordatore { color:#fff; text-shadow:0 0 8px #fff; }
+  #dialogo-tuner.intonata .nota-grande { color:#fff; text-shadow:0 0 8px #fff, 0 0 24px rgba(255,43,214,.8), 0 0 48px rgba(123,92,255,.6); }
+  #dialogo-tuner.tace .nota-grande { opacity:.35; }
+  #hz-tuner { font-family:var(--strumento); font-size:0.85rem; color:var(--dim); min-height:1.2em; font-variant-numeric:tabular-nums; }
+  .tuner-comandi { display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; justify-content:center; }
+  .tuner-comandi .gruppo { display:flex; align-items:center; gap:6px; }
+  #tuner-mic { max-width:260px; }
+  #tuner-la-v { font-family:var(--strumento); font-weight:700; min-width:4.2em; text-align:center; font-variant-numeric:tabular-nums; }
+  #tuner-stato { text-align:center; min-height:1.2em; }
+  @media (prefers-reduced-motion: reduce) { .piastra-accordatore::after { animation:none; } }
 </style>
 </head>
 <body>
@@ -1045,6 +1080,7 @@
     <span id="drum-volume-v">—</span>
   </div>
   <span class="spazio"></span>
+  <button id="apri-tuner" type="button" data-icona="diapason" title="Accordatore col microfono del PC">Tuner</button>
   <button id="apri-live" type="button" title="La vista Live, con la pedaliera">Live</button>
   <button id="collega" class="primario" title="Collega / Scollega il Pulze Mini"><span class="lampada"></span><span id="collega-testo">Collega</span></button>
   <button id="menu" class="icona" type="button" popovertarget="menu-tendina" aria-label="Menu" title="Menu"><svg
@@ -1076,7 +1112,7 @@
     d="M10 9v5M10 6.2h.01"/></svg>Crediti e responsabilità</button>
   <button id="caffe" type="button" class="voce-caffe"><svg viewBox="0 0 20 20" aria-hidden="true"><path
     d="M3 8h11v4a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5zM14 9h1.5a2 2 0 0 1 0 4H14M6 2.5v2.5M9 2.5v2.5"/></svg>Offrimi un caffè</button>
-  <p class="versione-menu" style="opacity:.55;font-size:.75rem;text-align:center;margin:8px 0 2px">MazzRig v8.6</p>
+  <p class="versione-menu" style="opacity:.55;font-size:.75rem;text-align:center;margin:8px 0 2px">MazzRig v8.7</p>
 </div>
 <div class="sotto-barra">
   <div class="sb-lato">
@@ -1123,7 +1159,7 @@
         <button id="collega-grande" type="button" class="primario" data-icona="bluetooth"><span id="collega-grande-testo">Collega il Pulze Mini</span></button>
         <p id="benvenuto-nota">Chiudi prima l'app Pulze Editor sul telefono: il Mini accetta un collegamento alla volta.</p>
         <p id="benvenuto-legale">App non ufficiale di terze parti, senza alcun rapporto con Hotone Audio. La usi a tuo rischio: ☰ → Crediti e responsabilità.</p>
-        <p id="versione-app" style="opacity:.6;font-size:.8rem;margin-top:6px">MazzRig v8.6</p>
+        <p id="versione-app" style="opacity:.6;font-size:.8rem;margin-top:6px">MazzRig v8.7</p>
       </div>
     </div>
     <div id="palco-corpo" hidden>
@@ -1319,6 +1355,34 @@
     <button id="salva-annulla" type="button">Annulla</button>
     <button id="salva-conferma" type="button" class="primario">Sovrascrivi</button>
   </div>
+</dialog>
+<dialog id="dialogo-tuner">
+  <div class="sch-cima">
+    <h2>Tuner</h2>
+    <span class="spazio"></span>
+    <button id="tuner-chiudi" type="button" class="icona" aria-label="Chiudi" title="Chiudi" data-icona="chiudi"></button>
+  </div>
+  <div class="accordatore">
+    <div class="piastra-accordatore">
+      <div class="arco-accordatore">
+        <svg class="quadrante" id="quadrante-tuner" viewBox="0 0 300 168" aria-hidden="true">
+          <text x="24" y="122" class="segno">♭</text>
+          <text x="276" y="122" class="segno">♯</text>
+        </svg>
+        <div class="cent-accordatore" id="cent-tuner" data-notrad></div>
+      </div>
+      <div class="nota-grande" id="nota-tuner" data-notrad></div>
+    </div>
+    <div id="hz-tuner" data-notrad></div>
+  </div>
+  <div class="tuner-comandi">
+    <div class="gruppo"><label for="tuner-mic">Microfono</label><select id="tuner-mic" class="scelta"></select></div>
+    <div class="gruppo"><span class="etichetta">La</span>
+      <button id="tuner-la-meno" type="button" class="icona" aria-label="La più basso" title="La più basso">−</button>
+      <span id="tuner-la-v" data-notrad>440 Hz</span>
+      <button id="tuner-la-piu" type="button" class="icona" aria-label="La più alto" title="La più alto">+</button></div>
+  </div>
+  <div id="tuner-stato" class="errore"></div>
 </dialog>
 <dialog id="dialogo-impostazioni" class="schermo">
   <div class="sch-cima">
@@ -1571,6 +1635,7 @@
 <script src="src/pulze-dropbox.js"></script>
 <script src="src/app.js"></script>
 <script src="src/pulze-live.js"></script>
+<script src="src/pulze-tuner.js"></script>
 <script src="src/pulze-novita.js"></script>
 <script src="src/pulze-benvenuto.js"></script>
 <script src="src/pulze-avvertenza.js"></script>

@@ -13,6 +13,14 @@
   document.documentElement.lang = lingua;
 
   const ESATTI = [
+    // ---- Tuner col microfono
+    ['Tuner col microfono', 'Microphone tuner'],
+    ['Il nuovo tasto Tuner accorda la chitarra col microfono del PC, anche col Mini collegato solo in Bluetooth: nota, cent, Hz, La regolabile e scelta del microfono.',
+      'The new Tuner button tunes your guitar with the PC microphone, even with the Mini connected over Bluetooth only: note, cents, Hz, adjustable A4 and microphone choice.'],
+    ['Accordatore col microfono del PC', 'Tuner using the PC microphone'], ['Microfono', 'Microphone'],
+    ['La', 'A4'], ['La più basso', 'Lower A4'], ['La più alto', 'Higher A4'],
+    ['Il browser non lascia usare il microfono: permettilo dall’icona accanto all’indirizzo.',
+      'The browser won’t let the microphone be used: allow it from the icon next to the address.'],
     // ---- v8.5: Novità
     ['Carica NAM & IR', 'Load NAM & IR'],
     ['Un nuovo tasto carica sul Mini i modelli NAM (.nam) come Sound Clone e le risposte all’impulso dei cabinet (.wav) come User IR, senza l’app Hotone.',

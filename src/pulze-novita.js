@@ -6,6 +6,14 @@
 (function () {
   const NOVITA = [
     {
+      versione: 'v8.7',
+      data: '18 novembre 2026',
+      voci: [
+        { icona: '🎸', titolo: 'Tuner col microfono',
+          testo: 'Il nuovo tasto Tuner accorda la chitarra col microfono del PC, anche col Mini collegato solo in Bluetooth: nota, cent, Hz, La regolabile e scelta del microfono.' },
+      ],
+    },
+    {
       versione: 'v8.6',
       data: '18 novembre 2026',
       voci: [

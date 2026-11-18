@@ -27,6 +27,7 @@ account.
   NAM cercare. Niente chiavi API, niente costi.
 - **Carica NAM & IR**: modelli NAM (.nam) come Sound Clone e IR di cabinet (.wav) come User IR, dal PC, senza l’app
   Hotone; col segnale di prova preso dall’APK dell’app il Sound Clone viene identico.
+- **Tuner** col microfono del PC: nota, cent e La regolabile, anche col Mini solo in Bluetooth.
 - **Jam** (la batteria del Mini), **Impostazioni** generali e **Global EQ** con la curva da trascinare.
 - **Backup** completo sul PC o sul tuo **Dropbox**, ripristino dei tone confrontandoli col Mini, e copie di sicurezza
   automatiche prima di ogni lavoro che sovrascrive qualcosa.
