@@ -90,7 +90,7 @@
       // chi ha mandato dati aspetta la 14 col suo num; chi ha chiesto, i dati che rispondono
       const giusto = a.conferma != null ? (m.comando === 0x14 && m.num === a.conferma)
         : (m.comando === 0x12 && a.vale(m));
-      if (giusto) { this.attese.splice(this.attese.indexOf(a), 1); clearTimeout(a.timer); a.risolvi(m); }
+      if (giusto) { this._togli(a); clearTimeout(a.timer); a.risolvi(m); }
     }
     this.alMessaggio(m);
   };
@@ -128,7 +128,7 @@
       const attesa = new Promise((risolvi, rifiuta) => {
         const a = { vale, risolvi, rifiuta };
         a.timer = setTimeout(() => {
-          this.attese.splice(this.attese.indexOf(a), 1);
+          this._togli(a);
           rifiuta(new Error('nessuna risposta'));
         }, ATTESA_MS);
         this.attese.push(a);
@@ -152,7 +152,7 @@
     const attesa = new Promise((risolvi, rifiuta) => {
       const a = { conferma: num, risolvi, rifiuta };
       a.timer = setTimeout(() => {
-        this.attese.splice(this.attese.indexOf(a), 1);
+        this._togli(a);
         rifiuta(new Error('il Mini non ha confermato'));
       }, opz.attesa || ATTESA_MS);
       this.attese.push(a);
@@ -165,23 +165,33 @@
     this._accoda(pk.map((p, i) => ({ p, pausa: opz.pausa, dopo: () => {
       if (opz.avanza) opz.avanza(i + 1, pk.length);
       if (i === pk.length - 1) a.timer = setTimeout(() => {
-        const j = this.attese.indexOf(a); if (j >= 0) this.attese.splice(j, 1);
+        this._togli(a);
         a.rifiuta(new Error('il Mini non ha confermato'));
       }, opz.attesa || ATTESA_MS);
     } })));
     return attesa;
   };
 
-  /** Aspetta un messaggio del Mini senza chiedere niente (per esempio dopo un CC). */
+  /** Toglie un'attesa dall'elenco, se c'è ancora (un timer scaduto dopo una risposta non tocca le altre). */
+  PulzeBle.prototype._togli = function (a) {
+    const j = this.attese.indexOf(a);
+    if (j >= 0) this.attese.splice(j, 1);
+  };
+
+  /** Aspetta un messaggio del Mini senza chiedere niente (per esempio dopo un CC). La promessa ha
+   *  annulla(): toglie l'attesa senza rifiutare, per chi non ne ha più bisogno. */
   PulzeBle.prototype.aspetta = function (vale, ms) {
-    return new Promise((risolvi, rifiuta) => {
-      const a = { vale, risolvi, rifiuta };
+    let a;
+    const p = new Promise((risolvi, rifiuta) => {
+      a = { vale, risolvi, rifiuta };
       a.timer = setTimeout(() => {
-        this.attese.splice(this.attese.indexOf(a), 1);
+        this._togli(a);
         rifiuta(new Error('nessuna risposta'));
       }, ms || ATTESA_MS);
       this.attese.push(a);
     });
+    p.annulla = () => { clearTimeout(a.timer); this._togli(a); };
+    return p;
   };
 
   PulzeBle.prototype.mandaCC = function (numero, valore) {
@@ -196,7 +206,8 @@
   /** Salva il tone che suona al posto «numero» col nome dato; aspetta la risposta 09/02 del Mini. */
   PulzeBle.prototype.salva = async function (numero, nome, ordine, dest) {
     const risposta = this.aspetta(m => m.comando === 0x12 && m.tipo === P.TIPO.SALVATO && m.gruppo === 2, 6000);
-    await this.manda((num, max) => P.salva(num, numero, nome, ordine, max, dest));
+    try { await this.manda((num, max) => P.salva(num, numero, nome, ordine, max, dest)); }
+    catch (e) { risposta.annulla(); throw e; }
     return risposta;
   };
 

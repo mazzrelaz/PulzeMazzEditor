@@ -268,9 +268,9 @@
    *  tipo 1, gruppo 5 (Sound Clone) o 4 (IR), corpo da 24 byte: posto (0-9 / 0-19), 0, 1, 0, 0×4, nome
    *  (16 byte, al massimo 15 caratteri e lo 0). Il Mini risponde solo con la conferma 14; l'app non
    *  rilegge la lista. Il byte 2 vale 1 in tutte e quattro le rinomine viste: si rifà uguale. */
-  function corpoRinomina(posto, nome) {
+  function corpoRinomina(posto, nome, azione = 1) {
     const c = new Array(24).fill(0);
-    c[0] = posto & 0xff; c[2] = 1;
+    c[0] = posto & 0xff; c[2] = azione;
     const n = String(nome).slice(0, 15);
     for (let i = 0; i < n.length; i++) c[8 + i] = n.charCodeAt(i) & 0x7f;
     return c;
@@ -379,6 +379,11 @@
     scriviGenerale: (num, tipo, corpo, max) => dati(num, tipo, 1, tipo === 7 ? corpo.slice(0, 77) : corpo, max),
     scriviEq: (num, acceso, indice, valore, max) => dati(num, 5, 1, corpoEq(acceso, indice, valore), max),
     rinomina: (num, gruppo, posto, nome, max) => dati(num, 1, gruppo, corpoRinomina(posto, nome), max),
+    /** Elimina un Sound Clone o un IR utente (cattura del 18 novembre, captures/2026-11-18-elimina): lo stesso
+     *  messaggio della rinomina col byte 2 = 2; l'app manda il nome di fabbrica «Sound Clone N» per i
+     *  Sound Clone e il nome vuoto per gli IR. Il Mini risponde solo con la conferma 14. */
+    elimina: (num, gruppo, posto, max) => dati(num, 1, gruppo,
+      corpoRinomina(posto, gruppo === 5 ? 'Sound Clone ' + (posto + 1) : '', 2), max),
     LISTA_UTENTE: { CLONE: 5, IR: 4 },                // il gruppo; il tipo è 2
     // Backup (cattura del 6 novembre, «Export All Tones»): l'app chiede 0/0 con 12 byte, il numero del tone
     // al byte 8, e il Mini risponde col tone intero (532 byte, vedi PulzePrst.daMini); ai posti vuoti tace.

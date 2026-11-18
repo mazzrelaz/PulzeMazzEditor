@@ -2123,6 +2123,28 @@
     const uid = (k === 'nam' ? UID_CLONE : UID_IR)(Number($('#' + k + '-posto').value));
     const v = stato.nomiUtente.get(uid);
     $('#' + k + '-rinomina').disabled = !v || v.vuoto || Boolean(nam.lavoro || ir.lavoro);
+    $('#' + k + '-elimina').disabled = $('#' + k + '-rinomina').disabled;
+  }
+
+  /** «Elimina…»: svuota il posto scelto come l'app (1/5 o 1/4 col byte 2 = 2), poi rilegge le liste. */
+  async function eliminaPosto(k) {
+    if (!ble || !ble.collegato()) return;
+    const posto = Number($('#' + k + '-posto').value);
+    const uid = (k === 'nam' ? UID_CLONE : UID_IR)(posto);
+    const gruppo = k === 'nam' ? P.LISTA_UTENTE.CLONE : P.LISTA_UTENTE.IR;
+    const nome = nomeModello(uid) || '';
+    if (!window.confirm('Eliminare «' + nome + '» dal Mini? Non si può annullare.')) return;
+    try {
+      scriviStato('Elimino «' + nome + '»…');
+      await ble.manda((num, max) => P.elimina(num, gruppo, posto, max));
+      await leggiNomiUtente();
+      const v = stato.nomiUtente.get(uid);
+      if (v && v.vuoto) scriviStato('Eliminato: «' + nome + '». Il Mini conferma.', 'ok');
+      else { scriviStato('Attenzione: il Mini tiene ancora «' + nome + '».', 'errore'); salvaRegistro('elimina ' + uid.toString(16)); }
+    } catch (e) {
+      scriviStato('Eliminazione non riuscita: ' + e.message, 'errore');
+    }
+    riempiPosti(k, false);
   }
 
   async function rinominaPosto(k) {
@@ -2488,7 +2510,7 @@
     try {
       scriviStato(testo + '…');
       const risposta = attendi9 ? ble.aspetta(m => m.comando === 0x12 && m.tipo === P.TIPO.SALVATO && m.gruppo === 2, 6000) : null;
-      await ble.manda(crea);
+      try { await ble.manda(crea); } catch (e) { if (risposta) risposta.annulla(); throw e; }
       if (risposta) await risposta;
       await caricaElenco();
       disegnaSonglist();
@@ -2575,7 +2597,7 @@
   async function suonaEAspetta(n) {
     if (stato.testa && stato.testa.numero === n) return;
     const r = ble.aspetta(m => m.comando === 0x12 && m.tipo === P.TIPO.TONE && m.gruppo === 2 && m.corpo[64] === n, 5000);
-    await ble.manda((num, max) => P.salta(num, P.LISTA_INTERA, n, max));
+    try { await ble.manda((num, max) => P.salta(num, P.LISTA_INTERA, n, max)); } catch (e) { r.annulla(); throw e; }
     await r;
     await new Promise(res => setTimeout(res, 250));
   }
@@ -2682,7 +2704,7 @@
           dire('4 di 4: libero il posto di appoggio');
           await suonaEAspetta(a);                   // il posto di appoggio non deve suonare per cancellarlo
           const risposta = ble.aspetta(m => m.comando === 0x12 && m.tipo === P.TIPO.SALVATO && m.gruppo === 2, 6000);
-          await ble.manda((num, max) => P.cancellaTone(num, [tmp], max));
+          try { await ble.manda((num, max) => P.cancellaTone(num, [tmp], max)); } catch (e) { risposta.annulla(); throw e; }
           await risposta;
         } catch (e) {
           // dopo la prima copia il posto di partenza può essere già sovrascritto (salvato ma non confermato):
@@ -3815,6 +3837,8 @@
   function caricaGuida() {
     if (!guidaPronta) {
       guidaPronta = (async () => {
+        const attesa = $('#guida-testo .attesa');      // la pagina dice «Carico la guida…» in italiano
+        if (attesa && LINGUA === 'en') attesa.textContent = 'Loading the guide…';
         const r = await fetch(LINGUA === 'en' ? 'guida.en.html' : 'guida.html', { cache: 'no-cache' });
         if (!r.ok) throw new Error('risposta ' + r.status);
         const art = $('#guida-testo');
@@ -3838,7 +3862,7 @@
     const d = $('#dialogo-guida');
     if (!d.open) d.showModal();
     try { await caricaGuida(); } catch (e) {
-      $('#guida-testo').textContent = 'Non riesco a caricare la guida (' + e.message + ').';
+      $('#guida-testo').textContent = (LINGUA === 'en' ? 'Cannot load the guide (' : 'Non riesco a caricare la guida (') + e.message + ').';
       return;
     }
     vaiInGuida(sezione || 'g-inizio', 'instant');
@@ -4650,6 +4674,7 @@
     for (const k of ['nam', 'ir']) {
       $('#' + k + '-posto').addEventListener('change', () => aggiornaRinomina(k));
       $('#' + k + '-rinomina').addEventListener('click', () => rinominaPosto(k));
+      $('#' + k + '-elimina').addEventListener('click', () => eliminaPosto(k));
     }
     $('#ir-annulla').addEventListener('click', () => $('#dialogo-nam').close());
     $('#crea-conferma').addEventListener('click', creaPreset);

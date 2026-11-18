@@ -1,20 +1,20 @@
 ﻿/**
  * sw.js - Il service worker: rende l'editor installabile come app e lo fa partire anche senza internet.
- * Come quello dello Spark: si risponde dalla cache quando c'Ã¨, e la rete la rinfresca in sottofondo per la
- * volta dopo (stale-while-revalidate). Gira solo sul sito pubblicato (https), non da localhost: lÃ¬ si lavora
+ * Come quello dello Spark: si risponde dalla cache quando c'è, e la rete la rinfresca in sottofondo per la
+ * volta dopo (stale-while-revalidate). Gira solo sul sito pubblicato (https), non da localhost: lì si lavora
  * sul codice e una cache in mezzo darebbe file vecchi (lo decide src/pulze-pwa.js).
  *
  * VERSIONE va alzata a ogni pubblicazione: fa ripartire l'installazione, butta le cache vecchie e fa
- * comparire nella pagina Â«C'Ã¨ una versione nuovaÂ». Anche dimenticandosene, la rete rinfresca i file
- * comunque: solo un caricamento piÃ¹ tardi.
+ * comparire nella pagina «C'è una versione nuova». Anche dimenticandosene, la rete rinfresca i file
+ * comunque: solo un caricamento più tardi.
  */
 'use strict';
 
-const VERSIONE = 'v8.5';
+const VERSIONE = 'v8.6';
 const CACHE = 'pulzemazz-' + VERSIONE;
 
 // l'elenco delle immagini dei modelli (window.PulzeImmagini): va caricato qui in cima, Chrome non lo
-// permette piÃ¹ tardi
+// permette più tardi
 self.window = self;
 try { importScripts('./src/pulze-immagini.js'); } catch (e) { /* senza: le immagini si prendono quando servono */ }
 
@@ -45,10 +45,20 @@ const GUSCIO = [
   './fonts/inter-latin.woff2',
   './fonts/space-grotesk-latin.woff2',
   './img/logo.png',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/favicon-32.png',
+  './img/logo-vettoriale.svg',
+  './img/logo-orizzontale.svg',
+  // le icone con lo stesso ?v= di index.html e del manifest: la chiave della cache tiene anche quello
+  './icons/icon-192.png?v=8',
+  './icons/icon-512.png?v=8',
+  './icons/icon-maskable-512.png?v=8',
+  './icons/apple-touch-icon.png?v=8',
+  './icons/favicon-32.png?v=8',
+  './icons/icona.svg?v=8',
 ];
+
+/** File grossi che non servono per partire: si prendono in sottofondo come le immagini dei modelli, così
+ *  «Carica NAM & IR» va anche senza internet (il segnale di prova pesa 10 MB). */
+const IN_SOTTOFONDO = ['./nam/segnale-prova-48k.s24', './nam/r8b-44-48.bin'];
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
@@ -68,10 +78,10 @@ self.addEventListener('activate', event => {
 
 /** Le immagini dei modelli (174, ~9 MB), per averle anche senza internet: una per una, in sottofondo,
  *  quando la pagina lo chiede (a ogni apertura riprende da dove era rimasta). Non qui nell'activate:
- *  finchÃ© l'activate non finisce, la pagina aspetterebbe. */
+ *  finché l'activate non finisce, la pagina aspetterebbe. */
 async function precaricaImmagini() {
   const cache = await caches.open(CACHE);
-  for (const src of new Set(Object.values(self.PulzeImmagini || {}))) {
+  for (const src of new Set([...IN_SOTTOFONDO, ...Object.values(self.PulzeImmagini || {})])) {
     const url = new URL(src, self.registration.scope).href;
     if (await cache.match(url)) continue;
     try { const r = await fetch(url); if (r.ok) await cache.put(url, r); } catch (e) { return; /* offline: la prossima volta */ }
@@ -82,13 +92,13 @@ self.addEventListener('fetch', event => {
   const richiesta = event.request;
   if (richiesta.method !== 'GET') return;
   const url = new URL(richiesta.url);
-  // OpenAI, Anthropic, Dropbox e il caffÃ¨ passano dritti: qui solo i file dell'editor
+  // OpenAI, Anthropic, Dropbox e il caffè passano dritti: qui solo i file dell'editor
   if (url.origin !== self.location.origin) return;
   event.respondWith(rispondi(event));
 });
 
 /** La copia in cache subito, la rete la aggiorna per la volta dopo; senza copia si aspetta la rete; senza
- *  rete nÃ© copia, la pagina principale (cosÃ¬ l'app aperta offline non finisce sul dinosauro). */
+ *  rete né copia, la pagina principale (così l'app aperta offline non finisce sul dinosauro). */
 async function rispondi(event) {
   const richiesta = event.request;
   const cache = await caches.open(CACHE);
@@ -108,7 +118,7 @@ async function rispondi(event) {
     const casa = await cache.match(new URL('./index.html', self.registration.scope).href);
     if (casa) return casa;
   }
-  return new Response('Non disponibile senza internet.', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  return new Response('Non disponibile senza internet. / Not available offline.', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 }
 
 // l'aggiornamento parte solo quando chi usa l'editor lo accetta: ricaricare da solo scollegherebbe il Mini

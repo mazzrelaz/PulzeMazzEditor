@@ -6,6 +6,20 @@
 (function () {
   const NOVITA = [
     {
+      versione: 'v8.6',
+      data: '18 novembre 2026',
+      voci: [
+        { icona: '🗑️', titolo: 'Elimina NAM e IR',
+          testo: 'Nella finestra Carica NAM & IR il tasto Elimina… svuota il posto scelto, come l’app Hotone.' },
+        { icona: '🎨', titolo: 'Logo e icona nuovi',
+          testo: 'MazzRig ha un logo nuovo, anche a rilievo nella schermata d’avvio, e una nuova icona dell’app.' },
+        { icona: '✈️', titolo: 'Carica NAM & IR anche offline',
+          testo: 'Il segnale di prova per i Sound Clone si salva in sottofondo: dopo la prima apertura con internet, i NAM si caricano anche senza rete.' },
+        { icona: '🔧', titolo: 'Piccole correzioni',
+          testo: 'Attese del Bluetooth più robuste quando un invio non riesce, e alcuni testi che mancavano in inglese.' },
+      ],
+    },
+    {
       versione: 'v8.5',
       data: '17 novembre 2026',
       voci: [

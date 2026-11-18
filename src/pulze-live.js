@@ -130,7 +130,7 @@
     schermo = el('div', 'schermo live');
     schermo.innerHTML = `
       <div class="sch-cima">
-        <img class="logo" src="img/logo.png" alt="MazzRig">
+        <img class="logo" src="img/logo-orizzontale.svg" alt="MazzRig">
         <h2 class="lv-titolo">Live</h2>
         <span data-f="casa-schede"></span>
         <div class="lv-schede"><button type="button" data-f="v-live">Live</button><button type="button" data-f="v-ped">Pedaliera</button></div>

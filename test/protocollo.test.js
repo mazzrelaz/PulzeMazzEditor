@@ -306,6 +306,14 @@ prova('prima Songlist: Clean, primo tone 0', sl && sl.liste[0].nome === 'Clean' 
     const l = P.leggiNomi(c);
     prova('nomi per posto vero', l.nomi[3] === 'Acoustic Sim 1' && l.nomi[138] === 'Monk VintageHot' && l.nomi[135] === 'EVH Eruption');
     prova('posti fuori dalla lista vuoti', l.nomi[0] === '' && l.nomi[1] === '' && l.nomi[136] === '');
+    prova('nessun ripetuto', l.ripetuti.length === 0);
+    // l'ordine della diagnosi del 13 novembre: 138 tre volte, 135 due; dopo il ff non si conta più
+    const r = new Array(4400).fill(0);
+    for (let i = 0; i < 200; i++) r[i] = 0xff;
+    [3, 4, 138, 138, 138, 133, 135, 135, 0xff, 3, 3].forEach((p, k) => { r[k] = p; });
+    const lr = P.leggiNomi(r).ripetuti;
+    prova('ripetuti contati', lr.length === 2 && lr.some(x => x.posto === 138 && x.volte === 3) &&
+      lr.some(x => x.posto === 135 && x.volte === 2), JSON.stringify(lr));
   }
 }
 

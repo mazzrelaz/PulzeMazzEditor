@@ -12,7 +12,7 @@
 
   const MESTIERE = 'Dietro però ci sono centinaia di ore di lavoro: notti passate a decifrare il protocollo del Pulze Mini, a provare e riprovare sul Mini vero.';
   const FIRMA = '<p class="benvenuto-firma">— Massimo, chitarrista. Con metà del tempo passato sugli effetti, oggi suonerebbe meglio di Hendrix.</p>';
-  const LOGO = '<span class="benvenuto-logo"><img src="img/logo.png" alt="MazzRig"></span>';
+  const LOGO = '<span class="benvenuto-logo"><img src="img/logo-orizzontale.svg" alt="MazzRig"></span>';
 
   function mostra(quale) {
     const velo = document.createElement('div');

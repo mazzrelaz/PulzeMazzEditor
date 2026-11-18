@@ -17,7 +17,10 @@ http.createServer((req, res) => {
     let testo = '';
     req.on('data', d => { testo += d; if (testo.length > 2e6) req.destroy(); });
     req.on('end', () => {
-      fs.appendFile(path.join(radice, 'registro-pagina.txt'), testo, () => { res.writeHead(204); res.end(); });
+      // oltre i 2 MB il registro passa in registro-pagina.vecchio.txt (che si sovrascrive) e si ricomincia
+      const file = path.join(radice, 'registro-pagina.txt');
+      try { if (fs.statSync(file).size > 2e6) fs.renameSync(file, path.join(radice, 'registro-pagina.vecchio.txt')); } catch (e) { /* non c'è ancora */ }
+      fs.appendFile(file, testo, () => { res.writeHead(204); res.end(); });
     });
     return;
   }
