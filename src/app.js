@@ -1935,15 +1935,18 @@
     };
     // il layout si scrive dal ponte al manico (HSS = humbucker al ponte): il disegno va dal manico
     pk.layout.split('').reverse().forEach((tipo, i) => {
+      if (tipo === '-') return;          // posizione vuota: niente pickup né nome
       const x = xs[i];
       const acceso = pk.attivi.includes(i);
       const g = nodo('g', alClic ? { class: 'pk-cliccabile' } : {}, svg);
-      if (tipo === 'H') {
-        // due bobine; con lo split resta accesa solo quella verso il ponte
-        nodo('rect', { x: x - 20, y: 18, width: 40, height: 102, rx: 5, class: 'pk-spento' }, g);
-        [-9, 9].forEach((dx, b) => {
+      if (tipo === 'H' || tipo === 'M') {
+        // due bobine (il mini humbucker più stretto e più corto); con lo split resta accesa solo quella verso il ponte
+        const [mezzo, bob, y0, alto] = tipo === 'M' ? [16, 7, 26, 86] : [20, 9, 18, 102];
+        nodo('rect', { x: x - mezzo, y: y0, width: mezzo * 2, height: alto, rx: 5, class: 'pk-spento' }, g);
+        [-bob, bob].forEach((dx, b) => {
           const viva = acceso && !(pk.split && b === 0);
-          nodo('rect', { x: x + dx - 8, y: 22, width: 16, height: 94, rx: 8, class: viva ? 'pk-acceso' : 'pk-spento' }, g);
+          nodo('rect', { x: x + dx - (bob - 1), y: y0 + 4, width: (bob - 1) * 2, height: alto - 8, rx: bob - 1,
+            class: viva ? 'pk-acceso' : 'pk-spento' }, g);
           poli(g, x + dx, viva);
         });
       } else {
@@ -1966,12 +1969,11 @@
 
   /** «HSS (humbucker / single coil) · Ponte · split». */
   function descriviPickup(pk) {
-    const tipi = { S: 'single coil', H: 'humbucker', P: 'P-90' };
     const posti = postiPickup(pk.layout.length);
-    const descr = [...new Set(pk.layout.split(''))].map(c => tipi[c]).join(' / ');
+    const descr = [...new Set(pk.layout.replace(/-/g, '').split(''))].map(c => R.TIPI_PICKUP[c]).join(' / ');
     const accesi = pk.attivi.map(i => posti[i]).join(' + ') || '—';
     return pk.layout + ' (' + descr + ') · ' + accesi +
-      (pk.split && pk.layout.includes('H') ? (LINGUA === 'en' ? ' · coil split' : ' · split') : '');
+      (pk.split && R.haHumbucker(pk.layout) ? (LINGUA === 'en' ? ' · coil split' : ' · split') : '');
   }
 
   /** La carta «Configurazione pickup ideale» nella finestra Prova (solo dai preset dell'AI). */
@@ -2035,9 +2037,16 @@
     $('#pk-modifica').hidden = Boolean(pickupModifica);
     $('#pk-editor').hidden = !pickupModifica;
     if (pickupModifica) {
-      $('#pk-layout').value = pk.layout;
+      // fra le scelte anche la chitarra dell'utente e quella del tone, se sono fuori elenco («--H», «MPS»…)
+      const sel = $('#pk-layout');
+      sel.querySelectorAll('option.pk-extra').forEach(o => o.remove());
+      for (const l of new Set([miaChitarra().layout, pk.layout])) {
+        if (!l || [...sel.options].some(o => o.value === l)) continue;
+        const o = el('option', 'pk-extra', l); o.value = l; sel.appendChild(o);
+      }
+      sel.value = pk.layout;
       $('#pk-split').checked = Boolean(pk.split);
-      $('#pk-split').disabled = !pk.layout.includes('H');
+      $('#pk-split').disabled = !R.haHumbucker(pk.layout);
       if (document.activeElement !== $('#pk-testo')) $('#pk-testo').value = pk.consiglio || '';
     }
   }
@@ -2051,15 +2060,8 @@
       disegnaPannelloPickup();
     });
     $('#pk-layout').addEventListener('change', () => {
-      const pk = pickupModifica.pk;
-      const prima = pk.layout.length;
-      pk.layout = $('#pk-layout').value;
       // con un numero diverso di pickup i posti cambiano: si tengono manico e ponte
-      if (pk.layout.length !== prima) {
-        const n = pk.layout.length;
-        pk.attivi = pk.attivi.map(i => (i === prima - 1 ? n - 1 : i === 0 ? 0 : (n === 3 ? 1 : -1)))
-          .filter((i, k, a) => i >= 0 && i < n && a.indexOf(i) === k).sort();
-      }
+      R.adattaLayout(pickupModifica.pk, $('#pk-layout').value);
       disegnaPannelloPickup();
     });
     $('#pk-split').addEventListener('change', () => { pickupModifica.pk.split = $('#pk-split').checked; disegnaPannelloPickup(); });
@@ -2599,22 +2601,138 @@
     for (const k of ['openai.chiave', 'openai.modello', 'claude.chiave', 'claude.modello', 'ai']) {
       try { localStorage.removeItem('pulzemax.' + k); } catch (e) { /* niente */ }
     }
-    $('#crea-parti').disabled = !stato.testa || stato.blocchi.some(b => !b);
+    disegnaSceltaChitarra();
     $('#crea-errore').textContent = '';
     $('#crea-risposta').value = '';
     $('#dialogo-crea').showModal();
     $('#crea-testo').focus();
   }
 
+  // ---------------------------------------------------------------- «La mia chitarra»
+  // Come in SparklingTones (18 novembre 2026): la chitarra che l'utente suona davvero, ricordata in questo
+  // browser. '' = non detta (l'AI sceglie quella dell'artista); 'custom' = la costruisce l'utente, un
+  // pickup per posizione. L'AI regola il preset perché questa chitarra si avvicini al suono chiesto
+  // (Santana con una Strat) e i pickup consigliati sono i suoi.
+  const CHITARRA = 'pulzemazz.chitarra', CHITARRA_CUSTOM = 'pulzemazz.chitarra.custom', CHITARRA_SPLIT = 'pulzemazz.chitarra.split';
+  const CHITARRE = ['SSS', 'HSS', 'HSH', 'HH', 'SS', 'PP', 'HS'];
+  // sotto la sigla, la chitarra tipica (nomi di modelli: non si traducono)
+  const TIPO_CHITARRA = { SSS: 'Strat', HSS: 'Fat Strat', HSH: 'Superstrat', HH: 'Les Paul', SS: 'Tele', PP: 'P-90', HS: 'Tele Deluxe' };
+  const leggiMemo = (k, d) => { try { return localStorage.getItem(k) || d; } catch (e) { return d; } };
+  const scriviMemo = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* resta per questa volta */ } };
+
+  /** Il pulsante scelto: '', 'custom' o una delle CHITARRE. */
+  function sceltaMiaChitarra() {
+    const v = leggiMemo(CHITARRA, '');
+    return v === 'custom' || CHITARRE.includes(v) ? v : '';
+  }
+  /** La chitarra Custom: { manico, centrale, ponte }, ognuno '' / 'S' / 'H' / 'M' / 'P', almeno un pickup. */
+  function chitarraCustom() {
+    let c = null;
+    try { c = JSON.parse(leggiMemo(CHITARRA_CUSTOM, 'null')); } catch (e) { c = null; }
+    if (!c || typeof c !== 'object') c = { manico: 'H', centrale: '', ponte: 'H' };
+    const tipo = v => (['S', 'H', 'M', 'P'].includes(v) ? v : '');
+    const pos = { manico: tipo(c.manico), centrale: tipo(c.centrale), ponte: tipo(c.ponte) };
+    if (!pos.manico && !pos.centrale && !pos.ponte) pos.ponte = 'H';
+    return pos;
+  }
+  /** Le posizioni → il layout dal ponte al manico: «HSS»; senza centrale «HH», il solo ponte «H», sennò coi vuoti «--H». */
+  function layoutDa(pos) {
+    if (!pos.centrale && pos.ponte && pos.manico) return pos.ponte + pos.manico;
+    if (!pos.centrale && !pos.manico) return pos.ponte;
+    return (pos.ponte || '-') + (pos.centrale || '-') + (pos.manico || '-');
+  }
+  /** La chitarra dell'utente: { layout: 'SSS' / '--H' / '' (non detta), split: i suoi humbucker si splittano? }. */
+  function miaChitarra() {
+    const v = sceltaMiaChitarra();
+    return { layout: v === 'custom' ? layoutDa(chitarraCustom()) : v, split: leggiMemo(CHITARRA_SPLIT, 'si') !== 'no' };
+  }
+
+  /** Il disegnino dei pickup per i pulsanti, dal manico al ponte. */
+  function miniChitarra(layout) {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 60 28');
+    svg.setAttribute('aria-hidden', 'true');
+    const pezzi = R.layoutBuono(layout || '') ? layout.split('').reverse() : [];
+    const largo = { S: 6, P: 10, M: 10, H: 13 };
+    const xs = pezzi.length === 3 ? [13, 30, 47] : pezzi.length === 2 ? [17, 43] : [30];
+    const nodo = (tag, attr) => {
+      const e = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attr)) e.setAttribute(k, v);
+      svg.appendChild(e);
+    };
+    pezzi.forEach((t, i) => {
+      if (t === '-') return;
+      nodo('rect', { x: xs[i] - largo[t] / 2, y: t === 'M' ? 5 : 3, width: largo[t], height: t === 'M' ? 18 : 22, rx: t === 'S' ? 3 : 2 });
+      if (t === 'H' || t === 'M') nodo('line', { x1: xs[i], y1: t === 'M' ? 5 : 3, x2: xs[i], y2: t === 'M' ? 23 : 25 });
+    });
+    // Custom: una matita; Nessuna: un trattino
+    if (!pezzi.length) nodo('path', { d: layout === 'custom' ? 'M23 21h4l9-9-4-4-9 9zM30.5 10.5l4 4' : 'M22 14h16' });
+    return svg;
+  }
+
+  /** Una fila di pulsanti a scelta (Sì/No, niente/Single coil/…). */
+  function filaScelte(scelte) {
+    const fila = el('div', 'ch-scelte');
+    for (const { testo, sì, quando, spento } of scelte) {
+      const b = el('button', sì ? 'sì' : '', testo);
+      b.type = 'button';
+      b.disabled = Boolean(spento);
+      b.addEventListener('click', quando);
+      fila.appendChild(b);
+    }
+    return fila;
+  }
+
+  /** I pulsanti «La mia chitarra» nella finestra Crea preset AI; Custom apre le tre posizioni. */
+  function disegnaSceltaChitarra() {
+    const griglia = $('#crea-chitarra'), costruisci = $('#crea-chitarra-custom');
+    const v = sceltaMiaChitarra();
+    const mia = miaChitarra();
+    griglia.textContent = '';
+    for (const c of [''].concat(CHITARRE, 'custom')) {
+      const b = el('button', c === v ? 'sì' : '');
+      b.type = 'button';
+      b.appendChild(miniChitarra(c === 'custom' && v === 'custom' ? mia.layout : c));
+      b.appendChild(el('b', '', c === 'custom' ? 'Custom' : c || 'Nessuna'));
+      // sotto Custom il layout costruito («HMS», «--H»), quando è quello scelto
+      b.appendChild(el('span', '', c === 'custom' ? (v === 'custom' ? mia.layout : ' ') : c ? TIPO_CHITARRA[c] : 'non indicata'));
+      b.addEventListener('click', () => { scriviMemo(CHITARRA, c); disegnaSceltaChitarra(); });
+      griglia.appendChild(b);
+    }
+    // gli humbucker si splittano? una casella accanto a Custom, solo se la chitarra scelta ne ha
+    if (R.haHumbucker(mia.layout)) {
+      const casella = el('div', 'ch-split');
+      casella.appendChild(el('b', '', 'Humbucker splittabili'));
+      casella.appendChild(filaScelte([
+        { testo: 'Sì', sì: mia.split, quando: () => { scriviMemo(CHITARRA_SPLIT, 'si'); disegnaSceltaChitarra(); } },
+        { testo: 'No', sì: !mia.split, quando: () => { scriviMemo(CHITARRA_SPLIT, 'no'); disegnaSceltaChitarra(); } },
+      ]));
+      griglia.appendChild(casella);
+    }
+    costruisci.textContent = '';
+    costruisci.hidden = v !== 'custom';
+    if (v !== 'custom') return;
+    const pos = chitarraCustom();
+    const quanti = [pos.manico, pos.centrale, pos.ponte].filter(Boolean).length;
+    for (const [chiave, nome] of [['manico', 'Manico'], ['centrale', 'Centrale'], ['ponte', 'Ponte']]) {
+      const riga = el('div', 'ch-posizione');
+      riga.appendChild(el('span', '', nome));
+      riga.appendChild(filaScelte(['', 'S', 'H', 'M', 'P'].map(t => ({
+        testo: t ? { S: 'Single coil', H: 'Humbucker', M: 'Mini humbucker', P: 'P-90' }[t] : 'niente',
+        sì: pos[chiave] === t,
+        spento: t === '' && pos[chiave] && quanti === 1,          // almeno un pickup: l'ultimo non si toglie
+        quando: () => { scriviMemo(CHITARRA_CUSTOM, JSON.stringify(Object.assign(pos, { [chiave]: t }))); disegnaSceltaChitarra(); },
+      }))));
+      costruisci.appendChild(riga);
+    }
+  }
+
   /** La domanda intera da incollare nella chat. */
   function domandaAI() {
-    const testo = $('#crea-testo').value.trim();
-    const parti = $('#crea-parti').checked && !$('#crea-parti').disabled;
-    let richiesta = 'Request: ' + testo;
-    if (parti) richiesta = 'Current preset on the device:\n' + R.descriviTone(C, {
-      nome: stato.testa.nome, volume: stato.testa.volume, tempo: stato.testa.tempo, catena: stato.testa.catena,
-      blocchi: stato.blocchi }, nomeModello) + '\n\n' + richiesta;
-    return R.istruzioni(C, { utente: stato.nomiUtente, parti, lingua: LINGUA }) + '\n\n' + richiesta;
+    // «Parti dal tone che suona» tolto il 18 novembre (non lo voleva l'utente): si parte sempre da zero
+    const richiesta = 'Request: ' + $('#crea-testo').value.trim();
+    return R.istruzioni(C, { utente: stato.nomiUtente, lingua: LINGUA, chitarra: miaChitarra() }) + '\n\n' + richiesta;
   }
 
   async function copiaDomanda() {
@@ -2650,7 +2768,7 @@
     if (!/\{[\s\S]*\}/.test(contenuto)) { errore('Nella risposta non c\'è il preset: copiala intera, o chiedi alla chat di rispondere solo col JSON.'); return; }
     try {
       salvaRegistro('crea preset (copia e incolla): «' + $('#crea-testo').value.trim() + '» → ' + contenuto);
-      const tone = R.aTone(soloJson(contenuto), C, { utente: stato.nomiUtente, tone: { blocchi: stato.blocchi } });
+      const tone = R.aTone(soloJson(contenuto), C, { utente: stato.nomiUtente, tone: { blocchi: stato.blocchi }, chitarra: miaChitarra() });
       $('#dialogo-crea').close();
       daImportare = tone;
       mostraAnteprima(tone, tone.nome);

@@ -6,6 +6,18 @@
 (function () {
   const NOVITA = [
     {
+      versione: 'v8.9',
+      data: '19 novembre 2026',
+      voci: [
+        { icona: '🎸', titolo: 'La mia chitarra',
+          testo: 'In Crea preset AI scegli la chitarra che suoni (SSS, HSS, HH…) o la costruisci con Custom, anche coi mini humbucker: l’AI regola il preset perché la tua si avvicini al suono, anche se l’artista ne usa un’altra.' },
+        { icona: '🧹', titolo: 'Crea preset AI più semplice',
+          testo: 'La finestra è su due colonne, senza scorrere, e si parte sempre da zero.' },
+        { icona: '🔧', titolo: 'Correzioni',
+          testo: 'Il Tuner spegne sempre il microfono quando chiudi la finestra; una scritta della finestra Salva ora è tradotta in inglese.' },
+      ],
+    },
+    {
       versione: 'v8.8',
       data: '18 novembre 2026',
       voci: [

@@ -89,5 +89,16 @@ prova('pickup SSS ponte+centrale', pk.layout === 'SSS' && pk.attivi.join() === '
 prova('pickup HH ponte split', R.pickupDa({ layout: 'HH', on: 'bridge', split: true }).attivi.join() === '1');
 prova('pickup senza attivi = niente', R.pickupDa({ layout: 'HH', on: [] }) === null);
 
+// la chitarra dell'utente (come SparklingTones)
+prova('pickup mini humbucker e posto vuoto', R.pickupDa({ layout: '--h', on: 'neck' }).layout === '--H' && R.pickupDa({ layout: '--H', on: 'neck' }).attivi.join() === '0');
+prova('posto vuoto non si accende', R.pickupDa({ layout: '--H', on: 'bridge' }) === null);
+prova('domanda senza chitarra non la dice', !/player’s guitar/.test(R.istruzioni(C, {})));
+const dom = R.istruzioni(C, { chitarra: { layout: 'SSS', split: true } });
+prova('domanda con la chitarra', /player’s guitar: SSS \(bridge: single coil, middle: single coil, neck: single coil\)/.test(dom) && /must be "SSS"/.test(dom));
+prova('domanda: humbucker non splittabili', /CANNOT be coil-split/.test(R.istruzioni(C, { chitarra: { layout: 'HH', split: false } })));
+const santana = R.aTone({ name: 'Europa', artist: 'CS', blocks: {}, pickups: { layout: 'HH', on: ['neck'], split: true } }, C, { chitarra: { layout: 'SSS', split: true } });
+prova('HH della chat riportato su SSS', santana.pickup.layout === 'SSS' && santana.pickup.attivi.join() === '0' && santana.pickup.split === false);
+const nosplit = R.aTone({ name: 'X', blocks: {}, pickups: { layout: 'HH', on: ['bridge'], split: true } }, C, { chitarra: { layout: '--H', split: false } });
+prova('--H senza split', nosplit.pickup.layout === '--H' && nosplit.pickup.attivi.join() === '0' && nosplit.pickup.split === false);
 console.log(ok + ' prove passate, ' + ko + ' fallite');
 process.exit(ko ? 1 : 0);

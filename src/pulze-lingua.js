@@ -13,6 +13,24 @@
   document.documentElement.lang = lingua;
 
   const ESATTI = [
+    // ---- Novità v8.9
+    ['19 novembre 2026', '19 November 2026'],
+    ['In Crea preset AI scegli la chitarra che suoni (SSS, HSS, HH…) o la costruisci con Custom, anche coi mini humbucker: l’AI regola il preset perché la tua si avvicini al suono, anche se l’artista ne usa un’altra.',
+      'In Create AI preset pick the guitar you play (SSS, HSS, HH…) or build it with Custom, mini humbuckers too: the AI tunes the preset so yours gets close to the sound, even if the artist plays a different one.'],
+    ['Crea preset AI più semplice', 'A simpler Create AI preset'],
+    ['La finestra è su due colonne, senza scorrere, e si parte sempre da zero.',
+      'The window has two columns, no scrolling, and always starts from scratch.'],
+    ['Correzioni', 'Fixes'],
+    ['Il Tuner spegne sempre il microfono quando chiudi la finestra; una scritta della finestra Salva ora è tradotta in inglese.',
+      'The Tuner always turns the microphone off when you close its window; a line in the Save window is now translated into English.'],
+    // ---- La mia chitarra (Crea preset AI)
+    ['La mia chitarra', 'My guitar'], ['Nessuna', 'None'], ['non indicata', 'not set'], ['niente', 'none'],
+    ['L’AI regola il preset perché la tua chitarra si avvicini al suono, anche se l’artista ne usa un’altra.',
+      'The AI tunes the preset so your guitar gets close to the sound, even if the artist plays a different one.'],
+    ['Humbucker splittabili', 'Splittable humbuckers'], ['Sì', 'Yes'],
+    ['Manico', 'Neck'], ['Centrale', 'Middle'], ['Ponte', 'Bridge'],
+    ['Scegli la chitarra che suoni (SSS come la Strat, HH come la Les Paul…): se chiedi il suono di un artista che ne usa un’altra, per esempio Santana con una Strat, l’AI regola il preset perché la tua ci si avvicini e consiglia i pickup della tua. Con Custom la costruisci tu, anche coi mini humbucker.',
+      'Pick the guitar you play (SSS like a Strat, HH like a Les Paul…): if you ask for the sound of an artist who plays a different one, for example Santana on a Strat, the AI tunes the preset so yours gets close and suggests the pickups on yours. With Custom you build it yourself, mini humbuckers too.'],
     // ---- Sigla dell'artista e pickup consigliati
     ['Pickup consigliati', 'Suggested pickups'], ['Cambia i pickup consigliati', 'Change the suggested pickups'],
     ['Clicca un pickup per accenderlo o spegnerlo.', 'Click a pickup to turn it on or off.'], ['Chitarra', 'Guitar'],
@@ -249,7 +267,7 @@
     // ---- le finestre
     ['Crea preset AI', 'Create AI preset'], ['Il suono', 'The sound'],
     ['Descrivilo a parole: genere, artista, ampli, effetti.', 'Describe it in words: genre, artist, amp, effects.'],
-    ['Parti dal tone che suona', 'Start from the current tone'], ['L\'AI', 'The AI'],
+    ['L\'AI', 'The AI'],
     ['La domanda', 'The question'], ['La risposta', 'The answer'], ['Copia la domanda', 'Copy the question'],
     ['Copiala e incollala nella chat che usi: ChatGPT, Claude, Gemini…', 'Copy it and paste it into the chat you use: ChatGPT, Claude, Gemini…'],
     ['Copia tutta la risposta della chat e incollala qui.', 'Copy the chat\'s whole answer and paste it here.'],
@@ -266,7 +284,7 @@
       'The file\'s chain and blocks. Nothing is saved until you press Save.'],
     ['Copia', 'Copy'], ['Scambia', 'Swap'], ['Nel posto', 'To slot'], ['Con', 'With'], ['Nome', 'Name'],
     ['Salva sul Mini', 'Save to the Mini'], ['Il tone che suona', 'The current tone'],
-    ['Nel suo posto o in un altro: quello che c\'era si sovrascrive.', 'In its own slot or another one: whatever was there is overwritten.'],
+    ['Nel suo posto o in un altro: quello che c’era si sovrascrive.', 'In its own slot or another one: whatever was there is overwritten.'],
     ['Posto', 'Slot'], ['leggo i nomi…', 'reading the names…'], ['Sovrascrivi', 'Overwrite'], ['Salva', 'Save'],
     ['Sul PC', 'On this PC'], ['I file vanno nella cartella Download.', 'Files go to the Downloads folder.'],
     ['Backup completo', 'Full backup'], ['tutti i tone, i settaggi e le Songlist in uno .zip', 'all tones, settings and Songlists in one .zip'],

@@ -24,7 +24,8 @@ account.
 - **File .prst**: importa ed esporta, compatibili con l'app Pulze Editor del telefono.
 - **Crea preset AI**: descrivi il suono a parole, copi la domanda nella chat che usi (ChatGPT, Claude, Gemini…) e
   incolli la risposta: il tone si compone coi modelli veri del Mini, anche coi tuoi NAM e IR, e ti consiglia quale
-  NAM cercare. Niente chiavi API, niente costi.
+  NAM cercare. Indichi la chitarra che suoni e l’AI regola il preset per quella, coi pickup da usare. Niente chiavi
+  API, niente costi.
 - **Carica NAM & IR**: modelli NAM (.nam) come Sound Clone e IR di cabinet (.wav) come User IR, dal PC, senza l’app
   Hotone; col segnale di prova preso dall’APK dell’app il Sound Clone viene identico.
 - **Tuner** col microfono del PC: nota, cent e La regolabile, anche col Mini solo in Bluetooth.

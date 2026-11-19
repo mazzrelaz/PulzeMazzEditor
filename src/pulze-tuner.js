@@ -142,7 +142,7 @@
     voci.forEach((v, i) => {
       const o = document.createElement('option');
       o.value = v.deviceId;
-      o.textContent = v.label || ('Microfono ' + (i + 1));
+      o.textContent = v.label || ((window.PulzeLingua && PulzeLingua.lingua === 'en' ? 'Microphone ' : 'Microfono ') + (i + 1));
       o.setAttribute('data-notrad', '');
       scelta.appendChild(o);
     });
@@ -150,20 +150,25 @@
     scelta.value = attivo || memo || (voci[0] && voci[0].deviceId) || '';
   }
 
+  let turno = 0;   // due accensioni di fila (cambio di microfono, finestra riaperta): vale solo l'ultima
   async function accendi() {
     spegni();
+    const mio = ++turno;
     const stato = $('#tuner-stato');
     stato.textContent = '';
     const id = leggi(MEMO_MIC);
     const audio = { echoCancellation: false, noiseSuppression: false, autoGainControl: false };
     if (id) audio.deviceId = { ideal: id };
+    let nuovo;
     try {
-      flusso = await navigator.mediaDevices.getUserMedia({ audio });
+      nuovo = await navigator.mediaDevices.getUserMedia({ audio });
     } catch (e) {
-      stato.textContent = 'Il browser non lascia usare il microfono: permettilo dall’icona accanto all’indirizzo.';
+      if (mio === turno) stato.textContent = 'Il browser non lascia usare il microfono: permettilo dall’icona accanto all’indirizzo.';
       return;
     }
-    if (!dialogo.open) { spegni(); return; }
+    // superata da un'altra accensione, o finestra chiusa intanto: il microfono si spegne subito
+    if (mio !== turno || !dialogo.open) { nuovo.getTracks().forEach(t => t.stop()); return; }
+    flusso = nuovo;
     ctx = new (window.AudioContext || window.webkitAudioContext)();
     analisi = ctx.createAnalyser();
     analisi.fftSize = 4096;
@@ -176,6 +181,7 @@
   }
 
   function spegni() {
+    turno++;         // un'accensione ancora in attesa del microfono non parte più
     cancelAnimationFrame(giro);
     if (flusso) flusso.getTracks().forEach(t => t.stop());
     if (ctx) ctx.close().catch(() => {});

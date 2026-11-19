@@ -360,7 +360,12 @@
   .nota { font-size:0.8rem; margin-top:8px !important; }
   .errore { color:var(--rosso) !important; min-height:1em; }
   .azioni { display:flex; justify-content:flex-end; gap:8px; }
-  #dialogo-crea { width:560px; max-width:calc(100vw - 32px); }
+  #dialogo-crea { width:1040px; max-width:calc(100vw - 32px); }
+  .crea-corpo { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:start; margin-bottom:12px; }
+  .crea-colonna { display:flex; flex-direction:column; gap:12px; }
+  .crea-corpo .bk-carta { margin-bottom:0; }
+  .crea-corpo #crea-testo, .crea-corpo #crea-risposta { min-height:5.5em; margin-bottom:0; }
+  @media (max-width:900px) { .crea-corpo { grid-template-columns:1fr; } }
   #crea { display:inline-flex; align-items:center; gap:7px; color:#fff; border:1px solid #8a6cf0;
           background:linear-gradient(135deg, #7b5cf0, #2f7fe8); box-shadow:0 0 12px rgba(123,92,240,0.45); }
   #crea:hover:not(:disabled) { background:linear-gradient(135deg, #8d72f5, #4c95f0); border-color:#a58df7;
@@ -377,7 +382,36 @@
     background:var(--incavo); border:1px solid var(--line); border-radius:8px; padding:8px 10px; box-sizing:border-box; }
   #crea-testo { width:100%; min-height:7em; resize:vertical; font:inherit; color:var(--text);
                 background:var(--incavo); border:1px solid var(--line); border-radius:6px; padding:8px 10px; margin-bottom:12px; }
-  .crea-spunta { display:flex; align-items:center; gap:8px; color:var(--dim); font-size:0.88rem; margin-bottom:12px; }
+  /* «La mia chitarra»: un pulsante per configurazione, col disegnino dei pickup (come SparklingTones) */
+  .scelta-chitarra { display:grid; grid-template-columns:repeat(5, 1fr); gap:6px; }
+  .scelta-chitarra > button { display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px 4px 7px;
+    background:var(--panel); border:1px solid var(--line); border-radius:10px; color:var(--dim); }
+  .scelta-chitarra > button:hover { border-color:var(--accent-chiaro); color:var(--text); }
+  .scelta-chitarra > button.sì { border-color:var(--accent); background:color-mix(in srgb, var(--accent) 18%, var(--panel)); color:var(--text);
+    box-shadow:0 0 0 1px var(--accent) inset; }
+  .scelta-chitarra svg { width:48px; height:22px; margin-bottom:3px; }
+  .scelta-chitarra svg rect { fill:var(--rialzo); stroke:var(--traccia); stroke-width:1; }
+  .scelta-chitarra svg line { stroke:var(--traccia); stroke-width:1; }
+  .scelta-chitarra svg path { fill:none; stroke:var(--faint); stroke-width:1.5; stroke-linecap:round; }
+  .scelta-chitarra > button.sì svg rect { fill:var(--accent); stroke:var(--accent-chiaro); }
+  .scelta-chitarra > button.sì svg line { stroke:var(--accent-chiaro); }
+  .scelta-chitarra > button b { font:700 0.82rem var(--strumento); letter-spacing:0.04em; }
+  .scelta-chitarra > button span { font-size:0.68rem; color:var(--faint); white-space:nowrap; }
+  /* «Humbucker splittabili»: la casella subito a destra di Custom, bordo pieno come i pulsanti */
+  .ch-split { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+    padding:6px 4px; background:var(--panel); border:1px solid var(--line); border-radius:10px; }
+  .ch-split b { font:700 0.7rem/1.2 var(--strumento); color:var(--dim); text-align:center; }
+  .ch-split .ch-scelte { background:var(--incavo); }
+  .ch-split .ch-scelte button { padding:3px 7px; }
+  .ch-scelte { display:flex; flex-wrap:wrap; gap:2px; background:var(--panel); border:1px solid var(--line); border-radius:7px; padding:2px; }
+  .ch-scelte button { border:0; background:transparent; padding:4px 8px; font-size:0.78rem; color:var(--dim); border-radius:5px; white-space:nowrap; }
+  .ch-posizione .ch-scelte { flex:1; justify-content:space-between; }
+  .ch-scelte button.sì { background:var(--accent); color:var(--su-accent); }
+  .ch-scelte button:disabled { opacity:0.4; }
+  .chitarra-custom { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+  .chitarra-custom[hidden] { display:none; }
+  .ch-posizione { display:flex; flex-direction:column; gap:3px; }
+  .ch-posizione > span { font-size:0.75rem; color:var(--dim); }
   #crea-cambia-chiave { font-size:0.8rem; padding:2px 8px; }
   #importa-blocchi { list-style:none; margin:0 0 12px; padding:0; display:grid; gap:4px; font-size:0.85rem; }
   #importa-blocchi li { display:grid; grid-template-columns:1.6em 4.2em 1fr auto; column-gap:8px; align-items:baseline; }
@@ -754,6 +788,14 @@
   /* 4. le finestre come quella del Backup: cima con la ✕, carte con l'icona */
   #dialogo-salva, #dialogo-tone { width:480px; max-width:calc(100vw - 32px); }
   #dialogo-importa { width:560px; max-width:calc(100vw - 32px); }
+  #dialogo-importa:has(.prova-destra > section:not([hidden])) { width:1040px; }
+  .prova-corpo { display:grid; grid-template-columns:1fr; gap:12px; align-items:start; margin-bottom:12px; }
+  #dialogo-importa:has(.prova-destra > section:not([hidden])) .prova-corpo { grid-template-columns:1fr 1fr; }
+  .prova-destra { display:flex; flex-direction:column; gap:12px; }
+  .prova-destra:not(:has(section:not([hidden]))) { display:none; }
+  .prova-corpo .bk-carta { margin-bottom:0; }
+  .prova-destra .pickup-disegno svg { max-width:340px; }
+  @media (max-width:900px) { #dialogo-importa .prova-corpo { grid-template-columns:1fr !important; } }
   .bk-carta .campo { margin-bottom:10px; }
   .posto-rinomina { flex:none; white-space:nowrap; }
   .bk-carta > :last-child, .bk-carta .campo:last-child { margin-bottom:0; }
@@ -762,7 +804,6 @@
   #dialogo-crea .campo .bk-nome { width:9em; }
   .bk-tasti button.via:hover:not(:disabled) { color:var(--rosso); border-color:var(--rosso); }
   #crea-testo { margin-bottom:10px; min-height:6em; }
-  .bk-carta .crea-spunta { margin-bottom:0; }
   #importa-blocchi { margin-bottom:10px; }
   dialog > .nota:empty, dialog > .errore:empty { display:none; }
 
@@ -1149,7 +1190,7 @@
     d="M10 9v5M10 6.2h.01"/></svg>Crediti e responsabilità</button>
   <button id="caffe" type="button" class="voce-caffe"><svg viewBox="0 0 20 20" aria-hidden="true"><path
     d="M3 8h11v4a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5zM14 9h1.5a2 2 0 0 1 0 4H14M6 2.5v2.5M9 2.5v2.5"/></svg>Offrimi un caffè</button>
-  <p class="versione-menu" style="opacity:.55;font-size:.75rem;text-align:center;margin:8px 0 2px">MazzRig v8.8</p>
+  <p class="versione-menu" style="opacity:.55;font-size:.75rem;text-align:center;margin:8px 0 2px">MazzRig v8.9</p>
 </div>
 <div class="sotto-barra">
   <div class="sb-lato">
@@ -1196,7 +1237,7 @@
         <button id="collega-grande" type="button" class="primario" data-icona="bluetooth"><span id="collega-grande-testo">Collega il Pulze Mini</span></button>
         <p id="benvenuto-nota">Chiudi prima l'app Pulze Editor sul telefono: il Mini accetta un collegamento alla volta.</p>
         <p id="benvenuto-legale">App non ufficiale di terze parti, senza alcun rapporto con Hotone Audio. La usi a tuo rischio: ☰ → Crediti e responsabilità.</p>
-        <p id="versione-app" style="opacity:.6;font-size:.8rem;margin-top:6px">MazzRig v8.8</p>
+        <p id="versione-app" style="opacity:.6;font-size:.8rem;margin-top:6px">MazzRig v8.9</p>
       </div>
     </div>
     <div id="palco-corpo" hidden>
@@ -1266,12 +1307,21 @@
     <button type="button" class="aiuto" data-guida="g-ai" title="Guida: Crea preset AI" aria-label="Guida: Crea preset AI"></button>
     <button type="button" class="icona" aria-label="Chiudi" title="Chiudi" data-icona="chiudi" data-chiudi="#crea-annulla"></button>
   </div>
+  <!-- due colonne (18 novembre: la finestra non deve scorrere): a sinistra la chitarra, a destra suono, domanda e risposta -->
+  <div class="crea-corpo">
+  <section class="bk-carta crea-chitarra-carta">
+    <div class="bk-testa" data-icona="chitarra">
+      <div><h3>La mia chitarra</h3><p>L’AI regola il preset perché la tua chitarra si avvicini al suono, anche se l’artista ne usa un’altra.</p></div>
+    </div>
+    <div id="crea-chitarra" class="scelta-chitarra"></div>
+    <div id="crea-chitarra-custom" class="chitarra-custom" hidden></div>
+  </section>
+  <div class="crea-colonna">
   <section class="bk-carta">
     <div class="bk-testa" data-icona="scintille">
       <div><h3>Il suono</h3><p>Descrivilo a parole: genere, artista, ampli, effetti.</p></div>
     </div>
     <textarea id="crea-testo" placeholder="Per esempio: crunch anni '70 con un po' di delay"></textarea>
-    <label class="crea-spunta"><input id="crea-parti" type="checkbox"> Parti dal tone che suona</label>
   </section>
   <section class="bk-carta">
     <div class="bk-testa" data-icona="domanda">
@@ -1286,6 +1336,8 @@
     </div>
     <textarea id="crea-risposta" placeholder="Incolla qui la risposta"></textarea>
   </section>
+  </div>
+  </div>
   <p id="crea-errore" class="errore"></p>
   <div class="azioni">
     <button id="crea-annulla" type="button">Annulla</button>
@@ -1365,6 +1417,8 @@
     <button type="button" class="aiuto" data-guida="g-prst" title="Guida: file .prst" aria-label="Guida: file .prst"></button>
     <button type="button" class="icona" aria-label="Chiudi" title="Chiudi" data-icona="chiudi" data-chiudi="#importa-annulla"></button>
   </div>
+  <!-- come Crea preset AI: larga, a sinistra i blocchi, a destra NAM e pickup (solo dai preset dell'AI) -->
+  <div class="prova-corpo">
   <section class="bk-carta">
     <div class="bk-testa" data-icona="apri">
       <div><h3>Nel tone che suona</h3><p>Catena e blocchi del file. Niente è salvato finché non premi Salva.</p></div>
@@ -1372,6 +1426,7 @@
     <ol id="importa-blocchi"></ol>
     <p class="nota" id="importa-note"></p>
   </section>
+  <div class="prova-destra">
   <section class="bk-carta" id="importa-nam" hidden>
     <div class="bk-testa" data-icona="onda">
       <div><h3>NAM consigliato</h3><p id="importa-nam-testo"></p></div>
@@ -1384,6 +1439,8 @@
     <div id="importa-pickup-disegno" class="pickup-disegno"></div>
     <p class="nota" id="importa-pickup-testo"></p>
   </section>
+  </div>
+  </div>
   <div class="azioni">
     <button id="importa-annulla" type="button">Annulla</button>
     <button id="importa-conferma" type="button" class="primario">Importa</button>

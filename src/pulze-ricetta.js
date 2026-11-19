@@ -72,6 +72,57 @@
     return righe.join('\n');
   }
 
+  // ---------------------------------------------------------------- la chitarra dell'utente
+  // Il layout si scrive dal ponte al manico, una lettera per posizione: S single coil, H humbucker,
+  // M mini humbucker, P P-90, «-» posizione vuota («--H» = un humbucker solo al manico). Due lettere
+  // sono ponte e manico, una il solo ponte. Come in SparklingTones (18 novembre 2026).
+  const TIPI_PICKUP = { S: 'single coil', H: 'humbucker', M: 'mini humbucker', P: 'P-90' };
+  const layoutBuono = l => /^[SHMP-]{1,3}$/.test(l) && /[SHMP]/.test(l);
+  const haHumbucker = l => /[HM]/.test(l);
+  /** Le posizioni dal manico con un pickup vero (non «-»). */
+  const postiVeri = l => l.split('').reverse().map((c, i) => (c === '-' ? -1 : i)).filter(i => i >= 0);
+
+  /** «La mia chitarra» (chitarra = { layout, split }): il preset si regola perché la chitarra dell'utente
+   *  si avvicini al suono chiesto anche se l'artista ne usa un'altra (Santana con una Strat). */
+  function chitarraTesto(chitarra, lingua) {
+    const mia = chitarra && layoutBuono(chitarra.layout || '') ? chitarra.layout : '';
+    if (!mia) return [];
+    const posti = mia.length === 3 ? ['bridge', 'middle', 'neck'] : mia.length === 2 ? ['bridge', 'neck'] : ['bridge'];
+    const pezzi = mia.split('').map((c, i) => posti[i] + ': ' + (c === '-' ? 'none' : TIPI_PICKUP[c])).join(', ');
+    const split = !haHumbucker(mia) ? []
+      : chitarra.split !== false ? ['  Its humbuckers can be coil-split: use "split" when a single-coil sound helps.']
+      : ['  Its humbuckers CANNOT be coil-split: "split" must be false; get any single-coil brightness from the chain.'];
+    return [
+      '- The player’s guitar: ' + mia + ' (' + pezzi + ').',
+      ...split,
+      '  This is the guitar that will be plugged in, and the target sound may come from a different one (e.g. a Santana tone, ' +
+      'humbuckers, played on an SSS Strat). Voice the preset so that THIS guitar gets as close as possible to the target sound: ' +
+      'compensate in the chain. Single coils for a humbucker sound: more gain or a drive in front, more bass and low mids, a bit ' +
+      'less treble and presence, a gate if it hums. Humbuckers for a single-coil sound: less gain, more treble and presence, ' +
+      'fewer low mids, maybe a compressor for the snap. P-90 sit in between.',
+      '  "pickups.layout" must be "' + mia + '": choose the positions on this guitar closest to the target (e.g. bridge + middle ' +
+      'on a Strat for a quacky tone, the bridge single coil with the tone knob rolled back for a humbucker lead).',
+      '  In "explanation" say in ' + lingua + ' what you compensated for this guitar.',
+    ];
+  }
+
+  /** Gli stessi pickup su un'altra chitarra: con un numero diverso di pickup i posti cambiano, e si tengono
+   *  manico e ponte (il centrale va solo su una chitarra a tre). Un posto vuoto si spegne; se non resta
+   *  niente, si accende il pickup più vicino al ponte. Modifica pk e lo rende. */
+  function adattaLayout(pk, layout) {
+    const prima = pk.layout.length, n = layout.length;
+    pk.layout = layout;
+    if (n !== prima) {
+      pk.attivi = pk.attivi.map(i => (i === prima - 1 ? n - 1 : i === 0 ? 0 : (n === 3 ? 1 : -1)))
+        .filter((i, k, a) => i >= 0 && i < n && a.indexOf(i) === k).sort();
+    }
+    const veri = postiVeri(layout);
+    pk.attivi = pk.attivi.filter(i => veri.includes(i));
+    if (!pk.attivi.length && veri.length) pk.attivi = [veri[veri.length - 1]];
+    if (!haHumbucker(layout)) pk.split = false;
+    return pk;
+  }
+
   /** Il messaggio di sistema. */
   function istruzioni(C, opz) {
     opz = opz || {};
@@ -104,7 +155,8 @@
       'Eddie Van Halen / Van Halen "VH", Jimi Hendrix "JH", Slash "SL", band names by their words: AC/DC "AC", Dire Straits "DS"). ' +
       'MazzRig names the preset "BM - <name>", so keep "name" short (about 11 characters, e.g. "Bohemian Ld"). "" when no artist.',
       '- "pickups": the ideal pickup setting for the sound. "layout" = the guitar pickups written the usual way, from bridge to neck (HSS = humbucker at the bridge), ' +
-      'S single coil, H humbucker, P P-90 (e.g. "SSS" Strat, "HH" Les Paul, "HSS", "SS" Tele, "PP"): the artist’s own guitar, ' +
+      'S single coil, H humbucker, M mini humbucker, P P-90, "-" an empty position (e.g. "SSS" Strat, "HH" Les Paul, "HSS", "SS" Tele, "PP", ' +
+      '"--H" one humbucker at the neck; two letters = bridge and neck): the artist’s own guitar, ' +
       'or the user’s guitar when they describe it. "on" = the active positions among "neck", "middle", "bridge" ' +
       '("middle" only with three pickups). "split": true when a humbucker is coil-split. "tip": one short sentence in ' + (opz.lingua === 'en' ? 'English' : 'Italian') + ' ' +
       'with selector position, volume/tone knob and the artist’s trick if any (e.g. Brian May: bridge + neck in phase, treble booster).',
@@ -120,6 +172,7 @@
       'EVH style"), amp only or full rig with which cab, and what to search for on TONE3000 ("A2" models). One or two short ' +
       'sentences in ' + (opz.lingua === 'en' ? 'English' : 'Italian') + '. Load it with MazzRig’s "Load NAM & IR". ' +
       'If the preset already uses a user capture, set "nam_tip" to "".',
+      ...chitarraTesto(opz.chitarra, opz.lingua === 'en' ? 'English' : 'Italian'),
       opz.parti ? '- The user message includes the preset currently loaded: change it as asked, keep the rest.' : '',
       '',
       'Answer with ONE JSON object only, no other text:',
@@ -228,15 +281,28 @@
    *  manico], split, consiglio } o null. */
   function pickupDa(pk) {
     if (!pk || typeof pk !== 'object') return null;
-    const layout = String(pk.layout || '').toUpperCase().replace(/[^SHP]/g, '').slice(0, 3);
-    if (layout.length < 1) return null;
+    const layout = String(pk.layout || '').toUpperCase().replace(/[^SHMP-]/g, '').slice(0, 3);
+    if (!layoutBuono(layout)) return null;
     const posti = layout.length === 3 ? ['neck', 'middle', 'bridge'] : layout.length === 2 ? ['neck', 'bridge'] : ['bridge'];
     const sinonimi = { manico: 'neck', neck: 'neck', centrale: 'middle', middle: 'middle', mid: 'middle', ponte: 'bridge', bridge: 'bridge' };
     const on = (Array.isArray(pk.on) ? pk.on : String(pk.on || '').split(/[\s,+]+/))
       .map(x => sinonimi[String(x).toLowerCase().trim()]).filter(Boolean);
-    const attivi = posti.map((p, i) => (on.includes(p) ? i : -1)).filter(i => i >= 0);
+    const veri = postiVeri(layout);
+    const attivi = posti.map((p, i) => (on.includes(p) && veri.includes(i) ? i : -1)).filter(i => i >= 0);
     if (!attivi.length) return null;
-    return { layout, attivi, split: vero(pk.split), consiglio: String(pk.tip || '').trim() };
+    return { layout, attivi, split: vero(pk.split) && haHumbucker(layout), consiglio: String(pk.tip || '').trim() };
+  }
+
+  /** I pickup della risposta, portati sulla chitarra dell'utente (opz.chitarra) se la chat ha messo
+   *  quella dell'artista; senza split se i suoi humbucker non si splittano. */
+  function pickupPerChitarra(pk, chitarra) {
+    let p = pickupDa(pk);
+    const mia = chitarra && layoutBuono(chitarra.layout || '') ? chitarra.layout : '';
+    if (!p || !mia) return p;
+    if (p.layout !== mia) p = adattaLayout(p, mia);
+    if (!p.attivi.length) return null;
+    if (chitarra.split === false) p.split = false;
+    return p;
   }
 
   /** Il JSON dell'AI → il tone come lo dà PulzePrst.aTone, più per blocco «sopra» (posizione → valore:
@@ -295,11 +361,12 @@
       dispositivo: 'AP-10',
       spiegazione: String(ricetta.explanation || '').trim(),
       namConsigliato: String(ricetta.nam_tip || '').trim(),
-      pickup: pickupDa(ricetta.pickups),
+      pickup: pickupPerChitarra(ricetta.pickups, opz.chitarra),
       avvisi,
     };
   }
 
-  const X = { SLOT, istruzioni, nomeConSigla, pickupDa, catalogoTesto, fullRig, descriviTone, aTone, codifica, trovaModello };
+  const X = { SLOT, istruzioni, nomeConSigla, pickupDa, pickupPerChitarra, adattaLayout, layoutBuono, haHumbucker,
+    postiVeri, TIPI_PICKUP, catalogoTesto, fullRig, descriviTone, aTone, codifica, trovaModello };
   if (typeof module !== 'undefined' && module.exports) module.exports = X; else g.PulzeRicetta = X;
 })(this);
