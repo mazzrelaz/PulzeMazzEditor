@@ -6,6 +6,14 @@
 (function () {
   const NOVITA = [
     {
+      versione: 'v8.10',
+      data: '19 novembre 2026',
+      voci: [
+        { icona: '💬', titolo: 'Domande nello stile di MazzRig',
+          testo: 'Le conferme, i nomi da scrivere e gli avvisi ora si aprono in finestre di MazzRig, non più in quelle grigie del browser.' },
+      ],
+    },
+    {
       versione: 'v8.9',
       data: '19 novembre 2026',
       voci: [

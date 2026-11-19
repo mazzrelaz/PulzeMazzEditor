@@ -1518,12 +1518,12 @@
     try {
       const testo = await f.text();
       window.PulzePrst.leggiGlb(testo);           // prima di toccare il Mini: è un .glb buono?
-      if (!confirm('Metto sul Mini i settaggi di «' + f.name + '»? Quelli di adesso vengono sostituiti ' +
+      if (!await PulzeDialoghi.conferma('Metto sul Mini i settaggi di «' + f.name + '»? Quelli di adesso vengono sostituiti ' +
         '(conviene prima «Esporta settaggi»).')) { scriviBackup('Importazione annullata.'); return; }
       scriviBackup('Leggo i settaggi di adesso…');
       const attuale = await ble.chiediSettaggi();
       const perche = 'prima di importare «' + f.name + '»';
-      if (!avantiSenzaCopia(await copiaSicurezza('settaggi', perche, 'Global' + quando() + '.glb', window.PulzePrst.glbDaMini(attuale)), perche)) {
+      if (!await avantiSenzaCopia(await copiaSicurezza('settaggi', perche, 'Global' + quando() + '.glb', window.PulzePrst.glbDaMini(attuale)), perche)) {
         scriviBackup('Importazione annullata.');
         return;
       }
@@ -1592,7 +1592,7 @@
   function avantiSenzaCopia(motivo, perche) {
     if (!motivo) return true;
     salvaRegistro('copia di sicurezza non riuscita (' + motivo + ') ' + perche);
-    return confirm('La copia di sicurezza non è riuscita (' + motivo + ').\n\n' +
+    return PulzeDialoghi.conferma('La copia di sicurezza non è riuscita (' + motivo + ').\n\n' +
       'Se vai avanti, quello che c\'è ora sul Mini si perde senza copia. Vado avanti lo stesso?');
   }
   /** La copia dei tone nei posti dati, e se non riesce la domanda: true = si va avanti. */
@@ -1814,7 +1814,7 @@
   }
 
   async function scollegaDropbox() {
-    if (!confirm('Scollego Dropbox? I backup lassù restano dove sono.')) return;
+    if (!await PulzeDialoghi.conferma('Scollego Dropbox? I backup lassù restano dove sono.')) return;
     const revocato = await dropbox.scollega();
     disegnaDropbox();
     scriviBackup(revocato ? 'Dropbox scollegato.' : 'Dropbox scollegato qui (lassù non ho potuto revocarlo: si toglie da dropbox.com, app collegate).', 'ok');
@@ -2326,7 +2326,7 @@
     const uid = (k === 'nam' ? UID_CLONE : UID_IR)(posto);
     const gruppo = k === 'nam' ? P.LISTA_UTENTE.CLONE : P.LISTA_UTENTE.IR;
     const nome = nomeModello(uid) || '';
-    if (!window.confirm('Eliminare «' + nome + '» dal Mini? Non si può annullare.')) return;
+    if (!await PulzeDialoghi.conferma('Eliminare «' + nome + '» dal Mini? Non si può annullare.')) return;
     try {
       scriviStato('Elimino «' + nome + '»…');
       await ble.manda((num, max) => P.elimina(num, gruppo, posto, max));
@@ -2464,7 +2464,7 @@
     const errore = m => { $('#nam-errore').textContent = m; };
     if (!nome) { errore('Scrivi un nome.'); $('#nam-nome').focus(); return; }
     const prima = stato.nomiUtente.get(UID_CLONE(posto));
-    if (prima && !prima.vuoto && !window.confirm('Sound Clone ' + (posto + 1) + ' contiene «' + prima.nome + '»: lo sovrascrivo?')) return;
+    if (prima && !prima.vuoto && !await PulzeDialoghi.conferma('Sound Clone ' + (posto + 1) + ' contiene «' + prima.nome + '»: lo sovrascrivo?')) return;
     errore('');
     $('#nam-avanza').hidden = false;
     nam.lavoro = (async () => {
@@ -2559,7 +2559,7 @@
     const errore = m => { $('#ir-errore').textContent = m; };
     if (!nome) { errore('Scrivi un nome.'); $('#ir-nome').focus(); return; }
     const prima = stato.nomiUtente.get(UID_IR(posto));
-    if (prima && !prima.vuoto && !window.confirm('User IR ' + (posto + 1) + ' contiene «' + prima.nome + '»: lo sovrascrivo?')) return;
+    if (prima && !prima.vuoto && !await PulzeDialoghi.conferma('User IR ' + (posto + 1) + ' contiene «' + prima.nome + '»: lo sovrascrivo?')) return;
     errore('');
     $('#ir-avanza').hidden = false;
     $('#ir-fase').textContent = 'Mando al Mini…';
@@ -2834,7 +2834,7 @@
 
   async function rinominaTone(tone) {
     const prima = (nomiTone && nomiTone[tone]) || '';
-    const nome = nomeValido(prompt('Nuovo nome per «' + prima + '» (al massimo 16 caratteri, senza accenti):', prima));
+    const nome = nomeValido(await PulzeDialoghi.chiedi('Nuovo nome per «' + prima + '» (al massimo 16 caratteri, senza accenti):', prima));
     if (!nome || nome === prima) return;
     if (await operazioneElenco('Rinomino «' + prima + '»',
       (num, max) => P.operazione(num, P.OP.RINOMINA_TONE, { tone, nomeTone: nome, ordine: ordineAttuale() }, max))) {
@@ -2857,7 +2857,7 @@
         'spariscono tutte le sue voci, e il posto resta vuoto finché non ci salvi di nuovo un tone.\n\n' +
         'I doppioni non fanno danni: conviene lasciarli. Cancello lo stesso? Ne resta una copia di sicurezza in Backup….'
       : 'Cancello il tone «' + nome + '» (posto ' + (tone + 1) + ') dal Mini? Ne resta una copia di sicurezza in Backup….';
-    if (!confirm(domanda)) return;
+    if (!await PulzeDialoghi.conferma(domanda)) return;
     scriviStato('Copia di sicurezza di «' + nome + '»…');
     if (!await sicurezzaOppureChiedi([tone], 'prima di cancellare «' + nome + '» (posto ' + (tone + 1) + ')')) {
       scriviStato('Fermato: niente è stato cancellato.');
@@ -3223,9 +3223,9 @@
     });
   }
 
-  function rinominaInBozza(i) {
+  async function rinominaInBozza(i) {
     const l = vistaListe()[i];
-    const nome = nomeValido(prompt('Nuovo nome per «' + l.nome + '»:', l.nome));
+    const nome = nomeValido(await PulzeDialoghi.chiedi('Nuovo nome per «' + l.nome + '»:', l.nome));
     if (!nome || nome === l.nome) return;
     modificaBozza(v => { v[i].nome = nome; });
   }
@@ -3234,9 +3234,9 @@
     modificaBozza(v => { v.splice(i, 1); });
   }
 
-  function nuovaInBozza() {
+  async function nuovaInBozza() {
     if (vistaListe().length >= 40) { scriviStato('Ci sono già 40 Songlist: è il massimo.', 'errore'); return; }
-    const nome = nomeValido(prompt('Nome della Songlist nuova (al massimo 16 caratteri, senza accenti):', ''));
+    const nome = nomeValido(await PulzeDialoghi.chiedi('Nome della Songlist nuova (al massimo 16 caratteri, senza accenti):', ''));
     if (!nome) return;
     modificaBozza(v => { v.push({ chiave: 'n' + (++chiaviNuove), nome, toni: [] }); });
     requestAnimationFrame(() => { const b = $('#sl-blocchi'); b.scrollTop = b.scrollHeight; });
@@ -3258,9 +3258,9 @@
   }
 
   /** Chiudendo con modifiche non salvate: restano nella bozza, ma lo si chiede. */
-  function chiudiSonglist() {
+  async function chiudiSonglist() {
     if (bozzaCambiata() && listaInLavoro == null &&
-      !confirm('Le modifiche alle Songlist non sono sul Mini. Chiudo lo stesso? (restano qui finché non chiudi la pagina)')) return;
+      !await PulzeDialoghi.conferma('Le modifiche alle Songlist non sono sul Mini. Chiudo lo stesso? (restano qui finché non chiudi la pagina)')) return;
     $('#dialogo-songlist').close();
   }
 
@@ -3593,7 +3593,7 @@
     if (diversi.length) domanda += '\n\n' + diversi.length + ' tone nel file hanno un nome diverso da quello che ora è in quel posto (es. posto ' +
       diversi[0].posto + ': «' + diversi[0].nome + '», ora «' + nomiTone[diversi[0].posto - 1] + '»): metto quello che c\'è ora.';
     if (vuoti.length) domanda += '\n\n' + vuoti.length + ' posti ora sono vuoti: quei tone li salto.';
-    if (!confirm(domanda)) return;
+    if (!await PulzeDialoghi.conferma(domanda)) return;
     bozza = null;
     $('#dialogo-backup').close();
     const ok = await cambiaListe(-1, 'Rimetto le Songlist', v => { v.length = 0; v.push(...volute); },
@@ -3757,7 +3757,7 @@
     if (sovrascritti) domanda += '\n\n' + sovrascritti + (sovrascritti === 1 ? ' posto ha' : ' posti hanno') +
       ' già un tone: viene sostituito da quello del backup.';
     domanda += '\n\nIl tone che suona fa da appoggio: le sue modifiche non salvate si perdono. Ci vogliono alcuni secondi per tone.';
-    if (!confirm(domanda)) return;
+    if (!await PulzeDialoghi.conferma(domanda)) return;
     azzeraStoria();
     r.lavoro = true;
     r.fermo = false;
@@ -3831,9 +3831,9 @@
     }
   }
 
-  function chiudiRipristino() {
+  async function chiudiRipristino() {
     if (ripristino && ripristino.lavoro) {
-      if (confirm('Fermo? Il tone in corso finisce, gli altri restano come sono.')) ripristino.fermo = true;
+      if (await PulzeDialoghi.conferma('Fermo? Il tone in corso finisce, gli altri restano come sono.')) ripristino.fermo = true;
       return;
     }
     ripristino = null;
@@ -3911,9 +3911,9 @@
 
   /** Fa suonare un tone col salto dell'app (06/02); il Mini risponde col tone intero, e alMessaggio
    *  rilegge i blocchi. */
-  function vaiA(lista, pos, numero) {
+  async function vaiA(lista, pos, numero) {
     if (!ble || !ble.collegato()) return;
-    if (stato.modificato && !confirm('Le modifiche di «' + stato.testa.nome + '» non sono salvate e si perdono. Cambio tone?')) return;
+    if (stato.modificato && !await PulzeDialoghi.conferma('Le modifiche di «' + stato.testa.nome + '» non sono salvate e si perdono. Cambio tone?')) return;
     scriviStato('Vado a «' + ((nomiTone && nomiTone[numero]) || numero + 1) + '»…');
     ble.manda((num, max) => P.salta(num, lista, pos, max))
       .catch(e => scriviStato('Il Mini non ha preso il cambio di tone: ' + e.message, 'errore'));
@@ -4005,7 +4005,7 @@
     const gruppo = (uid >>> 24) === 0x0f ? P.LISTA_UTENTE.CLONE : P.LISTA_UTENTE.IR;
     const posto = uid & 0xffff;
     const prima = nomeModello(uid) || '';
-    const scritto = window.prompt('Nuovo nome per «' + prima + '» (al massimo 15 caratteri, senza accenti):', prima);
+    const scritto = await PulzeDialoghi.chiedi('Nuovo nome per «' + prima + '» (al massimo 15 caratteri, senza accenti):', prima);
     if (scritto == null) return;
     const nome = scritto.normalize('NFD').replace(/[^\x20-\x7e]/g, '').trim().slice(0, 15);
     if (!nome) { scriviStato('Nome vuoto: non cambio niente.', 'errore'); return; }
@@ -4866,9 +4866,9 @@
         '<path d="M0,0L60,30M60,0L0,30" stroke="#fff" stroke-width="6"/>' +
         '<path d="M0,0L60,30M60,0L0,30" clip-path="url(#bandiera-uk)" stroke="#c8102e" stroke-width="4"/>' +
         '<path d="M30,0v30M0,15h60" stroke="#fff" stroke-width="10"/><path d="M30,0v30M0,15h60" stroke="#c8102e" stroke-width="6"/></svg>';
-    $('#lingua').addEventListener('click', () => {
+    $('#lingua').addEventListener('click', async () => {
       if (ble && ble.collegato() &&
-        !confirm('La pagina si ricarica e il Mini si scollega: le modifiche non salvate si perdono. Cambio lingua?')) return;
+        !await PulzeDialoghi.conferma('La pagina si ricarica e il Mini si scollega: le modifiche non salvate si perdono. Cambio lingua?')) return;
       if (window.PulzeLingua) window.PulzeLingua.scegli(LINGUA === 'en' ? 'it' : 'en');
     });
     $('#guida-chiudi').addEventListener('click', () => $('#dialogo-guida').close());

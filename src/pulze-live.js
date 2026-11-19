@@ -325,8 +325,8 @@
       togli.type = 'button';
       togli.addEventListener('click', () => { pedaliera.switch.splice(k, 1); salvaPedaliera(); disegna(); });
       celle[5].appendChild(togli);
-      celle[0].firstChild.addEventListener('click', () => {
-        const n = prompt('Nome dello switch', s.nome);
+      celle[0].firstChild.addEventListener('click', async () => {
+        const n = await PulzeDialoghi.chiedi('Nome dello switch', s.nome);
         if (n && n.trim()) cambia('nome', n.trim().slice(0, 6));
       });
       tb.appendChild(riga);
@@ -340,7 +340,7 @@
     const impara = el('button', 'lv-impara' + (live.impara ? ' attesa' : ''), live.impara ? 'Premi uno switch del pedale…' : '＋ Impara uno switch');
     impara.type = 'button';
     impara.addEventListener('click', () => {
-      if (!midi.usb && !midi.ble) { alert('Collega prima un pedale Bluetooth o attiva i pedali USB.'); return; }
+      if (!midi.usb && !midi.ble) { PulzeDialoghi.avvisa('Collega prima un pedale Bluetooth o attiva i pedali USB.'); return; }
       live.impara = !live.impara; disegna();
     });
     blocco.appendChild(impara);
@@ -423,7 +423,7 @@
 
   async function attivaUsb() {
     if (midi.usb) return;
-    if (!navigator.requestMIDIAccess) { alert('Questo browser non ha il MIDI.'); return; }
+    if (!navigator.requestMIDIAccess) { PulzeDialoghi.avvisa('Questo browser non ha il MIDI.'); return; }
     try {
       midi.usb = await navigator.requestMIDIAccess();
       const aggancia = () => midi.usb.inputs.forEach(i => { i.onmidimessage = e => { const d = e.data; arrivoMidi(d[0], d[1], d[2]); }; });
@@ -454,7 +454,7 @@
   }
 
   async function collegaBle() {
-    if (!navigator.bluetooth) { alert('Questo browser non ha il Bluetooth.'); return; }
+    if (!navigator.bluetooth) { PulzeDialoghi.avvisa('Questo browser non ha il Bluetooth.'); return; }
     try {
       const dev = await navigator.bluetooth.requestDevice({ filters: [{ services: [BLE_MIDI_SERVIZIO] }] });
       const gatt = await dev.gatt.connect();
